@@ -216,7 +216,7 @@ public class HMSExternalTable extends ExternalTable implements MTMVRelatedTableI
     protected synchronized void makeSureInitialized() {
         super.makeSureInitialized();
         if (!objectCreated) {
-            remoteTable = ((HMSExternalCatalog) catalog).getClient().getTable(dbName, name);
+            remoteTable = ((HMSExternalCatalog) catalog).getClient().getTable(getRemoteDbName(), getRemoteName());
             if (remoteTable == null) {
                 throw new IllegalArgumentException("Hms table not exists, table: " + getNameWithFullQualifiers());
             } else {
@@ -346,9 +346,9 @@ public class HMSExternalTable extends ExternalTable implements MTMVRelatedTableI
             return ((HudiDlaTable) dlaTable).getHudiSchemaCacheValue(MvccUtil.getSnapshotFromContext(this))
                     .getSchema();
         } else if (getDlaType() == DLAType.ICEBERG) {
-            return IcebergUtils.getIcebergSchema(this, getCatalog(), getDbName(), getName());
+            return IcebergUtils.getIcebergSchema(this, getCatalog(), getRemoteDbName(), getRemoteName());
         }
-        Optional<SchemaCacheValue> schemaCacheValue = cache.getSchemaValue(dbName, name);
+        Optional<SchemaCacheValue> schemaCacheValue = cache.getSchemaValue(getRemoteDbName(), getRemoteName());
         return schemaCacheValue.map(SchemaCacheValue::getSchema).orElse(null);
     }
 
@@ -366,7 +366,7 @@ public class HMSExternalTable extends ExternalTable implements MTMVRelatedTableI
         makeSureInitialized();
         ExternalSchemaCache cache = Env.getCurrentEnv().getExtMetaCacheMgr().getSchemaCache(catalog);
         Optional<SchemaCacheValue> schemaCacheValue = cache.getSchemaValue(
-                new HudiSchemaCacheKey(dbName, name, timestamp));
+                new HudiSchemaCacheKey(getRemoteDbName(), getRemoteName(), timestamp));
         return schemaCacheValue.map(value -> ((HMSSchemaCacheValue) value).getPartitionColTypes())
                 .orElse(Collections.emptyList());
     }
@@ -420,7 +420,7 @@ public class HMSExternalTable extends ExternalTable implements MTMVRelatedTableI
                 .getMetaStoreCache((HMSExternalCatalog) this.getCatalog());
         List<Type> partitionColumnTypes = this.getPartitionColumnTypes(MvccUtil.getSnapshotFromContext(this));
         HiveMetaStoreCache.HivePartitionValues hivePartitionValues = cache.getPartitionValues(
-                this.getDbName(), this.getName(), partitionColumnTypes);
+                getRemoteDbName(), getRemoteName(), partitionColumnTypes);
         Map<Long, PartitionItem> idToPartitionItem = hivePartitionValues.getIdToPartitionItem();
         // transfer id to name
         BiMap<Long, String> idToName = hivePartitionValues.getPartitionNameToIdMap().inverse();
@@ -476,7 +476,7 @@ public class HMSExternalTable extends ExternalTable implements MTMVRelatedTableI
                     rowCount = StatisticsUtil.getHiveRowCount(this);
                     break;
                 case ICEBERG:
-                    rowCount = IcebergUtils.getIcebergRowCount(getCatalog(), getDbName(), getName());
+                    rowCount = IcebergUtils.getIcebergRowCount(getCatalog(), getRemoteDbName(), getRemoteName());
                     break;
                 default:
                     if (LOG.isDebugEnabled()) {
@@ -484,7 +484,8 @@ public class HMSExternalTable extends ExternalTable implements MTMVRelatedTableI
                     }
             }
         } catch (Exception e) {
-            LOG.info("Failed to get row count for table {}.{}.{}", getCatalog().getName(), getDbName(), getName(), e);
+            LOG.info("Failed to get row count for table {}.{}.{}", getCatalog().getName(), getRemoteDbName(),
+                    getRemoteName(), e);
         }
         return rowCount > 0 ? rowCount : UNKNOWN_ROW_COUNT;
     }
@@ -514,9 +515,9 @@ public class HMSExternalTable extends ExternalTable implements MTMVRelatedTableI
     @Override
     public TTableDescriptor toThrift() {
         List<Column> schema = getFullSchema();
-        THiveTable tHiveTable = new THiveTable(dbName, name, new HashMap<>());
+        THiveTable tHiveTable = new THiveTable(getDbName(), getName(), new HashMap<>());
         TTableDescriptor tTableDescriptor = new TTableDescriptor(getId(), TTableType.HIVE_TABLE, schema.size(), 0,
-                getName(), dbName);
+                getName(), getDbName());
         tTableDescriptor.setHiveTable(tHiveTable);
         return tTableDescriptor;
     }
@@ -607,32 +608,32 @@ public class HMSExternalTable extends ExternalTable implements MTMVRelatedTableI
 
     public List<ColumnStatisticsObj> getHiveTableColumnStats(List<String> columns) {
         HMSCachedClient client = ((HMSExternalCatalog) catalog).getClient();
-        return client.getTableColumnStatistics(dbName, name, columns);
+        return client.getTableColumnStatistics(getRemoteDbName(), getRemoteName(), columns);
     }
 
     public Map<String, List<ColumnStatisticsObj>> getHivePartitionColumnStats(
             List<String> partNames, List<String> columns) {
         HMSCachedClient client = ((HMSExternalCatalog) catalog).getClient();
-        return client.getPartitionColumnStatistics(dbName, name, partNames, columns);
+        return client.getPartitionColumnStatistics(getRemoteDbName(), getRemoteName(), partNames, columns);
     }
 
     public Partition getPartition(List<String> partitionValues) {
         HMSCachedClient client = ((HMSExternalCatalog) catalog).getClient();
-        return client.getPartition(dbName, name, partitionValues);
+        return client.getPartition(getRemoteDbName(), getRemoteName(), partitionValues);
     }
 
     @Override
     public Set<String> getPartitionNames() {
         makeSureInitialized();
         HMSCachedClient client = ((HMSExternalCatalog) catalog).getClient();
-        List<String> names = client.listPartitionNames(dbName, name);
+        List<String> names = client.listPartitionNames(getRemoteDbName(), getRemoteName());
         return new HashSet<>(names);
     }
 
     @Override
     public Optional<SchemaCacheValue> initSchemaAndUpdateTime(SchemaCacheKey key) {
         org.apache.hadoop.hive.metastore.api.Table table = ((HMSExternalCatalog) catalog).getClient()
-                .getTable(dbName, name);
+                .getTable(getRemoteDbName(), getRemoteName());
         // try to use transient_lastDdlTime from hms client
         schemaUpdateTime = MapUtils.isNotEmpty(table.getParameters())
                 && table.getParameters().containsKey(TBL_PROP_TRANSIENT_LAST_DDL_TIME)
@@ -665,7 +666,7 @@ public class HMSExternalTable extends ExternalTable implements MTMVRelatedTableI
 
     private Optional<SchemaCacheValue> getIcebergSchema(SchemaCacheKey key) {
         return IcebergUtils.loadSchemaCacheValue(
-            catalog, dbName, name, ((IcebergSchemaCacheKey) key).getSchemaId(), isView());
+            getCatalog(), getRemoteDbName(), getRemoteName(), ((IcebergSchemaCacheKey) key).getSchemaId(), isView());
     }
 
     private Optional<SchemaCacheValue> getHudiSchema(SchemaCacheKey key) {
@@ -673,7 +674,7 @@ public class HMSExternalTable extends ExternalTable implements MTMVRelatedTableI
         HudiSchemaCacheKey hudiSchemaCacheKey = (HudiSchemaCacheKey) key;
         InternalSchema hudiInternalSchema = HiveMetaStoreClientHelper.getHudiTableSchema(this, enableSchemaEvolution,
                 Long.toString(hudiSchemaCacheKey.getTimestamp()));
-        org.apache.avro.Schema hudiSchema = AvroInternalSchemaConverter.convert(hudiInternalSchema, name);
+        org.apache.avro.Schema hudiSchema = AvroInternalSchemaConverter.convert(hudiInternalSchema, getName());
         List<Column> tmpSchema = Lists.newArrayListWithCapacity(hudiSchema.getFields().size());
         List<String> colTypes = Lists.newArrayList();
         for (int i = 0; i < hudiSchema.getFields().size(); i++) {
@@ -702,8 +703,8 @@ public class HMSExternalTable extends ExternalTable implements MTMVRelatedTableI
             schema = getSchemaFromRemoteTable();
         } else {
             HMSCachedClient client = ((HMSExternalCatalog) catalog).getClient();
-            schema = client.getSchema(dbName, name);
-            colDefaultValues = client.getDefaultColumnValues(dbName, name);
+            schema = client.getSchema(getRemoteDbName(), getRemoteName());
+            colDefaultValues = client.getDefaultColumnValues(getRemoteDbName(), getRemoteName());
         }
         List<Column> columns = Lists.newArrayListWithCapacity(schema.size());
         for (FieldSchema field : schema) {
@@ -720,7 +721,7 @@ public class HMSExternalTable extends ExternalTable implements MTMVRelatedTableI
     private List<FieldSchema> getSchemaFromRemoteTable() {
         // Here we should get a new remote table instead of using this.remoteTable
         // Because we need to get the latest schema from HMS.
-        Table newTable = ((HMSExternalCatalog) catalog).getClient().getTable(dbName, name);
+        Table newTable = ((HMSExternalCatalog) catalog).getClient().getTable(getRemoteDbName(), getRemoteName());
         List<FieldSchema> schema = Lists.newArrayList();
         schema.addAll(newTable.getSd().getCols());
         schema.addAll(newTable.getPartitionKeys());
@@ -761,7 +762,7 @@ public class HMSExternalTable extends ExternalTable implements MTMVRelatedTableI
             }
         }
         if (LOG.isDebugEnabled()) {
-            LOG.debug("get {} partition columns for table: {}", partitionColumns.size(), name);
+            LOG.debug("get {} partition columns for table: {}", partitionColumns.size(), getName());
         }
         return partitionColumns;
     }
@@ -796,7 +797,7 @@ public class HMSExternalTable extends ExternalTable implements MTMVRelatedTableI
                 if (GlobalVariable.enableFetchIcebergStats) {
                     return StatisticsUtil.getIcebergColumnStats(colName,
                             Env.getCurrentEnv().getExtMetaCacheMgr().getIcebergMetadataCache().getIcebergTable(
-                                    catalog, dbName, name
+                                    getCatalog(), getRemoteDbName(), getRemoteName()
                             ));
                 } else {
                     break;
@@ -985,9 +986,9 @@ public class HMSExternalTable extends ExternalTable implements MTMVRelatedTableI
     public long getNewestUpdateVersionOrTime() {
         HiveMetaStoreCache cache = Env.getCurrentEnv().getExtMetaCacheMgr()
                 .getMetaStoreCache((HMSExternalCatalog) getCatalog());
-        HiveMetaStoreCache.HivePartitionValues hivePartitionValues = cache.getPartitionValues(getDbName(), getName(),
-                getPartitionColumnTypes(MvccUtil.getSnapshotFromContext(this)));
-        List<HivePartition> partitionList = cache.getAllPartitionsWithCache(getDbName(), getName(),
+        HiveMetaStoreCache.HivePartitionValues hivePartitionValues = cache.getPartitionValues(getRemoteDbName(),
+                getRemoteName(), getPartitionColumnTypes(MvccUtil.getSnapshotFromContext(this)));
+        List<HivePartition> partitionList = cache.getAllPartitionsWithCache(getRemoteDbName(), getRemoteName(),
                 Lists.newArrayList(hivePartitionValues.getPartitionValuesMap().values()));
         if (CollectionUtils.isEmpty(partitionList)) {
             return 0;
@@ -1071,12 +1072,12 @@ public class HMSExternalTable extends ExternalTable implements MTMVRelatedTableI
             // It is ok to get partition values from cache,
             // no need to worry that this call will invalid or refresh the cache.
             // because it has enough space to keep partition info of all tables in cache.
-            partitionValues = cache.getPartitionValues(dbName, name, partitionColumnTypes);
+            partitionValues = cache.getPartitionValues(getRemoteDbName(), getRemoteName(), partitionColumnTypes);
             if (partitionValues == null || partitionValues.getPartitionNameToIdMap() == null) {
-                LOG.warn("Partition values for hive table {} is null", name);
+                LOG.warn("Partition values for hive table {} is null", getRemoteName());
             } else {
                 LOG.info("Partition values size for hive table {} is {}",
-                        name, partitionValues.getPartitionNameToIdMap().size());
+                        getRemoteName(), partitionValues.getPartitionNameToIdMap().size());
             }
         }
         return partitionValues;
@@ -1112,10 +1113,11 @@ public class HMSExternalTable extends ExternalTable implements MTMVRelatedTableI
             }
             // get partitions without cache, so that it will not invalid the cache when executing
             // non query request such as `show table status`
-            hivePartitions = cache.getAllPartitionsWithoutCache(dbName, name, partitionValuesList);
-            LOG.info("Partition list size for hive partition table {} is {}", name, hivePartitions.size());
+            hivePartitions = cache.getAllPartitionsWithoutCache(getRemoteDbName(), getRemoteName(),
+                partitionValuesList);
+            LOG.info("Partition list size for hive partition table {} is {}", getRemoteName(), hivePartitions.size());
         } else {
-            hivePartitions.add(new HivePartition(dbName, name, true,
+            hivePartitions.add(new HivePartition(getDbName(), getName(), true,
                     getRemoteTable().getSd().getInputFormat(),
                     getRemoteTable().getSd().getLocation(), null, Maps.newHashMap()));
         }
@@ -1123,7 +1125,7 @@ public class HMSExternalTable extends ExternalTable implements MTMVRelatedTableI
         String bindBrokerName = catalog.bindBrokerName();
         if (LOG.isDebugEnabled()) {
             for (HivePartition partition : hivePartitions) {
-                LOG.debug("Chosen partition for table {}. [{}]", name, partition.toString());
+                LOG.debug("Chosen partition for table {}. [{}]", partition.getTblName(), partition.toString());
             }
         }
         return cache.getFilesByPartitionsWithoutCache(hivePartitions, bindBrokerName,
@@ -1147,7 +1149,7 @@ public class HMSExternalTable extends ExternalTable implements MTMVRelatedTableI
         } else if (getDlaType() == DLAType.ICEBERG) {
             return new IcebergMvccSnapshot(
                 IcebergUtils.getIcebergSnapshotCacheValue(
-                    tableSnapshot, getCatalog(), getDbName(), getName(), scanParams));
+                    tableSnapshot, getCatalog(), getRemoteDbName(), getRemoteName(), scanParams));
         } else {
             return new EmptyMvccSnapshot();
         }
@@ -1166,8 +1168,8 @@ public class HMSExternalTable extends ExternalTable implements MTMVRelatedTableI
             .getExtMetaCacheMgr()
             .getMetaClientProcessor(getCatalog())
             .getHoodieTableMetaClient(
-                getDbName(),
-                getName(),
+                getRemoteDbName(),
+                getRemoteName(),
                 getRemoteTable().getSd().getLocation(),
                 getCatalog().getConfiguration());
     }
