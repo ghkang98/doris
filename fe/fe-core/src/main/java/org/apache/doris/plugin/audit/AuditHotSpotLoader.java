@@ -172,9 +172,12 @@ public class AuditHotSpotLoader extends Plugin implements AuditPlugin {
             hotSpotBuffer.append(event.fileNumber).append("\t");
             hotSpotBuffer.append(event.scanRows).append("\t");
             hotSpotBuffer.append(event.scanBytes).append("\t");
-            hotSpotBuffer.append(event.loadFinishTime - event.loadStartTime).append("\n");
+            hotSpotBuffer.append(event.loadFinishTime - event.loadStartTime).append("\t");
+
+            hotSpotBuffer.append(1).append("\n");
+
             if (LOG.isDebugEnabled()) {
-                LOG.warn("Load happen, hotSpot: {}", hotSpotBuffer);
+                LOG.debug("Load happen, hotSpot: {}", hotSpotBuffer);
             }
         }
     }
@@ -194,9 +197,12 @@ public class AuditHotSpotLoader extends Plugin implements AuditPlugin {
 
         long finishTimestamp = TimeUtils.timeStringWithMsToLong(event.finishTime);
         long startTimestamp = TimeUtils.timeStringWithMsToLong(event.startTime);
-        hotSpotBuffer.append(finishTimestamp - startTimestamp).append("\n");
+        hotSpotBuffer.append(finishTimestamp - startTimestamp).append("\t");
+
+        hotSpotBuffer.append(1).append("\n");
+
         if (LOG.isDebugEnabled()) {
-            LOG.warn("streamLoad happen, hotSpot: {}", hotSpotBuffer);
+            LOG.debug("streamLoad happen, hotSpot: {}", hotSpotBuffer);
         }
     }
 
@@ -214,14 +220,25 @@ public class AuditHotSpotLoader extends Plugin implements AuditPlugin {
                 hotSpotBuffer.append(1).append("\t");
                 hotSpotBuffer.append(0).append("\t");
             } else {
+                //insert or other no select stmt can not get load bytes, so do not count
                 hotSpotBuffer.append(0).append("\t");
-                hotSpotBuffer.append(1).append("\t");
+                hotSpotBuffer.append(0).append("\t");
             }
             hotSpotBuffer.append(TimeUtils.longToTimeStringWithms(event.timestamp)).append("\t");
             hotSpotBuffer.append(0).append("\t");
             hotSpotBuffer.append(0).append("\t");
             hotSpotBuffer.append(0).append("\t");
-            hotSpotBuffer.append(0).append("\n");
+            hotSpotBuffer.append(0).append("\t");
+
+            if (event.isQuery) {
+                hotSpotBuffer.append(0).append("\n");
+            } else {
+                hotSpotBuffer.append(1).append("\n");
+
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("insert happen, hotSpot: {}", hotSpotBuffer);
+                }
+            }
         }
     }
 

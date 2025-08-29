@@ -129,6 +129,9 @@ public class InternalSchema {
         HOT_SPOT_SCHEMA.add(new ColumnDef("write_time", TypeDef.create(PrimitiveType.BIGINT),
                 false, AggregateType.SUM, false,
                 new ColumnDef.DefaultValue(true, "0"), "write time"));
+        HOT_SPOT_SCHEMA.add(new ColumnDef("tbl_version_inc", TypeDef.create(PrimitiveType.BIGINT),
+                false, AggregateType.SUM, false,
+                new ColumnDef.DefaultValue(true, "0"), "table version increment"));
     }
 
     // Get copied schema for statistic table

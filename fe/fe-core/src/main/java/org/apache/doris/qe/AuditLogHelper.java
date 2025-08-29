@@ -17,13 +17,19 @@
 
 package org.apache.doris.qe;
 
+import org.apache.doris.analysis.CreateTableAsSelectStmt;
+import org.apache.doris.analysis.DeleteStmt;
+import org.apache.doris.analysis.InsertOverwriteTableStmt;
+import org.apache.doris.analysis.InsertStmt;
 import org.apache.doris.analysis.NativeInsertStmt;
 import org.apache.doris.analysis.Queriable;
 import org.apache.doris.analysis.QueryStmt;
 import org.apache.doris.analysis.SelectStmt;
 import org.apache.doris.analysis.StatementBase;
+import org.apache.doris.analysis.UpdateStmt;
 import org.apache.doris.analysis.ValueList;
 import org.apache.doris.catalog.Env;
+import org.apache.doris.catalog.Table;
 import org.apache.doris.catalog.TableIf;
 import org.apache.doris.cluster.ClusterNamespace;
 import org.apache.doris.common.Config;
@@ -36,16 +42,24 @@ import org.apache.doris.nereids.analyzer.UnboundOneRowRelation;
 import org.apache.doris.nereids.analyzer.UnboundTableSink;
 import org.apache.doris.nereids.glue.LogicalPlanAdapter;
 import org.apache.doris.nereids.trees.plans.Plan;
+import org.apache.doris.nereids.trees.plans.commands.CreateTableCommand;
+import org.apache.doris.nereids.trees.plans.commands.DeleteFromCommand;
+import org.apache.doris.nereids.trees.plans.commands.UpdateCommand;
+import org.apache.doris.nereids.trees.plans.commands.insert.BatchInsertIntoTableCommand;
 import org.apache.doris.nereids.trees.plans.commands.insert.InsertIntoTableCommand;
+import org.apache.doris.nereids.trees.plans.commands.insert.InsertOverwriteTableCommand;
+import org.apache.doris.nereids.trees.plans.commands.insert.InsertUtils;
 import org.apache.doris.nereids.trees.plans.logical.LogicalInlineTable;
 import org.apache.doris.nereids.trees.plans.logical.LogicalPlan;
 import org.apache.doris.nereids.trees.plans.logical.LogicalUnion;
+import org.apache.doris.nereids.util.RelationUtil;
 import org.apache.doris.plugin.AuditEvent;
 import org.apache.doris.plugin.AuditEvent.AuditEventBuilder;
 import org.apache.doris.plugin.AuditEvent.EventType;
 import org.apache.doris.qe.QueryState.MysqlStateType;
 import org.apache.doris.service.FrontendOptions;
 
+import com.google.common.collect.ImmutableList;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -256,6 +270,8 @@ public class AuditLogHelper {
             }
         } else {
             auditEventBuilder.setIsQuery(false);
+            List<String> tableFullQualifiers = extractUnQueryTables(ctx, parsedStmt);
+            auditEventBuilder.setTableFullQualifiers(tableFullQualifiers);
         }
         auditEventBuilder.setIsNereids(ctx.getState().isNereids);
 
@@ -285,6 +301,67 @@ public class AuditLogHelper {
         if (LOG.isDebugEnabled()) {
             LOG.debug("submit audit event: {}", event.queryId);
         }
+    }
+
+    /**
+     * extract tables where stmt is not query, such as insert, update, delete, create table as
+     * */
+    private static List<String> extractUnQueryTables(ConnectContext ctx, StatementBase parsedStmt) {
+        List<String> ret = new ArrayList<>();
+        try {
+            //nereids
+            if (parsedStmt instanceof LogicalPlanAdapter) {
+                LogicalPlan logicalPlan = ((LogicalPlanAdapter) parsedStmt).getLogicalPlan();
+                Plan logicalQuery = null;
+                if (logicalPlan instanceof BatchInsertIntoTableCommand) {
+                    logicalQuery = ((BatchInsertIntoTableCommand) logicalPlan).getExplainPlan(ctx);
+                } else if (logicalPlan instanceof InsertIntoTableCommand) {
+                    logicalQuery = ((InsertIntoTableCommand) logicalPlan).getExplainPlan(ctx);
+                } else if (logicalPlan instanceof InsertOverwriteTableCommand) {
+                    logicalQuery = ((InsertOverwriteTableCommand) logicalPlan).getExplainPlan(ctx);
+                } else if (logicalPlan instanceof CreateTableCommand) {
+                    CreateTableCommand tmp = (CreateTableCommand) logicalPlan;
+                    if (tmp.isCtasCommand()) {  //create table as select, so regard it as insert
+                        List<String> tableNameParts = tmp.getCreateTableInfo().getTableNameParts();
+                        TableIf targetTableIf = RelationUtil.getTable(tableNameParts, ctx.getEnv());
+                        ret.add(targetTableIf.getNameWithFullQualifiers());
+                    }
+                } else if (logicalPlan instanceof DeleteFromCommand) {
+                    logicalQuery = ((DeleteFromCommand) logicalPlan).getExplainPlan(ctx);
+                } else if (logicalPlan instanceof UpdateCommand) {
+                    logicalQuery = ((UpdateCommand) logicalPlan).getExplainPlan(ctx);
+                }
+                if (null != logicalQuery) {
+                    TableIf targetTableIf = InsertUtils.getTargetTable(logicalQuery, ctx);
+                    ret.add(targetTableIf.getNameWithFullQualifiers());
+                }
+            } else {  //Legacy
+                InsertStmt insertStmt = null;
+                if (parsedStmt instanceof InsertStmt) {
+                    insertStmt = ((InsertStmt) parsedStmt);
+                } else if (parsedStmt instanceof InsertOverwriteTableStmt) {
+                    InsertOverwriteTableStmt tmp = (InsertOverwriteTableStmt) parsedStmt;
+                    TableIf targetTableIf = RelationUtil.getTable(
+                            ImmutableList.of(tmp.getCtl(), tmp.getDb(), tmp.getTbl()), ctx.getEnv());
+                    ret.add(targetTableIf.getNameWithFullQualifiers());
+                } else if (parsedStmt instanceof CreateTableAsSelectStmt) {
+                    insertStmt = ((CreateTableAsSelectStmt) parsedStmt).getInsertStmt();
+                } else if (parsedStmt instanceof DeleteStmt) {
+                    insertStmt = ((DeleteStmt) parsedStmt).getInsertStmt();
+                } else if (parsedStmt instanceof UpdateStmt) {
+                    insertStmt = ((UpdateStmt) parsedStmt).getInsertStmt();
+                }
+                if (null != insertStmt) {
+                    List<Table> tables = insertStmt.getTargetTableList();
+                    for (Table table : tables) {
+                        ret.add(table.getNameWithFullQualifiers());
+                    }
+                }
+            }
+        } catch (Exception e) {
+            LOG.error("Failed to extract insert targetTables.", e);
+        }
+        return ret;
     }
 }
 
