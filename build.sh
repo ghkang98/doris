@@ -305,6 +305,34 @@ update_submodule() {
     fi
 }
 
+update_submodule_local() {
+    local submodule_path=$1
+    local submodule_name=$2
+    local archive_file_path=$3
+    set +e
+    cd "${DORIS_HOME}"
+    echo "Update ${submodule_name} submodule ..."
+    git submodule update --init --recursive "${submodule_path}"
+    exit_code=$?
+    if [[ "${exit_code}" -eq 0 ]]; then
+        cd "${submodule_path}"
+        submodule_commit_id=$(git rev-parse HEAD)
+        cd -
+        expect_submodule_commit_id=$(git ls-tree HEAD "${submodule_path}" | awk '{print $3}')
+        echo "Current commit ID of ${submodule_name} submodule: ${submodule_commit_id}, expected is ${expect_submodule_commit_id}"
+    fi
+    set -e
+    if [[ "${exit_code}" -ne 0 ]]; then
+        # 由于是本地文件，不需要下载，直接解压
+        echo "Update ${submodule_name} submodule failed, start to extract ${archive_file_path}"
+
+        # 确保目标目录存在
+        mkdir -p "${DORIS_HOME}/${submodule_path}"
+        # 解压本地文件到指定目录，--strip-components=1根据需要调整
+        tar -xz -C "${DORIS_HOME}/${submodule_path}" --strip-components=1 -f "${archive_file_path}"
+    fi
+}
+
 if [[ "${CLEAN}" -eq 1 && "${BUILD_BE}" -eq 0 && "${BUILD_FE}" -eq 0 && "${BUILD_SPARK_DPP}" -eq 0 ]]; then
     clean_gensrc
     clean_be
@@ -503,8 +531,10 @@ FE_MODULES="$(
 
 # Clean and build Backend
 if [[ "${BUILD_BE}" -eq 1 ]]; then
-    update_submodule "be/src/apache-orc" "apache-orc" "https://github.com/apache/doris-thirdparty/archive/refs/heads/orc-for-doris-21.tar.gz"
-    update_submodule "be/src/clucene" "clucene" "https://github.com/apache/doris-thirdparty/archive/refs/heads/clucene-2.1.tar.gz"
+#    update_submodule "be/src/apache-orc" "apache-orc" "https://github.com/apache/doris-thirdparty/archive/refs/heads/orc-for-doris-21.tar.gz"
+#    update_submodule "be/src/clucene" "clucene" "https://github.com/apache/doris-thirdparty/archive/refs/heads/clucene-2.1.tar.gz"
+    update_submodule_local "be/src/apache-orc" "apache-orc" "orc.tar.gz"
+    update_submodule_local "be/src/clucene" "clucene" "clucene.tar.gz"
     if [[ -e "${DORIS_HOME}/gensrc/build/gen_cpp/version.h" ]]; then
         rm -f "${DORIS_HOME}/gensrc/build/gen_cpp/version.h"
     fi
