@@ -590,6 +590,7 @@ public class SingleNodePlanner {
                     } else {
                         List<TupleId> tupleIds = Lists.newArrayList();
                         List<SlotId> slotIds = Lists.newArrayList();
+                        String aggExprStr = aggExpr.debugString();
                         aggExpr.getIds(tupleIds, slotIds);
                         for (TupleId tupleId : tupleIds) {
                             // if tupleid is agg's result tuple, there is no tableref
@@ -603,13 +604,13 @@ public class SingleNodePlanner {
                                 if (analyzer.getTupleDesc(tupleId).getTable() != null
                                         && analyzer.getTupleDesc(tupleId).getTable().getType()
                                         == Table.TableType.OLAP) {
-                                    turnOffReason = "agg expr [" + aggExpr.debugString() + "] is not bound ["
+                                    turnOffReason = "agg expr [" + aggExprStr + "] is not bound ["
                                             + selectStmt.getTableRefs().get(0).toSql() + "]";
                                     aggTableValidate = false;
                                 } else {
                                     if (LOG.isDebugEnabled()) {
                                         LOG.debug("The table which agg expr [{}] is bound to, is not OLAP table [{}]",
-                                                aggExpr.debugString(),
+                                                aggExprStr,
                                                 analyzer.getTupleDesc(tupleId).getTable() == null ? "inline view" :
                                                         analyzer.getTupleDesc(tupleId).getTable().getName());
                                     }
