@@ -134,6 +134,19 @@ public class GrantStmt extends DdlStmt {
         return colPrivileges;
     }
 
+    /**
+     * analyze its attr
+     * */
+    public void analyzeAttr(Analyzer analyzer) throws UserException {
+        if (userIdent != null) {
+            userIdent.analyze();
+        } else {
+            if (CollectionUtils.isEmpty(privileges) && CollectionUtils.isEmpty(roles) && MapUtils.isEmpty(colPrivileges)) {
+                throw new AnalysisException("No privileges or roles in grant statement.");
+            }
+        }
+    }
+
     @Override
     public void analyze(Analyzer analyzer) throws UserException {
         super.analyze(analyzer);

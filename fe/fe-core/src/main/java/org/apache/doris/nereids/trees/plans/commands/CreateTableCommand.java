@@ -54,6 +54,7 @@ import org.apache.doris.nereids.util.TypeCoercionUtils;
 import org.apache.doris.qe.ConnectContext;
 import org.apache.doris.qe.QueryState.MysqlStateType;
 import org.apache.doris.qe.StmtExecutor;
+import org.apache.doris.qe.StmtHelper;
 
 import com.google.common.collect.ImmutableList;
 import org.apache.logging.log4j.LogManager;
@@ -98,7 +99,8 @@ public class CreateTableCommand extends Command implements ForwardWithSync {
                         ctx.queryId(), createTableInfo.getTableName());
             }
 
-            Env.getCurrentEnv().createTable(createTableStmt);
+            Env.getCurrentEnv().createTable(createTableStmt,
+                    () -> StmtHelper.wrapAndGrantAuto(ctx, createTableStmt));
             return;
         }
         LogicalPlan query = ctasQuery.get();
@@ -171,7 +173,8 @@ public class CreateTableCommand extends Command implements ForwardWithSync {
                     ctx.queryId(), createTableInfo.getTableName());
         }
         try {
-            if (Env.getCurrentEnv().createTable(createTableStmt)) {
+            if (Env.getCurrentEnv().createTable(createTableStmt,
+                    () -> StmtHelper.wrapAndGrantAuto(ctx, createTableStmt))) {
                 return;
             }
         } catch (Exception e) {

@@ -3187,12 +3187,31 @@ public class Env {
         return catalogIf.createTable(stmt);
     }
 
+    /**
+     * create table and then do something
+     * */
+    public boolean createTable(CreateTableStmt stmt, Runnable andThen) throws UserException {
+        boolean ret = createTable(stmt);
+        andThen.run();
+        return ret;
+    }
+
     public void createTableLike(CreateTableLikeStmt stmt) throws DdlException {
         getInternalCatalog().createTableLike(stmt);
     }
 
+    public void createTableLike(CreateTableLikeStmt stmt, Runnable andThen) throws DdlException {
+        createTableLike(stmt);
+        andThen.run();
+    }
+
     public void createTableAsSelect(CreateTableAsSelectStmt stmt) throws DdlException {
         getInternalCatalog().createTableAsSelect(stmt);
+    }
+
+    public void createTableAsSelect(CreateTableAsSelectStmt stmt, Runnable andThen) throws DdlException {
+        createTableAsSelect(stmt);
+        andThen.run();
     }
 
     public void addPartition(Database db, String tableName, AddPartitionClause addPartitionClause) throws DdlException {
@@ -5484,6 +5503,11 @@ public class Env {
             }
             LOG.info("successfully create view[" + tableName + "-" + newView.getId() + "]");
         }
+    }
+
+    public void createView(CreateViewStmt stmt, Runnable andThen) throws DdlException {
+        createView(stmt);
+        andThen.run();
     }
 
     public FunctionRegistry getFunctionRegistry() {

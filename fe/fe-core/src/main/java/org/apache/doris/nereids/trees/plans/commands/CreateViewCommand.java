@@ -24,9 +24,14 @@ import org.apache.doris.nereids.trees.plans.commands.info.CreateViewInfo;
 import org.apache.doris.nereids.trees.plans.visitor.PlanVisitor;
 import org.apache.doris.qe.ConnectContext;
 import org.apache.doris.qe.StmtExecutor;
+import org.apache.doris.qe.StmtHelper;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /** CreateViewCommand */
 public class CreateViewCommand extends Command implements ForwardWithSync {
+    public static final Logger LOG = LogManager.getLogger(CreateViewCommand.class);
     private final CreateViewInfo createViewInfo;
 
     public CreateViewCommand(CreateViewInfo createViewInfo) {
@@ -40,7 +45,8 @@ public class CreateViewCommand extends Command implements ForwardWithSync {
         createViewInfo.init(ctx);
         createViewInfo.validate(ctx);
         CreateViewStmt createViewStmt = createViewInfo.translateToLegacyStmt(ctx);
-        Env.getCurrentEnv().createView(createViewStmt);
+        Env.getCurrentEnv().createView(createViewStmt,
+            () -> StmtHelper.wrapAndGrantAuto(ctx, createViewStmt));
     }
 
     @Override

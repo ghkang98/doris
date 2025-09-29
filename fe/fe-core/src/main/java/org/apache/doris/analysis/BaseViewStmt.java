@@ -63,6 +63,10 @@ public class BaseViewStmt extends DdlStmt {
         finalCols = Lists.newArrayList();
     }
 
+    public String getCatalogName() {
+        return tableName.getCtl();
+    }
+
     public String getDbName() {
         return tableName.getDb();
     }

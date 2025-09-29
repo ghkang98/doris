@@ -33,14 +33,18 @@ import org.apache.doris.nereids.trees.plans.commands.info.CreateTableLikeInfo;
 import org.apache.doris.nereids.trees.plans.visitor.PlanVisitor;
 import org.apache.doris.qe.ConnectContext;
 import org.apache.doris.qe.StmtExecutor;
+import org.apache.doris.qe.StmtHelper;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.List;
 
 /** CreateTableLikeCommand */
 public class CreateTableLikeCommand extends Command implements ForwardWithSync {
+    public static final Logger LOG = LogManager.getLogger(CreateTableLikeCommand.class);
     private final CreateTableLikeInfo info;
 
     public CreateTableLikeCommand(CreateTableLikeInfo info) {

@@ -2959,4 +2959,8 @@ public class Config extends ConfigBase {
     @ConfField(description = {"审计日志处理队列大小"})
     public static int audit_event_process_queue_size = 50000;
 
+    @ConfField(mutable = true, description = {"是否开启建表后赋权",
+        "Whether to enable grant after creating table"})
+    public static boolean enable_grant_after_creating_table = false;
+
 }

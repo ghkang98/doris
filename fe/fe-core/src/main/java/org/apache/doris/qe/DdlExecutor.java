@@ -140,6 +140,11 @@ import org.apache.logging.log4j.Logger;
 public class DdlExecutor {
     private static final Logger LOG = LogManager.getLogger(DdlExecutor.class);
 
+    public static void execute(ConnectContext context, DdlStmt ddlStmt, Runnable andThen) throws Exception {
+        execute(context.getEnv(), ddlStmt);
+        andThen.run();
+    }
+
     /**
      * Execute ddl.
      **/
@@ -306,7 +311,7 @@ public class DdlExecutor {
             env.getWorkloadGroupMgr().createWorkloadGroup((CreateWorkloadGroupStmt) ddlStmt);
         } else if (ddlStmt instanceof DropWorkloadGroupStmt) {
             env.getWorkloadGroupMgr().dropWorkloadGroup((DropWorkloadGroupStmt) ddlStmt);
-        }  else if (ddlStmt instanceof CreateWorkloadSchedPolicyStmt) {
+        } else if (ddlStmt instanceof CreateWorkloadSchedPolicyStmt) {
             env.getWorkloadSchedPolicyMgr().createWorkloadSchedPolicy((CreateWorkloadSchedPolicyStmt) ddlStmt);
         } else if (ddlStmt instanceof AlterWorkloadSchedPolicyStmt) {
             env.getWorkloadSchedPolicyMgr().alterWorkloadSchedPolicy((AlterWorkloadSchedPolicyStmt) ddlStmt);
