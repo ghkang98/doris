@@ -30,9 +30,9 @@ import java.util.concurrent.TimeUnit;
 
 @Log4j2
 public class TaskProcessor {
-    private ExecutorService executor;
+    protected ExecutorService executor;
 
-    public  TaskProcessor(int numberOfThreads, int queueSize, ThreadFactory threadFactory) {
+    public TaskProcessor(int numberOfThreads, int queueSize, ThreadFactory threadFactory) {
         this.executor = new ThreadPoolExecutor(
                 numberOfThreads,
                 numberOfThreads,
