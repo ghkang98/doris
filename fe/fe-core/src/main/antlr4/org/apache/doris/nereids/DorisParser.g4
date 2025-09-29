@@ -185,6 +185,7 @@ supportedShowStatement
     : SHOW VIEW
         (FROM |IN) tableName=multipartIdentifier
         ((FROM | IN) database=identifier)?                                          #showView
+        | SHOW WORKLOAD POLICIES (LIKE STRING_LITERAL)?                                 #showWorkloadPolicies
     ;
 
 unsupportedOtherStatement

@@ -23,6 +23,7 @@ import org.apache.doris.analysis.DropWorkloadSchedPolicyStmt;
 import org.apache.doris.analysis.UserIdentity;
 import org.apache.doris.catalog.Env;
 import org.apache.doris.common.Config;
+import org.apache.doris.common.PatternMatcher;
 import org.apache.doris.common.UserException;
 import org.apache.doris.common.io.Text;
 import org.apache.doris.common.io.Writable;
@@ -57,6 +58,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
@@ -564,9 +566,17 @@ public class WorkloadSchedPolicyMgr extends MasterDaemon implements Writable, Gs
         }
     }
 
-    public List<List<String>> getShowPolicyInfo() {
+    public List<List<String>> getShowPolicyInfo(PatternMatcher matcher) {
         UserIdentity currentUserIdentity = ConnectContext.get().getCurrentUserIdentity();
-        return policyProcNode.fetchResult(currentUserIdentity).getRows();
+        List<List<String>> rows = policyProcNode.fetchResult(currentUserIdentity).getRows();
+        for (Iterator<List<String>> it = rows.iterator(); it.hasNext(); ) {
+            List<String> row = it.next();
+            if (matcher != null && !matcher.match(row.get(1))) {
+                it.remove();
+            }
+        }
+        return rows;
+
     }
 
     public List<List<String>> getWorkloadSchedPolicyTvfInfo(TUserIdentity tcurrentUserIdentity) {
