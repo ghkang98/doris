@@ -2963,4 +2963,8 @@ public class Config extends ConfigBase {
         "Whether to enable grant after creating table"})
     public static boolean enable_grant_after_creating_table = false;
 
+    @ConfField(mutable = true, masterOnly = true, description = {"是否开启批量设置系统变量的失败回退",
+        "Whether to enable rollback after session variables set failed"})
+    public static boolean enable_rollback_after_bulk_session_variables_set_failed = false;
+
 }
