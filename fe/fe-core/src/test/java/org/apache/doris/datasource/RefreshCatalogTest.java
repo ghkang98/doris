@@ -155,7 +155,7 @@ public class RefreshCatalogTest extends TestWithFeService {
         } catch (Exception e) {
             // Do nothing
         }
-        Assertions.assertTrue(((ExternalCatalog) test2).isInitialized());
+        Assertions.assertFalse(((ExternalCatalog) test2).isInitialized());
     }
 
     public static class RefreshCatalogProvider implements TestExternalCatalog.TestCatalogProvider {

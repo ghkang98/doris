@@ -18,7 +18,6 @@
 package org.apache.doris.datasource.iceberg.source;
 
 import org.apache.doris.analysis.TupleDescriptor;
-import org.apache.doris.catalog.Env;
 import org.apache.doris.catalog.TableIf;
 import org.apache.doris.common.DdlException;
 import org.apache.doris.common.MetaNotFoundException;
@@ -41,10 +40,8 @@ public class IcebergHMSSource implements IcebergSource {
         this.hmsTable = hmsTable;
         this.desc = desc;
         this.columnNameToRange = columnNameToRange;
-        this.icebergTable =
-                Env.getCurrentEnv().getExtMetaCacheMgr().getIcebergMetadataCache()
-                        .getIcebergTable(hmsTable.getCatalog(),
-                                hmsTable.getDbName(), hmsTable.getName());
+        this.icebergTable = IcebergUtils.getIcebergTable(hmsTable.getCatalog(),
+            hmsTable.getDbName(), hmsTable.getName());
     }
 
     @Override

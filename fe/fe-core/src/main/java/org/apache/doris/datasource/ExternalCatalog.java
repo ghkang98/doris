@@ -548,6 +548,7 @@ public abstract class ExternalCatalog
     }
 
     public void onRefreshCache(boolean invalidCache) {
+        this.initialized = false;
         refreshOnlyCatalogCache(invalidCache);
     }
 

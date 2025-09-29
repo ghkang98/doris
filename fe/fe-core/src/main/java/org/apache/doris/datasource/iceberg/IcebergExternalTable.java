@@ -32,6 +32,7 @@ import org.apache.iceberg.Table;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 public class IcebergExternalTable extends ExternalTable {
@@ -54,7 +55,11 @@ public class IcebergExternalTable extends ExternalTable {
 
     @Override
     public Optional<SchemaCacheValue> initSchema() {
-        return Optional.of(new SchemaCacheValue(IcebergUtils.getSchema(catalog, dbName, name)));
+        String tableName = getRemoteName();
+        if (Objects.isNull(tableName)) {
+            tableName = getName();
+        }
+        return Optional.of(new SchemaCacheValue(IcebergUtils.getSchema(catalog, dbName, tableName)));
     }
 
     @Override
@@ -84,7 +89,11 @@ public class IcebergExternalTable extends ExternalTable {
     @Override
     public long fetchRowCount() {
         makeSureInitialized();
-        long rowCount = IcebergUtils.getIcebergRowCount(getCatalog(), getDbName(), getName());
+        String tableName = getRemoteName();
+        if (Objects.isNull(tableName)) {
+            tableName = getName();
+        }
+        long rowCount = IcebergUtils.getIcebergRowCount(getCatalog(), getDbName(), tableName);
         return rowCount > 0 ? rowCount : UNKNOWN_ROW_COUNT;
     }
 

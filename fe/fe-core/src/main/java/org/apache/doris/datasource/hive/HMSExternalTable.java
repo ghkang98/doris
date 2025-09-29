@@ -91,6 +91,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -404,7 +405,7 @@ public class HMSExternalTable extends ExternalTable implements MTMVRelatedTableI
                 rowCount = StatisticsUtil.getHiveRowCount(this);
                 break;
             case ICEBERG:
-                rowCount = IcebergUtils.getIcebergRowCount(getCatalog(), getDbName(), getName());
+                rowCount = IcebergUtils.getIcebergRowCount(getCatalog(), getDbName(), getRemoteName());
                 break;
             default:
                 if (LOG.isDebugEnabled()) {
@@ -672,10 +673,9 @@ public class HMSExternalTable extends ExternalTable implements MTMVRelatedTableI
                 return getHiveColumnStats(colName);
             case ICEBERG:
                 if (GlobalVariable.enableFetchIcebergStats) {
+                    String tableName = Objects.isNull(getRemoteName()) ? getName() : getRemoteName();
                     return StatisticsUtil.getIcebergColumnStats(colName,
-                            Env.getCurrentEnv().getExtMetaCacheMgr().getIcebergMetadataCache().getIcebergTable(
-                                    catalog, dbName, name
-                            ));
+                        IcebergUtils.getIcebergTable(catalog, dbName, tableName));
                 } else {
                     break;
                 }
