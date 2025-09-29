@@ -109,6 +109,7 @@ import org.apache.doris.analysis.ShowUserPropertyStmt;
 import org.apache.doris.analysis.ShowVariablesStmt;
 import org.apache.doris.analysis.ShowViewStmt;
 import org.apache.doris.analysis.ShowWorkloadGroupsStmt;
+import org.apache.doris.analysis.ShowWorkloadPoliciesStmt;
 import org.apache.doris.analysis.TableName;
 import org.apache.doris.backup.AbstractJob;
 import org.apache.doris.backup.BackupJob;
@@ -363,6 +364,8 @@ public class ShowExecutor {
             handleShowResources();
         } else if (stmt instanceof ShowWorkloadGroupsStmt) {
             handleShowWorkloadGroups();
+        } else if (stmt instanceof ShowWorkloadPoliciesStmt) {
+            handleShowWorkloadPolicies();
         } else if (stmt instanceof ShowExportStmt) {
             handleShowExport();
         } else if (stmt instanceof ShowBackendsStmt) {
@@ -2099,6 +2102,17 @@ public class ShowExecutor {
         }
         List<List<String>> workloadGroupsInfos = Env.getCurrentEnv().getWorkloadGroupMgr().getResourcesInfo(matcher);
         resultSet = new ShowResultSet(showStmt.getMetaData(), workloadGroupsInfos);
+    }
+
+    private void handleShowWorkloadPolicies() throws AnalysisException {
+        ShowWorkloadPoliciesStmt showStmt = (ShowWorkloadPoliciesStmt) stmt;
+        PatternMatcher matcher = null;
+        if (showStmt.getPattern() != null) {
+            matcher = PatternMatcherWrapper.createMysqlPattern(showStmt.getPattern(),
+                CaseSensibility.WORKLOAD_GROUP.getCaseSensibility());
+        }
+        List<List<String>> rows = Env.getCurrentEnv().getWorkloadSchedPolicyMgr().getShowPolicyInfo(matcher);
+        resultSet = new ShowResultSet(showStmt.getMetaData(), rows);
     }
 
     private void handleShowExport() throws AnalysisException {

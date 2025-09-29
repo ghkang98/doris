@@ -530,6 +530,7 @@ terminal String
     KW_PLUGIN,
     KW_PLUGINS,
     KW_POLICY,
+    KW_POLICIES,
     KW_PRECEDING,
     KW_PERCENT,
     KW_RECYCLE,
@@ -4303,6 +4304,10 @@ show_param ::=
     | KW_WORKLOAD KW_GROUPS opt_wild_where
     {:
         RESULT = new ShowWorkloadGroupsStmt(parser.wild, parser.where);
+    :}
+    | KW_WORKLOAD KW_POLICIES opt_wild_where
+    {:
+        RESULT = new ShowWorkloadPoliciesStmt(parser.wild);
     :}
     | KW_BACKENDS
     {:
@@ -8194,6 +8199,8 @@ keyword ::=
     | KW_VARCHAR:id
     {: RESULT = id; :}
     | KW_POLICY:id
+    {: RESULT = id; :}
+    | KW_POLICIES:id
     {: RESULT = id; :}
     | KW_CURRENT_TIMESTAMP:id
     {: RESULT = id; :}

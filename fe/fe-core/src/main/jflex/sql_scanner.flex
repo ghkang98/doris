@@ -374,6 +374,7 @@ import org.apache.doris.qe.SqlModeHelper;
         keywordMap.put("plugin", new Integer(SqlParserSymbols.KW_PLUGIN));
         keywordMap.put("plugins", new Integer(SqlParserSymbols.KW_PLUGINS));
         keywordMap.put("policy", new Integer(SqlParserSymbols.KW_POLICY));
+        keywordMap.put("policies", new Integer(SqlParserSymbols.KW_POLICIES));
         keywordMap.put("preceding", new Integer(SqlParserSymbols.KW_PRECEDING));
         keywordMap.put("percent", new Integer(SqlParserSymbols.KW_PERCENT));
         keywordMap.put("privileges", new Integer(SqlParserSymbols.KW_PRIVILEGES));
