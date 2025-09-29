@@ -176,15 +176,13 @@ void ParquetBuildHelper::build_version(parquet::WriterProperties::Builder& build
     }
 }
 
-VParquetTransformer::VParquetTransformer(
-        RuntimeState* state,
-        doris::io::FileWriter* file_writer,
-        const VExprContextSPtrs& output_vexpr_ctxs,
-        std::vector<std::string> column_names,
-        bool output_object_data,
-        const VParquetOptions& parquet_options,
-        const std::string* iceberg_schema_json,
-        const iceberg::Schema* iceberg_schema)
+VParquetTransformer::VParquetTransformer(RuntimeState* state, doris::io::FileWriter* file_writer,
+                                         const VExprContextSPtrs& output_vexpr_ctxs,
+                                         std::vector<std::string> column_names,
+                                         bool output_object_data,
+                                         const VParquetOptions& parquet_options,
+                                         const std::string* iceberg_schema_json,
+                                         const iceberg::Schema* iceberg_schema)
         : VFileFormatTransformer(state, output_vexpr_ctxs, output_object_data),
           _column_names(std::move(column_names)),
           _parquet_schemas(nullptr),
@@ -194,14 +192,12 @@ VParquetTransformer::VParquetTransformer(
     _outstream = std::shared_ptr<ParquetOutputStream>(new ParquetOutputStream(file_writer));
 }
 
-VParquetTransformer::VParquetTransformer(
-        RuntimeState* state,
-        doris::io::FileWriter* file_writer,
-        const VExprContextSPtrs& output_vexpr_ctxs,
-        const std::vector<TParquetSchema>& parquet_schemas,
-        bool output_object_data,
-        const VParquetOptions& parquet_options,
-        const std::string* iceberg_schema_json)
+VParquetTransformer::VParquetTransformer(RuntimeState* state, doris::io::FileWriter* file_writer,
+                                         const VExprContextSPtrs& output_vexpr_ctxs,
+                                         const std::vector<TParquetSchema>& parquet_schemas,
+                                         bool output_object_data,
+                                         const VParquetOptions& parquet_options,
+                                         const std::string* iceberg_schema_json)
         : VFileFormatTransformer(state, output_vexpr_ctxs, output_object_data),
           _parquet_schemas(&parquet_schemas),
           _parquet_options(parquet_options),
@@ -290,6 +286,7 @@ Status VParquetTransformer::write(const Block& block) {
     _write_size += block.bytes();
     if (_write_size >= doris::config::min_row_group_size) {
         _write_size = 0;
+        LOG_WARNING("VParquetTransformer write_size {} exceeding the limit.", _write_size);
     }
     return Status::OK();
 }
