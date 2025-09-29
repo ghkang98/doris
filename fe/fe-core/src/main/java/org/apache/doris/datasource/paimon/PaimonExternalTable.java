@@ -54,6 +54,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -75,7 +76,8 @@ public class PaimonExternalTable extends ExternalTable implements MvccTable {
     protected synchronized void makeSureInitialized() {
         super.makeSureInitialized();
         if (!objectCreated) {
-            this.paimonTable = ((PaimonExternalCatalog) catalog).getPaimonTable(dbName, name);
+            this.paimonTable = ((PaimonExternalCatalog) catalog)
+                    .getPaimonTable(db.getRemoteName(), Objects.isNull(remoteName) ? name : remoteName);
             objectCreated = true;
         }
     }

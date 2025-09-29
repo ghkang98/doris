@@ -41,7 +41,7 @@ public class IcebergHMSSource implements IcebergSource {
         this.desc = desc;
         this.columnNameToRange = columnNameToRange;
         this.icebergTable = IcebergUtils.getIcebergTable(hmsTable.getCatalog(),
-            hmsTable.getDbName(), hmsTable.getName());
+            hmsTable.getRemoteDbName(), hmsTable.getRemoteName());
     }
 
     @Override

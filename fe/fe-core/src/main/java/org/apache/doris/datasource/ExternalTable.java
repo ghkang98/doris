@@ -43,6 +43,7 @@ import org.apache.doris.statistics.util.StatisticsUtil;
 import org.apache.doris.thrift.TTableDescriptor;
 
 import com.google.common.base.Objects;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.gson.annotations.SerializedName;
 import org.apache.commons.collections.CollectionUtils;
@@ -162,7 +163,7 @@ public class ExternalTable implements TableIf, Writable, GsonPostProcessable {
     }
 
     public String getRemoteName() {
-        return remoteName;
+        return Strings.isNullOrEmpty(remoteName) ? name : remoteName;
     }
 
     @Override
@@ -173,7 +174,7 @@ public class ExternalTable implements TableIf, Writable, GsonPostProcessable {
     @Override
     public List<Column> getFullSchema() {
         ExternalSchemaCache cache = Env.getCurrentEnv().getExtMetaCacheMgr().getSchemaCache(catalog);
-        Optional<SchemaCacheValue> schemaCacheValue = cache.getSchemaValue(dbName, name);
+        Optional<SchemaCacheValue> schemaCacheValue = cache.getSchemaValue(getRemoteDbName(), getRemoteName());
         return schemaCacheValue.map(SchemaCacheValue::getSchema).orElse(null);
     }
 
@@ -413,7 +414,7 @@ public class ExternalTable implements TableIf, Writable, GsonPostProcessable {
 
     protected Optional<SchemaCacheValue> getSchemaCacheValue() {
         ExternalSchemaCache cache = Env.getCurrentEnv().getExtMetaCacheMgr().getSchemaCache(catalog);
-        return cache.getSchemaValue(dbName, name);
+        return cache.getSchemaValue(getRemoteDbName(), getRemoteName());
     }
 
     /**

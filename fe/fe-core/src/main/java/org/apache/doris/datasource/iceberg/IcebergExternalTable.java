@@ -61,15 +61,15 @@ public class IcebergExternalTable extends ExternalTable {
     public TTableDescriptor toThrift() {
         List<Column> schema = getFullSchema();
         if (getIcebergCatalogType().equals("hms")) {
-            THiveTable tHiveTable = new THiveTable(dbName, name, new HashMap<>());
+            THiveTable tHiveTable = new THiveTable(getDbName(), getName(), new HashMap<>());
             TTableDescriptor tTableDescriptor = new TTableDescriptor(getId(), TTableType.HIVE_TABLE, schema.size(), 0,
-                    getName(), dbName);
+                    getName(), getDbName());
             tTableDescriptor.setHiveTable(tHiveTable);
             return tTableDescriptor;
         } else {
-            TIcebergTable icebergTable = new TIcebergTable(dbName, name, new HashMap<>());
+            TIcebergTable icebergTable = new TIcebergTable(getDbName(), getName(), new HashMap<>());
             TTableDescriptor tTableDescriptor = new TTableDescriptor(getId(), TTableType.ICEBERG_TABLE,
-                    schema.size(), 0, getName(), dbName);
+                    schema.size(), 0, getName(), getDbName());
             tTableDescriptor.setIcebergTable(icebergTable);
             return tTableDescriptor;
         }
@@ -88,7 +88,7 @@ public class IcebergExternalTable extends ExternalTable {
         if (Objects.isNull(tableName)) {
             tableName = getName();
         }
-        long rowCount = IcebergUtils.getIcebergRowCount(getCatalog(), getDbName(), tableName);
+        long rowCount = IcebergUtils.getIcebergRowCount(getCatalog(), getRemoteDbName(), getRemoteName());
         return rowCount > 0 ? rowCount : UNKNOWN_ROW_COUNT;
     }
 
