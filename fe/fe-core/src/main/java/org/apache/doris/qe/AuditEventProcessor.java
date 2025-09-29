@@ -45,7 +45,7 @@ public class AuditEventProcessor {
     private List<Plugin> auditPlugins;
     private long lastUpdateTime = 0;
 
-    private BlockingQueue<AuditEvent> eventQueue = Queues.newLinkedBlockingDeque();
+    private BlockingQueue<AuditEvent> eventQueue = Queues.newLinkedBlockingDeque(Config.audit_event_process_queue_size);
     private Thread workerThread;
 
     private volatile boolean isStopped = false;

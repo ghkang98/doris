@@ -2952,4 +2952,11 @@ public class Config extends ConfigBase {
             "For testing purposes, all queries are forcibly forwarded to the master to verify"
                     + "the behavior of forwarding queries."})
     public static boolean force_forward_all_queries = false;
+
+    @ConfField(description = {"审计日志等待队列大小"})
+    public static int audit_event_wait_queue_size = 200000;
+
+    @ConfField(description = {"审计日志处理队列大小"})
+    public static int audit_event_process_queue_size = 50000;
+
 }

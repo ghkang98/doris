@@ -25,8 +25,8 @@ import org.apache.doris.plugin.AuditEvent;
 import org.apache.doris.thrift.TQueryStatistics;
 import org.apache.doris.thrift.TReportWorkloadRuntimeStatusParams;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Queues;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -35,6 +35,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 // NOTE: not using a lock for beToQueryStatsMap's update because it should void global lock for all be
@@ -49,7 +50,9 @@ public class WorkloadRuntimeStatusMgr extends MasterDaemon {
     private static final Logger LOG = LogManager.getLogger(WorkloadRuntimeStatusMgr.class);
     private Map<Long, BeReportInfo> beToQueryStatsMap = Maps.newConcurrentMap();
     private final ReentrantReadWriteLock queryAuditEventLock = new ReentrantReadWriteLock();
-    private List<AuditEvent> queryAuditEventList = Lists.newLinkedList();
+    private LinkedBlockingDeque<AuditEvent> queryAuditEventList =
+        Queues.newLinkedBlockingDeque(Config.audit_event_wait_queue_size);
+
 
     private class BeReportInfo {
         volatile long beLastReportTime;
@@ -120,6 +123,10 @@ public class WorkloadRuntimeStatusMgr extends MasterDaemon {
             }
             event.pushToAuditLogQueueTime = System.currentTimeMillis();
             queryAuditEventList.add(event);
+        } catch (Exception e) {
+            LOG.warn("audit log event queue size {} is full or push exception this may cause audit log missed."
+                    + " you can check whether qps is too high or reset audit_event_log_queue_size",
+                queryAuditEventList.size(), e);
         } finally {
             queryAuditEventLogWriteUnlock();
         }
