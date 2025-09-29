@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+    <property>
+        <name>ranger.plugin.doris.policy.cache.dir</name>
+        <value>/usr/local/doris-fe/cache/</value>
+    </property>
+    <property>
+        <name>ranger.plugin.doris.policy.pollIntervalMs</name>
+        <value>30000</value>
+    </property>
+    <property>
+        <name>ranger.plugin.doris.policy.rest.client.connection.timeoutMs</name>
+        <value>60000</value>
+    </property>
+    <property>
+        <name>ranger.plugin.doris.policy.rest.client.read.timeoutMs</name>
+        <value>60000</value>
+    </property>
+    <property>
+        <name>ranger.plugin.doris.policy.rest.url</name>
+        <value>http://RANGER_ADMIN_REST_ADDRESS</value>
+        <description>specify ranger admin rest address, replace this value as like localhost:6080.</description>
+    </property>
+    <property>
+        <name>ranger.plugin.doris.policy.source.impl</name>
+        <value>org.apache.ranger.admin.client.RangerAdminRESTClient</value>
+    </property>
+    <property>
+        <name>ranger.plugin.doris.service.name</name>
+        <value>doris</value>
+    </property>
+    <property>
+        <name>xasecure.doris.update.xapolicies.on.grant.revoke</name>
+        <value>true</value>
+        <description>Should Doris plugin update Ranger policies for updates to permissions done using GRANT/REVOKE?</description>
+    </property>
+    <property>
+        <name>ranger.admin.kerberos.keytab</name>
+        <value>RANGER_ADMIN_KEYTAB_PATH</value>
+        <description>specify ranger admin keytab path, replace this value as like /etc/security/keytabs/ranger.keytab.</description>
+    </property>
+    <property>
+        <name>ranger.admin.kerberos.principal</name>
+        <value>RANGER_ADMIN_PRINCIPAL</value>
+        <description>specify ranger admin principal, replace this value as like ranger/hostname@DOMAIN.</description>
+    </property>
+</configuration>
