@@ -27,7 +27,6 @@ import org.apache.doris.thrift.THiveTable;
 import org.apache.doris.thrift.TIcebergTable;
 import org.apache.doris.thrift.TTableDescriptor;
 import org.apache.doris.thrift.TTableType;
-
 import org.apache.iceberg.Table;
 
 import java.util.HashMap;
@@ -55,11 +54,7 @@ public class IcebergExternalTable extends ExternalTable {
 
     @Override
     public Optional<SchemaCacheValue> initSchema() {
-        String tableName = getRemoteName();
-        if (Objects.isNull(tableName)) {
-            tableName = getName();
-        }
-        return Optional.of(new SchemaCacheValue(IcebergUtils.getSchema(catalog, dbName, tableName)));
+        return Optional.of(new SchemaCacheValue(IcebergUtils.getSchema(catalog, getRemoteDbName(), getRemoteName())));
     }
 
     @Override
@@ -98,6 +93,6 @@ public class IcebergExternalTable extends ExternalTable {
     }
 
     public Table getIcebergTable() {
-        return IcebergUtils.getIcebergTable(getCatalog(), getDbName(), getName());
+        return IcebergUtils.getIcebergTable(getCatalog(), getRemoteDbName(), getRemoteName());
     }
 }

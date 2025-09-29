@@ -91,7 +91,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -192,7 +191,7 @@ public class HMSExternalTable extends ExternalTable implements MTMVRelatedTableI
     protected synchronized void makeSureInitialized() {
         super.makeSureInitialized();
         if (!objectCreated) {
-            remoteTable = ((HMSExternalCatalog) catalog).getClient().getTable(dbName, name);
+            remoteTable = ((HMSExternalCatalog) catalog).getClient().getTable(getRemoteDbName(), getRemoteName());
             if (remoteTable == null) {
                 throw new IllegalArgumentException("Hms table not exists, table: " + getNameWithFullQualifiers());
             } else {
@@ -350,7 +349,7 @@ public class HMSExternalTable extends ExternalTable implements MTMVRelatedTableI
                 .getMetaStoreCache((HMSExternalCatalog) this.getCatalog());
         List<Type> partitionColumnTypes = this.getPartitionColumnTypes();
         HiveMetaStoreCache.HivePartitionValues hivePartitionValues = cache.getPartitionValues(
-                this.getDbName(), this.getName(), partitionColumnTypes);
+                this.getRemoteDbName(), this.getRemoteName(), partitionColumnTypes);
         Map<Long, PartitionItem> idToPartitionItem = hivePartitionValues.getIdToPartitionItem();
         // transfer id to name
         BiMap<Long, String> idToName = hivePartitionValues.getPartitionNameToIdMap().inverse();
@@ -465,7 +464,8 @@ public class HMSExternalTable extends ExternalTable implements MTMVRelatedTableI
     public String getViewExpandedText() {
         if (LOG.isDebugEnabled()) {
             LOG.debug("View expanded text of hms table [{}.{}.{}] : {}",
-                    this.getCatalog().getName(), this.getDbName(), this.getName(), remoteTable.getViewExpandedText());
+                    this.getCatalog().getName(), this.getRemoteDbName(), this.getRemoteName(),
+                    remoteTable.getViewExpandedText());
         }
         return remoteTable.getViewExpandedText();
     }
@@ -473,7 +473,8 @@ public class HMSExternalTable extends ExternalTable implements MTMVRelatedTableI
     public String getViewOriginalText() {
         if (LOG.isDebugEnabled()) {
             LOG.debug("View original text of hms table [{}.{}.{}] : {}",
-                    this.getCatalog().getName(), this.getDbName(), this.getName(), remoteTable.getViewOriginalText());
+                    this.getCatalog().getName(), this.getRemoteDbName(), this.getRemoteName(),
+                    remoteTable.getViewOriginalText());
         }
         return remoteTable.getViewOriginalText();
     }
@@ -673,9 +674,8 @@ public class HMSExternalTable extends ExternalTable implements MTMVRelatedTableI
                 return getHiveColumnStats(colName);
             case ICEBERG:
                 if (GlobalVariable.enableFetchIcebergStats) {
-                    String tableName = Objects.isNull(getRemoteName()) ? getName() : getRemoteName();
                     return StatisticsUtil.getIcebergColumnStats(colName,
-                        IcebergUtils.getIcebergTable(catalog, dbName, tableName));
+                        IcebergUtils.getIcebergTable(getCatalog(), getRemoteDbName(), getRemoteName()));
                 } else {
                     break;
                 }
@@ -848,7 +848,7 @@ public class HMSExternalTable extends ExternalTable implements MTMVRelatedTableI
         HiveMetaStoreCache cache = Env.getCurrentEnv().getExtMetaCacheMgr()
                 .getMetaStoreCache((HMSExternalCatalog) getCatalog());
         HiveMetaStoreCache.HivePartitionValues hivePartitionValues = cache.getPartitionValues(
-                getDbName(), getName(), getPartitionColumnTypes());
+                getRemoteDbName(), getRemoteName(), getPartitionColumnTypes());
         Long partitionId = getPartitionIdByNameOrAnalysisException(partitionName, hivePartitionValues);
         HivePartition hivePartition = getHivePartitionByIdOrAnalysisException(partitionId,
                 hivePartitionValues, cache);
@@ -867,11 +867,11 @@ public class HMSExternalTable extends ExternalTable implements MTMVRelatedTableI
         HiveMetaStoreCache cache = Env.getCurrentEnv().getExtMetaCacheMgr()
                 .getMetaStoreCache((HMSExternalCatalog) getCatalog());
         HiveMetaStoreCache.HivePartitionValues hivePartitionValues = cache.getPartitionValues(
-                getDbName(), getName(), getPartitionColumnTypes());
-        List<HivePartition> partitionList = cache.getAllPartitionsWithCache(getDbName(), getName(),
+                getRemoteDbName(), getRemoteName(), getPartitionColumnTypes());
+        List<HivePartition> partitionList = cache.getAllPartitionsWithCache(getRemoteDbName(), getRemoteName(),
                 Lists.newArrayList(hivePartitionValues.getPartitionValuesMap().values()));
         if (CollectionUtils.isEmpty(partitionList)) {
-            throw new AnalysisException("partitionList is empty, table name: " + getName());
+            throw new AnalysisException("partitionList is empty, table name: " + getRemoteName());
         }
         for (HivePartition hivePartition : partitionList) {
             visibleVersionTime = hivePartition.getLastModifiedTime();
@@ -900,7 +900,7 @@ public class HMSExternalTable extends ExternalTable implements MTMVRelatedTableI
         if (CollectionUtils.isEmpty(partitionValues)) {
             throw new AnalysisException("can not find partitionValues: " + partitionId);
         }
-        HivePartition partition = cache.getHivePartition(getDbName(), getName(), partitionValues);
+        HivePartition partition = cache.getHivePartition(getRemoteDbName(), getRemoteName(), partitionValues);
         if (partition == null) {
             throw new AnalysisException("can not find partition: " + partitionId);
         }
@@ -1051,7 +1051,7 @@ public class HMSExternalTable extends ExternalTable implements MTMVRelatedTableI
             .getExtMetaCacheMgr()
             .getMetaClientProcessor(getCatalog())
             .getHoodieTableMetaClient(
-                getDbName(),
+                getRemoteDbName(),
                 getName(),
                 getRemoteTable().getSd().getLocation(),
                 getCatalog().getConfiguration());

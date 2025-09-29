@@ -152,6 +152,10 @@ public class ExternalTable implements TableIf, Writable, GsonPostProcessable {
         return id;
     }
 
+    public String getRemoteDbName() {
+        return db == null ? dbName : db.getRemoteName();
+    }
+
     @Override
     public String getName() {
         return name;

@@ -90,10 +90,10 @@ public class PaimonExternalTable extends ExternalTable implements MvccTable {
     public PaimonSchemaCacheValue getPaimonSchemaCacheValue(long schemaId) {
         ExternalSchemaCache cache = Env.getCurrentEnv().getExtMetaCacheMgr().getSchemaCache(catalog);
         Optional<SchemaCacheValue> schemaCacheValue = cache.getSchemaValue(
-                new PaimonSchemaCacheKey(dbName, name, schemaId));
+                new PaimonSchemaCacheKey(getRemoteDbName(), getRemoteName(), schemaId));
         if (!schemaCacheValue.isPresent()) {
             throw new CacheException("failed to getSchema for: %s.%s.%s.%s",
-                    null, catalog.getName(), dbName, name, schemaId);
+                null, catalog.getName(), getRemoteDbName(), getRemoteName(), schemaId);
         }
         return (PaimonSchemaCacheValue) schemaCacheValue.get();
     }
@@ -101,7 +101,7 @@ public class PaimonExternalTable extends ExternalTable implements MvccTable {
     private PaimonSnapshotCacheValue getPaimonSnapshotCacheValue() {
         makeSureInitialized();
         return Env.getCurrentEnv().getExtMetaCacheMgr().getPaimonMetadataCache()
-                .getPaimonSnapshot(catalog, dbName, name);
+                .getPaimonSnapshot(getCatalog(), getRemoteDbName(), getRemoteName());
     }
 
     @Override
