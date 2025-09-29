@@ -34,7 +34,16 @@ build_version_patch=11
 build_version_rc_version="rc01"
 
 build_version="${build_version_prefix}-${build_version_major}.${build_version_minor}.${build_version_patch}-${build_version_rc_version}"
-
+if [[ -n "${VERSION}" && "${VERSION}" =~ ^([0-9]+\.[0-9]+\.[0-9]+)-(.*)$ ]]; then
+    echo "custom version value is: ${VERSION}"
+    full_major_version="${BASH_REMATCH[1]}"
+    build_version_rc_version="${BASH_REMATCH[2]}"
+    build_version_major=$(echo "${full_major_version}" | cut -d'.' -f1)
+    build_version_minor=$(echo "${full_major_version}" | cut -d'.' -f2)
+    build_version_patch=$(echo "${full_major_version}" | cut -d'.' -f3)
+    build_version="${build_version_prefix}-${build_version_major}.${build_version_minor}.${build_version_patch}-${build_version_rc_version}"
+    echo "use final custom version with: ${build_version}"
+fi
 # This version is used to check FeMetaVersion is not changed during release
 build_fe_meta_version=129
 unset LANG
