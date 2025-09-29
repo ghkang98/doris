@@ -43,9 +43,10 @@ hdfsFS HDFSHandle::create_hdfs_fs(HDFSCommonBuilder& hdfs_builder) {
 
 Path convert_path(const Path& path, const std::string& namenode) {
     std::string fs_path;
-    if (path.native().starts_with(namenode)) {
+    int p = path.native().find(namenode);
+    if (p >= 0) {
         // `path` is URI format, remove the namenode part in `path`
-        fs_path = path.native().substr(namenode.size());
+        fs_path = path.native().substr(p+namenode.size());
     } else {
         fs_path = path;
     }
