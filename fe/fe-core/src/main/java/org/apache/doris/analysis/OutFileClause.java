@@ -148,6 +148,7 @@ public class OutFileClause {
     public static final String PROP_FILE_SUFFIX = "file_suffix";
     public static final String PROP_WITH_BOM = "with_bom";
     public static final String COMPRESS_TYPE = "compress_type";
+    public static final String ENABLE_INT96_TIMESTAMPS = "enable_int96_timestamps";
 
     private static final String PARQUET_PROP_PREFIX = "parquet.";
     private static final String SCHEMA = "schema";
@@ -187,6 +188,7 @@ public class OutFileClause {
     private boolean parquetDisableDictionary = false;
     private static final String PARQUET_VERSION = "version";
     private static TParquetVersion parquetVersion = TParquetVersion.PARQUET_1_0;
+    private boolean enableInt96Timestamps = false;
 
     public OutFileClause(String filePath, String format, Map<String, String> properties) {
         this.filePath = filePath;
@@ -608,6 +610,11 @@ public class OutFileClause {
             processedPropKeys.add(PROP_SUCCESS_FILE_NAME);
         }
 
+        if (properties.containsKey(ENABLE_INT96_TIMESTAMPS)) {
+            enableInt96Timestamps = Boolean.valueOf(properties.get(ENABLE_INT96_TIMESTAMPS)).booleanValue();
+            processedPropKeys.add(ENABLE_INT96_TIMESTAMPS);
+        }
+
         if (this.fileFormatType == TFileFormatType.FORMAT_PARQUET) {
             getParquetProperties(processedPropKeys);
         }
@@ -866,6 +873,7 @@ public class OutFileClause {
         sinkOptions.setDeleteExistingFiles(deleteExistingFiles);
         sinkOptions.setFileSuffix(fileSuffix);
         sinkOptions.setWithBom(withBom);
+        sinkOptions.setEnableInt96Timestamps(enableInt96Timestamps);
 
         if (brokerDesc != null) {
             sinkOptions.setBrokerProperties(brokerDesc.getProperties());
