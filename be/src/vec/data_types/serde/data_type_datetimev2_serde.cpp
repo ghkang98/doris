@@ -16,7 +16,7 @@
 // under the License.
 
 #include "data_type_datetimev2_serde.h"
-
+#include <cctz/time_zone.h>
 #include <arrow/builder.h>
 
 #include <chrono> // IWYU pragma: keep
@@ -100,6 +100,13 @@ void DataTypeDateTimeV2SerDe::write_column_to_arrow(const IColumn& column, const
                                                     int end, const cctz::time_zone& ctz) const {
     const auto& col_data = static_cast<const ColumnVector<UInt64>&>(column).get_data();
     auto& timestamp_builder = assert_cast<arrow::TimestampBuilder&>(*array_builder);
+    std::shared_ptr<arrow::TimestampType> timestamp_type =
+                std::static_pointer_cast<arrow::TimestampType>(array_builder->type());
+    const std::string& timezone = timestamp_type->timezone();
+    cctz::time_zone real_ctz = ctz;
+    if ((timezone == "NONE" || timezone == "")) {
+        real_ctz = cctz::utc_time_zone();
+    }
     for (size_t i = start; i < end; ++i) {
         if (null_map && (*null_map)[i]) {
             checkArrowStatus(timestamp_builder.AppendNull(), column.get_name(),
@@ -108,7 +115,7 @@ void DataTypeDateTimeV2SerDe::write_column_to_arrow(const IColumn& column, const
             int64_t timestamp = 0;
             DateV2Value<DateTimeV2ValueType> datetime_val =
                     binary_cast<UInt64, DateV2Value<DateTimeV2ValueType>>(col_data[i]);
-            datetime_val.unix_timestamp(&timestamp, ctz);
+            datetime_val.unix_timestamp(&timestamp, real_ctz);
 
             if (scale > 3) {
                 uint32_t microsecond = datetime_val.microsecond();
