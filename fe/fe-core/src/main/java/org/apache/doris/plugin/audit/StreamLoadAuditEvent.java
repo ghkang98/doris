@@ -139,6 +139,11 @@ public class StreamLoadAuditEvent extends AuditEvent {
             return this;
         }
 
+        public AuditEventBuilder setTimestamp(long timestamp) {
+            auditEvent.timestamp = timestamp;
+            return this;
+        }
+
         public AuditEvent build() {
             return this.auditEvent;
         }

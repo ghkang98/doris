@@ -287,7 +287,8 @@ public class StreamLoadRecordMgr extends MasterDaemon {
                                     .setFilteredRows(streamLoadItem.getFilteredRows())
                                     .setUnselectedRows(streamLoadItem.getUnselectedRows())
                                     .setLoadBytes(streamLoadItem.getLoadBytes()).setStartTime(startTime)
-                                    .setFinishTime(finishTime).build();
+                                    .setFinishTime(finishTime).setTimestamp(streamLoadItem.getStartTime())
+                                    .build();
                     Env.getCurrentEnv().getAuditEventProcessor().handleAuditEvent(auditEvent);
                     if (entry.getValue().getFinishTime() > lastStreamLoadTime) {
                         lastStreamLoadTime = entry.getValue().getFinishTime();

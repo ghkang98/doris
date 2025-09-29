@@ -17,6 +17,7 @@
 
 package org.apache.doris.catalog;
 
+import org.apache.doris.analysis.AddColumnClause;
 import org.apache.doris.analysis.AlterClause;
 import org.apache.doris.analysis.AlterTableStmt;
 import org.apache.doris.analysis.ColumnDef;
@@ -24,11 +25,13 @@ import org.apache.doris.analysis.CreateDbStmt;
 import org.apache.doris.analysis.CreateTableStmt;
 import org.apache.doris.analysis.DbName;
 import org.apache.doris.analysis.DistributionDesc;
+import org.apache.doris.analysis.DropColumnClause;
 import org.apache.doris.analysis.DropTableStmt;
 import org.apache.doris.analysis.HashDistributionDesc;
 import org.apache.doris.analysis.KeysDesc;
 import org.apache.doris.analysis.ModifyColumnClause;
 import org.apache.doris.analysis.ModifyPartitionClause;
+import org.apache.doris.analysis.ModifyTablePropertiesClause;
 import org.apache.doris.analysis.PartitionDesc;
 import org.apache.doris.analysis.RangePartitionDesc;
 import org.apache.doris.analysis.TableName;
@@ -41,6 +44,7 @@ import org.apache.doris.common.UserException;
 import org.apache.doris.common.util.PropertyAnalyzer;
 import org.apache.doris.datasource.InternalCatalog;
 import org.apache.doris.ha.FrontendNodeType;
+import org.apache.doris.plugin.audit.AuditHotSpotLoader;
 import org.apache.doris.plugin.audit.AuditLoader;
 import org.apache.doris.statistics.StatisticConstants;
 import org.apache.doris.statistics.util.StatisticsUtil;
@@ -48,6 +52,7 @@ import org.apache.doris.statistics.util.StatisticsUtil;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -56,7 +61,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class InternalSchemaInitializer extends Thread {
 
@@ -73,6 +79,7 @@ public class InternalSchemaInitializer extends Thread {
             return;
         }
         modifyColumnStatsTblSchema();
+        modifyHotspotTblSchema();
         while (!created()) {
             try {
                 FrontendNodeType feType = Env.getCurrentEnv().getFeType();
@@ -100,6 +107,7 @@ public class InternalSchemaInitializer extends Thread {
         modifyTblReplicaCount(database, StatisticConstants.STATISTIC_TBL_NAME);
         modifyTblReplicaCount(database, StatisticConstants.HISTOGRAM_TBL_NAME);
         modifyTblReplicaCount(database, AuditLoader.AUDIT_LOG_TABLE);
+        modifyTblReplicaCount(database, AuditHotSpotLoader.HOT_SPOT_TABLE);
     }
 
     public void modifyColumnStatsTblSchema() {
@@ -120,7 +128,7 @@ public class InternalSchemaInitializer extends Thread {
                 LOG.warn("Failed to do schema change for stats table. Try again later.", t);
             }
             try {
-                Thread.sleep(TABLE_CREATION_RETRY_INTERVAL_IN_SECONDS *  1000);
+                Thread.sleep(TABLE_CREATION_RETRY_INTERVAL_IN_SECONDS * 1000);
             } catch (InterruptedException t) {
                 // IGNORE
             }
@@ -239,6 +247,8 @@ public class InternalSchemaInitializer extends Thread {
         Env.getCurrentEnv().getInternalCatalog().createTable(buildHistogramTblStmt());
         // audit table
         Env.getCurrentEnv().getInternalCatalog().createTable(buildAuditTblStmt());
+        // hot spot table
+        Env.getCurrentEnv().getInternalCatalog().createTable(buildHotSpotTblStmt());
     }
 
     @VisibleForTesting
@@ -331,6 +341,139 @@ public class InternalSchemaInitializer extends Thread {
         return createTableStmt;
     }
 
+    private static CreateTableStmt buildHotSpotTblStmt() throws UserException {
+        TableName tableName = new TableName("",
+                FeConstants.INTERNAL_DB_NAME, AuditHotSpotLoader.HOT_SPOT_TABLE);
+
+        String engineName = "olap";
+        ArrayList<String> aggKeys = Lists.newArrayList("catalog", "db", "tbl", "time");
+        KeysDesc keysDesc = new KeysDesc(KeysType.AGG_KEYS, aggKeys);
+        // partition
+        PartitionDesc partitionDesc = new RangePartitionDesc(Lists.newArrayList("time"), Lists.newArrayList());
+        // distribution
+        int bucketNum = 2;
+        DistributionDesc distributionDesc = new HashDistributionDesc(bucketNum, aggKeys);
+        Map<String, String> properties = new HashMap<String, String>() {
+            {
+                put("dynamic_partition.time_unit", "DAY");
+                put("dynamic_partition.start", "-30");
+                put("dynamic_partition.end", "3");
+                put("dynamic_partition.prefix", "p");
+                put("dynamic_partition.buckets", String.valueOf(bucketNum));
+                put("dynamic_partition.enable", "true");
+                put("replication_num", String.valueOf(Math.max(1,
+                        Config.min_replication_num_per_tablet)));
+            }
+        };
+        List<ColumnDef> defs = InternalSchema.getCopiedSchema(AuditHotSpotLoader.HOT_SPOT_TABLE);
+        CreateTableStmt createTableStmt = new CreateTableStmt(true, false,
+                tableName, defs,
+                engineName, keysDesc, partitionDesc, distributionDesc,
+                properties, null, "Doris internal hotspot table, DO NOT MODIFY IT", null);
+        StatisticsUtil.analyze(createTableStmt);
+        return createTableStmt;
+    }
+
+    private void modifyHotspotTblSchema() {
+        int i = 0;
+        while (i < 5) {
+            try {
+                Table table = findHotspotTable();
+                if (table == null) {
+                    break;
+                }
+                table.writeLock();
+                try {
+                    doHotspotPropChange(table);
+                    doHotspotSchemaChange(table);
+                    break;
+                } finally {
+                    table.writeUnlock();
+                }
+            } catch (Throwable t) {
+                LOG.warn("Failed to do schema change for hotspot table. Try again later(cot: {}).", i, t);
+            }
+            try {
+                Thread.sleep(TABLE_CREATION_RETRY_INTERVAL_IN_SECONDS * 1000);
+            } catch (InterruptedException t) {
+                // IGNORE
+            }
+            i++;
+        }
+    }
+
+    private Table findHotspotTable() {
+        // 1. check database exist
+        Optional<Database> dbOpt = Env.getCurrentEnv().getInternalCatalog().getDb(FeConstants.INTERNAL_DB_NAME);
+        if (!dbOpt.isPresent()) {
+            return null;
+        }
+
+        // 2. check table exist
+        Database db = dbOpt.get();
+        Optional<Table> tableOp = db.getTable(AuditHotSpotLoader.HOT_SPOT_TABLE);
+        return tableOp.orElse(null);
+    }
+
+    private void doHotspotSchemaChange(Table table) throws UserException {
+        if (!AuditHotSpotLoader.HOT_SPOT_TABLE.equals(table.getName())) {
+            return;
+        }
+        List<AlterClause> clauses = Lists.newArrayList();
+
+        Map<String, ColumnDef> defs = InternalSchema.getCopiedSchema(AuditHotSpotLoader.HOT_SPOT_TABLE)
+            .stream()
+            .collect(Collectors.toMap(ColumnDef::getName, t -> t));
+
+        Set<String> tmpFullCols = Sets.newHashSet();
+        for (Column col : table.fullSchema) {
+            if (!defs.containsKey(col.getName())) {
+                LOG.warn("hotspot need to delete column: {}", col.getName());
+                DropColumnClause dropColumnClause = new DropColumnClause(
+                    col.getName(), null, Maps.newHashMap());
+                dropColumnClause.analyze(null);
+                clauses.add(dropColumnClause);
+            }
+            tmpFullCols.add(col.getName());
+        }
+        for (Map.Entry<String, ColumnDef> entry : defs.entrySet()) {
+            if (!tmpFullCols.contains(entry.getKey())) {
+                LOG.warn("hotspot need to add column: {}", entry.getKey());
+                AddColumnClause addColumnClause = new AddColumnClause(
+                    entry.getValue(), null, null, Maps.newHashMap());
+                addColumnClause.analyze(null);
+                clauses.add(addColumnClause);
+            }
+        }
+
+        if (!clauses.isEmpty()) {
+            TableName tableName = new TableName(InternalCatalog.INTERNAL_CATALOG_NAME,
+                StatisticConstants.DB_NAME, table.getName());
+            AlterTableStmt alter = new AlterTableStmt(tableName, clauses);
+            Env.getCurrentEnv().alterTable(alter);
+        }
+    }
+
+    private void doHotspotPropChange(Table table) throws UserException {
+        if (!AuditHotSpotLoader.HOT_SPOT_TABLE.equals(table.getName())) {
+            return;
+        }
+
+        List<AlterClause> clauses = Lists.newArrayList();
+
+        TableName tableName = new TableName(InternalCatalog.INTERNAL_CATALOG_NAME,
+            StatisticConstants.DB_NAME, table.getName());
+
+        //modify hotspot table `s dynamic partition props
+        Map<String, String> newProps = new HashMap<>();
+        newProps.put("dynamic_partition.time_unit", "DAY");
+        newProps.put("dynamic_partition.start", "-30");
+        newProps.put("dynamic_partition.end", "3");
+
+        clauses.add(new ModifyTablePropertiesClause(newProps));
+        AlterTableStmt alter = new AlterTableStmt(tableName, clauses);
+        Env.getCurrentEnv().alterTable(alter);
+    }
 
     private boolean created() {
         // 1. check database exist
@@ -367,6 +510,11 @@ public class InternalSchemaInitializer extends Thread {
 
         // 3. check audit table
         optionalStatsTbl = db.getTable(AuditLoader.AUDIT_LOG_TABLE);
+        if (!optionalStatsTbl.isPresent()) {
+            return false;
+        }
+
+        optionalStatsTbl = db.getTable(AuditHotSpotLoader.HOT_SPOT_TABLE);
         if (!optionalStatsTbl.isPresent()) {
             return false;
         }
