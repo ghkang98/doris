@@ -234,14 +234,18 @@ public class StatisticsCache {
     public void sendStats(Frontend frontend, TUpdateFollowerStatsCacheRequest updateFollowerStatsCacheRequest) {
         TNetworkAddress address = new TNetworkAddress(frontend.getHost(), frontend.getRpcPort());
         FrontendService.Client client = null;
+        boolean ok = false;
         try {
             client = ClientPool.frontendPool.borrowObject(address);
             client.updateStatsCache(updateFollowerStatsCacheRequest);
+            ok = true;
         } catch (Throwable t) {
             LOG.warn("Failed to sync stats to follower: {}", address, t);
         } finally {
-            if (client != null) {
+            if (ok) {
                 ClientPool.frontendPool.returnObject(address, client);
+            } else {
+                ClientPool.frontendPool.invalidateObject(address, client);
             }
         }
     }
@@ -250,15 +254,19 @@ public class StatisticsCache {
     public boolean invalidateStats(Frontend frontend, TInvalidateFollowerStatsCacheRequest request) {
         TNetworkAddress address = new TNetworkAddress(frontend.getHost(), frontend.getRpcPort());
         FrontendService.Client client = null;
+        boolean ok = false;
         try {
             client = ClientPool.frontendPool.borrowObject(address);
             client.invalidateStatsCache(request);
+            ok = true;
         } catch (Throwable t) {
             LOG.warn("Failed to sync invalidate to follower: {}", address, t);
             return false;
         } finally {
-            if (client != null) {
+            if (ok) {
                 ClientPool.frontendPool.returnObject(address, client);
+            } else {
+                ClientPool.frontendPool.invalidateObject(address, client);
             }
         }
         return true;
