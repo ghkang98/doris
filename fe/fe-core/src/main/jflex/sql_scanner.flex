@@ -667,7 +667,7 @@ CommentedHintEnd = "*/"
 // Both types of plan hints must appear within a single line.
 HintContent = " "* "+" [^\r\n]*
 
-Comment = {TraditionalComment} | {EndOfLineComment}
+Comment = {TraditionalComment} | {EndOfLineComment} | {BashComment}
 
 // Match anything that has a comment end (*/) in it.
 ContainsCommentEnd = [^]* "*/" [^]*
@@ -679,6 +679,8 @@ ContainsLineTerminator = [^]* {LineTerminator} [^]*
 TraditionalComment = "/*" !({HintContent}|{ContainsCommentEnd}) "*/"
 // Similar for a end-of-line comment.
 EndOfLineComment = "--" !({HintContent}|{ContainsLineTerminator}) {LineTerminator}?
+//add bash comment like # comment
+BashComment = "#" !({HintContent}|{ContainsLineTerminator}) {LineTerminator}?
 
 // This additional state is needed because newlines signal the end of a end-of-line hint
 // if one has been started earlier. Hence we need to discern between newlines within and
