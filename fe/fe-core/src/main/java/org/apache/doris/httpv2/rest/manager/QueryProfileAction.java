@@ -284,6 +284,8 @@ public class QueryProfileAction extends RestBaseController {
             return getGraphProfile(request, queryId, fragmentId, instanceId, isAllNode);
         } else if (format.equals("json")) {
             return getJsonProfile(request, queryId, fragmentId, instanceId, isAllNode);
+        } else if (format.equals("jsonD")) {
+            return getJsonDetailedProfile(request, queryId, fragmentId, instanceId, isAllNode);
         } else {
             return ResponseEntityBuilder.badRequest("Invalid profile format: " + format);
         }
@@ -448,7 +450,7 @@ public class QueryProfileAction extends RestBaseController {
             try {
                 JSONObject json;
                 if (Strings.isNullOrEmpty(fragmentId) || Strings.isNullOrEmpty(instanceId)) {
-                    String brief = ProfileManager.getInstance().getProfileBrief(queryId);
+                    String brief = ProfileManager.getInstance().getProfileJSON(queryId, true);
                     graph.put("profile", brief);
                 } else {
                     ProfileTreeNode treeRoot = ProfileManager.getInstance()
@@ -459,6 +461,32 @@ public class QueryProfileAction extends RestBaseController {
             } catch (Exception e) {
                 LOG.warn("get profile graph error, queryId:{}, fragementId:{}, instanceId:{}", queryId, fragmentId,
                         instanceId, e);
+            }
+        }
+        return ResponseEntityBuilder.ok(graph);
+    }
+
+    @NotNull
+    private ResponseEntity getJsonDetailedProfile(HttpServletRequest request, String queryId, String fragmentId,
+                                                  String instanceId, boolean isAllNode) {
+        Map<String, String> graph = Maps.newHashMap();
+        if (isAllNode) {
+            return getProfileFromAllFrontends(request, "jsonD", queryId, fragmentId, instanceId);
+        } else {
+            try {
+                JSONObject json;
+                if (Strings.isNullOrEmpty(fragmentId) || Strings.isNullOrEmpty(instanceId)) {
+                    String detailed = ProfileManager.getInstance().getProfileJSON(queryId, false);
+                    graph.put("profile", detailed);
+                } else {
+                    ProfileTreeNode treeRoot = ProfileManager.getInstance()
+                        .getInstanceProfileTree(queryId, queryId, fragmentId, instanceId);
+                    json = ProfileTreePrinter.printFragmentTreeInJson(treeRoot, ProfileTreePrinter.PrintLevel.INSTANCE);
+                    graph.put("profile", json.toJSONString());
+                }
+            } catch (Exception e) {
+                LOG.warn("get profile graph error, queryId:{}, fragementId:{}, instanceId:{}", queryId, fragmentId,
+                    instanceId, e);
             }
         }
         return ResponseEntityBuilder.ok(graph);

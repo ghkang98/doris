@@ -358,6 +358,51 @@ public class RuntimeProfile {
         return brief;
     }
 
+    public class Detailed {
+        int id;
+        String name;
+        long rowsReturned = 0;
+        String totalTime = "";
+        List<Detailed> children = new ArrayList<>();
+        Map<String, String> counters = Maps.newHashMap();
+    }
+
+    public Detailed toDetailed() {
+        Detailed detailed = new Detailed();
+        detailed.id = this.nodeid;
+        detailed.name = this.name;
+
+        counterLock.readLock().lock();
+        try {
+            for (Map.Entry<String, Counter> entry : counterMap.entrySet()) {
+                if (entry.getValue() == null) {
+                    continue;
+                }
+                //important metrics, so mark it as properties
+                if (entry.getKey().equals("RowsReturned")) {
+                    detailed.rowsReturned = entry.getValue().getValue();
+                } else if (entry.getKey().equals("TotalTime")) {
+                    detailed.totalTime = printCounter(entry.getValue().getValue(), entry.getValue().getType());
+                } else {
+                    detailed.counters.put(entry.getKey(), entry.getValue().print());
+                }
+            }
+        } finally {
+            counterLock.readLock().unlock();
+        }
+
+        childLock.readLock().lock();
+        try {
+            for (Pair<RuntimeProfile, Boolean> pair : childList) {
+                detailed.children.add(pair.first.toDetailed());
+            }
+        } finally {
+            childLock.readLock().unlock();
+        }
+
+        return detailed;
+    }
+
     private void printActimeCounter(StringBuilder builder, boolean isPipelineX) {
         if (!isPipelineX) {
             Counter counter = this.counterMap.get("TotalTime");

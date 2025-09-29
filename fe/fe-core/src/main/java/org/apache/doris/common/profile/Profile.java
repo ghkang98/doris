@@ -181,13 +181,6 @@ public class Profile {
         return rootProfile;
     }
 
-    public String getProfileBrief() {
-        waitProfileCompleteIfNeeded();
-        RuntimeProfile rootProfile = composeRootProfile();
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        return gson.toJson(rootProfile.toBrief());
-    }
-
     public void setChangedSessionVar(String changedSessionVar) {
         this.changedSessionVarCache = changedSessionVar;
     }
@@ -201,4 +194,16 @@ public class Profile {
         builder.append(changedSessionVarCache);
         builder.append("\n");
     }
+
+    public String getProfileJSON(boolean isBrief) {
+        waitProfileCompleteIfNeeded();
+        RuntimeProfile rootProfile = composeRootProfile();
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        if (isBrief) {
+            return gson.toJson(rootProfile.toBrief());
+        } else {
+            return gson.toJson(rootProfile.toDetailed());
+        }
+    }
+
 }

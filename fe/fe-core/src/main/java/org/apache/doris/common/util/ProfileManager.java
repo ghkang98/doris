@@ -86,7 +86,11 @@ public class ProfileManager {
         }
 
         public String getProfileBrief() {
-            return profile.getProfileBrief();
+            return profile.getProfileJSON(true);
+        }
+
+        public String getProfileDetailed() {
+            return profile.getProfileJSON(false);
         }
 
         public double getError() {
@@ -153,18 +157,13 @@ public class ProfileManager {
                 LOG.debug("Add execution profile {} to profile manager",
                         DebugUtil.printId(executionProfile.getQueryId()));
             }
-            // This branch has two purposes:
-            // 1. discard profile collecting if its collection not finished in 5 seconds after query finished.
-            // 2. prevent execution profile from leakage. If we have too many execution profiles in memory,
-            // we will remove execution profiles of query that has finished in 5 seconds ago.
+            // Check if there are some query profiles that not finish collecting, should
+            // remove them to release memory.
             if (queryIdToExecutionProfiles.size() > 2 * Config.max_query_profile_num) {
                 List<ExecutionProfile> finishOrExpireExecutionProfiles = Lists.newArrayList();
                 for (ExecutionProfile tmpProfile : queryIdToExecutionProfiles.values()) {
-                    boolean queryFinishedLongEnough = tmpProfile.getQueryFinishTime() > 0
-                            && System.currentTimeMillis() - tmpProfile.getQueryFinishTime()
-                            > Config.profile_async_collect_expire_time_secs * 1000;
-
-                    if (queryFinishedLongEnough) {
+                    if (System.currentTimeMillis() - tmpProfile.getQueryFinishTime()
+                            > Config.profile_async_collect_expire_time_secs * 1000) {
                         finishOrExpireExecutionProfiles.add(tmpProfile);
                     }
                 }
@@ -294,14 +293,18 @@ public class ProfileManager {
         return queryIdDeque.getLast();
     }
 
-    public String getProfileBrief(String queryID) {
+    public String getProfileJSON(String queryID, boolean isBrief) {
         readLock.lock();
         try {
             ProfileElement element = queryIdToProfileMap.get(queryID);
             if (element == null) {
                 return null;
             }
-            return element.getProfileBrief();
+            if (isBrief) {
+                return element.getProfileBrief();
+            } else {
+                return element.getProfileDetailed();
+            }
         } finally {
             readLock.unlock();
         }
