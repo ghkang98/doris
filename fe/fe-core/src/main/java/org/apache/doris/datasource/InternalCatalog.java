@@ -1512,7 +1512,7 @@ public class InternalCatalog implements CatalogIf<Database> {
             // check partition name
             if (olapTable.checkPartitionNameExist(partitionName)) {
                 if (singlePartitionDesc.isSetIfNotExists()) {
-                    LOG.info("table[{}] add partition[{}] which already exists", olapTable.getName(), partitionName);
+                    LOG.info("table[{}] add partition[{}] which already exists1", olapTable.getName(), partitionName);
                     if (!DebugPointUtil.isEnable("InternalCatalog.addPartition.noCheckExists")) {
                         return;
                     }
@@ -1687,6 +1687,19 @@ public class InternalCatalog implements CatalogIf<Database> {
             }
         };
         try {
+            // check again
+            olapTable = db.getOlapTableOrDdlException(tableName);
+            olapTable.writeLockOrDdlException();
+            // check partition name
+            if (olapTable.checkPartitionNameExist(partitionName)) {
+                LOG.info("table[{}] add partition[{}] which already exists", olapTable.getName(), partitionName);
+                if (singlePartitionDesc.isSetIfNotExists()) {
+                    failedCleanCallback.run();
+                    return;
+                } else {
+                    ErrorReport.reportDdlException(ErrorCode.ERR_SAME_NAME_PARTITION, partitionName);
+                }
+            }
             long partitionId = idGeneratorBuffer.getNextId();
             Partition partition = createPartitionWithIndices(db.getId(), olapTable,
                     partitionId, partitionName, indexIdToMeta,
@@ -1698,21 +1711,8 @@ public class InternalCatalog implements CatalogIf<Database> {
                     binlogConfig, dataProperty.isStorageMediumSpecified(), null);
             // TODO cluster key ids
 
-            // check again
-            olapTable = db.getOlapTableOrDdlException(tableName);
-            olapTable.writeLockOrDdlException();
             try {
                 olapTable.checkNormalStateForAlter();
-                // check partition name
-                if (olapTable.checkPartitionNameExist(partitionName)) {
-                    LOG.info("table[{}] add partition[{}] which already exists", olapTable.getName(), partitionName);
-                    if (singlePartitionDesc.isSetIfNotExists()) {
-                        failedCleanCallback.run();
-                        return;
-                    } else {
-                        ErrorReport.reportDdlException(ErrorCode.ERR_SAME_NAME_PARTITION, partitionName);
-                    }
-                }
 
                 // check if meta changed
                 // rollup index may be added or dropped during add partition operation.
@@ -1794,11 +1794,13 @@ public class InternalCatalog implements CatalogIf<Database> {
 
                 LOG.info("succeed in creating partition[{}], temp: {}", partitionId, isTempPartition);
             } finally {
-                olapTable.writeUnlock();
+
             }
         } catch (DdlException e) {
             failedCleanCallback.run();
             throw e;
+        } finally {
+            olapTable.writeUnlock();
         }
     }
 
