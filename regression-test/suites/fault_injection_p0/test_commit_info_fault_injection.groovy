@@ -27,9 +27,9 @@ suite("test_commit_info_fault_injection", "nonConcurrent") {
         logger.info(item.toString())
     }
     if (beNums == 3){
-        result = sql "show VARIABLES like \'enable_memtable_on_sink_node\'"
+        def result = sql "show VARIABLES like \'enable_memtable_on_sink_node\'"
         log.info(result.toString())
-        original_status = result[0][1]       
+        def original_status = result[0][1]
 
         sql """ set enable_memtable_on_sink_node=true """
         sql """

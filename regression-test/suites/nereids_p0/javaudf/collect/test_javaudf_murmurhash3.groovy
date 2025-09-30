@@ -48,7 +48,7 @@ suite("nereids_test_javaudf_murmurhash3") {
         }
 
         sql """ CREATE FUNCTION murmurhash3(string) RETURNS int PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.collect.MurmurHash3UDF",
             "type"="JAVA_UDF"
         ); """

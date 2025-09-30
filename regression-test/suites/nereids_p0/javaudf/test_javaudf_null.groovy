@@ -59,7 +59,7 @@ suite("nereids_test_javaudf_null") {
         }
 
         sql """ CREATE FUNCTION java_udf_null_test(int) RETURNS int PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.NullTest",
             "type"="JAVA_UDF"
         ); """

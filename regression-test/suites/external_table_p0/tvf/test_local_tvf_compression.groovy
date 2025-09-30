@@ -27,7 +27,7 @@ suite("test_local_tvf_compression", "p0,tvf,external,external_docker") {
 
     for (List<Object> backend : backends) {
          def be_host = backend[1]
-         scpFiles ("root", be_host, dataFilePath, outFilePath, false);
+//         scpFiles ("root", be_host, dataFilePath, outFilePath, false);
     }
 
     String filename = "test_tvf.csv"
@@ -38,7 +38,7 @@ suite("test_local_tvf_compression", "p0,tvf,external,external_docker") {
     String compress_type = "gz" 
     qt_gz_1 """
     select * from local(
-        "file_path" = "${outFilePath}/${filename}.${compress_type}",
+        "file_path" = "${filename}.${compress_type}",
         "backend_id" = "${be_id}",
         "format" = "csv",
         "column_separator" = ",",
@@ -47,7 +47,7 @@ suite("test_local_tvf_compression", "p0,tvf,external,external_docker") {
     
     qt_gz_2 """
     select * from local(
-        "file_path" = "${outFilePath}/${filename}.${compress_type}",
+        "file_path" = "${filename}.${compress_type}",
         "backend_id" = "${be_id}",
         "format" = "csv",
         "column_separator" = ",",
@@ -59,7 +59,7 @@ suite("test_local_tvf_compression", "p0,tvf,external,external_docker") {
     compress_type = "bz2" 
     qt_bz2_1 """
     select * from local(
-        "file_path" = "${outFilePath}/${filename}.${compress_type}",
+        "file_path" = "${filename}.${compress_type}",
         "backend_id" = "${be_id}",
         "format" = "csv",
         "column_separator" = ",",
@@ -67,7 +67,7 @@ suite("test_local_tvf_compression", "p0,tvf,external,external_docker") {
     """
     qt_bz2_2 """
     select c1,c4 from local(
-        "file_path" = "${outFilePath}/${filename}.${compress_type}",
+        "file_path" = "${filename}.${compress_type}",
         "backend_id" = "${be_id}",
         "format" = "csv",
         "column_separator" = ",",
@@ -81,7 +81,7 @@ suite("test_local_tvf_compression", "p0,tvf,external,external_docker") {
     
     qt_lz4_1 """
     select * from local(
-        "file_path" = "${outFilePath}/${filename}.${compress_type}",
+        "file_path" = "${filename}.${compress_type}",
         "backend_id" = "${be_id}",
         "format" = "csv",
         "column_separator" = ",",
@@ -89,7 +89,7 @@ suite("test_local_tvf_compression", "p0,tvf,external,external_docker") {
     """
     qt_lz4_2 """
     select c2,c3 from local(
-        "file_path" = "${outFilePath}/${filename}.${compress_type}",
+        "file_path" = "${filename}.${compress_type}",
         "backend_id" = "${be_id}",
         "format" = "csv",
         "column_separator" = ",",
@@ -101,7 +101,7 @@ suite("test_local_tvf_compression", "p0,tvf,external,external_docker") {
     compress_type = "deflate";
     qt_deflate_1 """ 
         select * from local(
-        "file_path" = "${outFilePath}/${filename}.${compress_type}",
+        "file_path" = "${filename}.${compress_type}",
         "backend_id" = "${be_id}",
         "format" = "csv",
         "column_separator" = ",",
@@ -109,7 +109,7 @@ suite("test_local_tvf_compression", "p0,tvf,external,external_docker") {
     """
     qt_deflate_2 """ 
         select c4,count(*) from local(
-        "file_path" = "${outFilePath}/${filename}.${compress_type}",
+        "file_path" = "${filename}.${compress_type}",
         "backend_id" = "${be_id}",
         "format" = "csv",
         "column_separator" = ",",
@@ -121,7 +121,7 @@ suite("test_local_tvf_compression", "p0,tvf,external,external_docker") {
     compress_type = "snappy";
     qt_snappy_1 """ 
         select * from local(
-        "file_path" = "${outFilePath}/${filename}.${compress_type}",
+        "file_path" = "${filename}.${compress_type}",
         "backend_id" = "${be_id}",
         "format" = "csv",
         "column_separator" = ",",
@@ -129,7 +129,7 @@ suite("test_local_tvf_compression", "p0,tvf,external,external_docker") {
     """    
     qt_snappy_2 """ 
         select c2,c3 from local(
-        "file_path" = "${outFilePath}/${filename}.${compress_type}",
+        "file_path" = "${filename}.${compress_type}",
         "backend_id" = "${be_id}",
         "format" = "csv",
         "column_separator" = ",",
@@ -139,7 +139,7 @@ suite("test_local_tvf_compression", "p0,tvf,external,external_docker") {
     // test empty snapppy file
     qt_snappy_empty """ 
         select * from local(
-        "file_path" = "${outFilePath}/test_empty_snappy.${compress_type}",
+        "file_path" = "test_empty_snappy.${compress_type}",
         "backend_id" = "${be_id}",
         "format" = "csv",
         "column_separator" = ",",

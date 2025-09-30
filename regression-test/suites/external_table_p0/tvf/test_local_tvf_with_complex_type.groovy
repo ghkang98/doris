@@ -30,20 +30,20 @@ suite("test_local_tvf_with_complex_type", "p0,external,external_docker") {
         def transFile02="${dataFilePath}/complex_type.parquet"
         for (List<Object> backend : backends) {
             def be_host = backend[1]
-            scpFiles ("root", be_host, transFile01, outFilePath, false);
-            scpFiles ("root", be_host, transFile02, outFilePath, false);
+//            scpFiles ("root", be_host, transFile01, outFilePath, false);
+//            scpFiles ("root", be_host, transFile02, outFilePath, false);
         }
 
     qt_sql """
         select * from local(
-            "file_path" = "${outFilePath}/complex_type.orc",
+            "file_path" = "complex_type.orc",
             "backend_id" = "${be_id}",
             "format" = "orc");"""
 
 
     qt_sql """
         select * from local(
-            "file_path" = "${outFilePath}/complex_type.parquet",
+            "file_path" = "complex_type.parquet",
             "backend_id" = "${be_id}",
             "format" = "parquet"); """
 

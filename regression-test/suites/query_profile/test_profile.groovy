@@ -22,7 +22,7 @@ import groovy.json.JsonSlurper
 *   @Params url is "/xxx"
 *   @Return response body
 */
-def http_get(url) {
+def http_get = { url ->
     def dst = 'http://' + context.config.feHttpAddress
     def conn = new URL(dst + url).openConnection()
     conn.setRequestMethod("GET")
@@ -37,7 +37,7 @@ def QUERY_NUM = 5
 
 def random = new Random()
 
-def getRandomNumber(int num){
+def getRandomNumber = { int num ->
     return random.nextInt(num)
 }
 

@@ -30,7 +30,7 @@ suite("test_local_tvf_enclose", "p0,tvf,external,external_docker") {
 
     for (List<Object> backend : backends) {
          def be_host = backend[1]
-         scpFiles ("root", be_host, dataFilePath, outFilePath, false);
+//         scpFiles ("root", be_host, dataFilePath, outFilePath, false);
     }
 
 

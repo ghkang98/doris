@@ -566,7 +566,7 @@ suite("parse_sql_from_sql_cache") {
                 }
 
                 sql """ CREATE FUNCTION java_udf_string_test(string, int, int) RETURNS string PROPERTIES (
-                            "file"="file://${jarPath}",
+                            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
                             "symbol"="org.apache.doris.udf.StringTest",
                             "type"="JAVA_UDF"
                         ); """

@@ -26,7 +26,7 @@ suite("test_local_tvf_lzo", "p0,external,external_docker") {
 
     def be_id = backends[0][0]
     // cluster mode need to make sure all be has this data
-    def outFilePath="/"
+    def outFilePath=""
     def transFile01="${dataFilePath}/test_compress.lzo"
     def transFile02="${dataFilePath}/test_no_compress_with_empty_block_begin.lzo"
     def transFile03="${dataFilePath}/test_no_compress_with_empty_block_end.lzo"
@@ -34,10 +34,10 @@ suite("test_local_tvf_lzo", "p0,external,external_docker") {
 
     for (List<Object> backend : backends) {
         def be_host = backend[1]
-        scpFiles ("root", be_host, transFile01, outFilePath, false);
-        scpFiles ("root", be_host, transFile02, outFilePath, false);
-        scpFiles ("root", be_host, transFile03, outFilePath, false);
-        scpFiles ("root", be_host, transFile04, outFilePath, false);
+//        scpFiles ("root", be_host, transFile01, outFilePath, false);
+//        scpFiles ("root", be_host, transFile02, outFilePath, false);
+//        scpFiles ("root", be_host, transFile03, outFilePath, false);
+//        scpFiles ("root", be_host, transFile04, outFilePath, false);
     }
 
     def file1 = outFilePath + "test_compress.lzo";

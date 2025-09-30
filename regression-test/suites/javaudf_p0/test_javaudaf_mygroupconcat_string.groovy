@@ -59,7 +59,7 @@ suite("test_javaudaf_mygroupconcat_string") {
         }
 
         sql """ CREATE AGGREGATE FUNCTION udaf_mygroupconcat_string(string) RETURNS string PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.MyGroupConcatString",
             "always_nullable"="false",
             "type"="JAVA_UDF"

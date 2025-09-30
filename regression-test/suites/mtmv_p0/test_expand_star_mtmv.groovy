@@ -60,7 +60,7 @@ suite("test_expand_star_mtmv","mtmv") {
 
     sql "drop function if exists ${functionName}(date, date)"
     sql """ CREATE FUNCTION ${functionName}(date, date) RETURNS boolean PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.DateTest1",
             "type"="JAVA_UDF"
         ); """

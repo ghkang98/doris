@@ -47,7 +47,7 @@ suite("test_javaudf_assertlessthan") {
         }
 
         sql """ CREATE FUNCTION asser_lessthan(double, double) RETURNS string PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.sanity.AssertLessThanUDF",
             "type"="JAVA_UDF"
         ); """

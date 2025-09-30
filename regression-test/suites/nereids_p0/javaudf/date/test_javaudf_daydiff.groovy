@@ -49,7 +49,7 @@ suite("nereids_test_javaudf_daydiff") {
         }
 
         sql """ CREATE FUNCTION day_diff(string, string) RETURNS int PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.date.DayDiffUDF",
             "type"="JAVA_UDF"
         ); """

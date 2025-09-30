@@ -41,7 +41,10 @@ suite("test_catalogs_auth","p0,auth") {
 
     sql """grant select_priv on regression_test to ${user}"""
 
-    connect(user, "${pwd}", context.config.jdbcUrl) {
+    // define vars
+    def password = "${pwd}"
+    def url = context.config.jdbcUrl
+    connect(user=user, password=password, url=url) {
         def showRes = sql """show catalogs;"""
         logger.info("showRes: " + showRes.toString())
         assertFalse(showRes.toString().contains("${catalogName}"))
@@ -53,7 +56,7 @@ suite("test_catalogs_auth","p0,auth") {
 
     sql """grant select_priv on ${catalogName}.*.* to ${user}"""
 
-    connect(user, "${pwd}", context.config.jdbcUrl) {
+    connect(user=user, password=password, url=url) {
         def showRes = sql """show catalogs;"""
         logger.info("showRes: " + showRes.toString())
         assertTrue(showRes.toString().contains("${catalogName}"))

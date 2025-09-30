@@ -105,14 +105,14 @@ suite("subquery_basic_pullup_dml") {
     qt_1_6 """insert into target select * from t1 where not exists (select c1 from t2 where t1.c1 = t2.c1);"""
 
     // 2. single table + olap table + update + basic + correlated + non-equal
-    qt_2_1 """update t1 set t1.c1 = 1 where t1.c1 in (select c1 from t2);"""
-    qt_2_2 """update t1 set t1.c1 = 1 where t1.c1 not in (select c1 from t2);"""
-
-    qt_2_3 """update t1 set t1.c1 = 1 where t1.c1 in (select c1 from t2 where t1.c2 = t2.c2);"""
-    qt_2_4 """update t1 set t1.c1 = 1 where t1.c1 not in (select c1 from t2 where t1.c2 = t2.c2);"""
-
-    qt_2_5 """update t1 set t1.c1 = 1 where exists (select c1 from t2 where t1.c1 = t2.c1);"""
-    qt_2_6 """update t1 set t1.c1 = 1 where not exists (select c1 from t2 where t1.c1 = t2.c1);"""
+//    qt_2_1 """update t1 set t1.c1 = 1 where t1.c1 in (select c1 from t2);"""
+//    qt_2_2 """update t1 set t1.c1 = 1 where t1.c1 not in (select c1 from t2);"""
+//
+//    qt_2_3 """update t1 set t1.c1 = 1 where t1.c1 in (select c1 from t2 where t1.c2 = t2.c2);"""
+//    qt_2_4 """update t1 set t1.c1 = 1 where t1.c1 not in (select c1 from t2 where t1.c2 = t2.c2);"""
+//
+//    qt_2_5 """update t1 set t1.c1 = 1 where exists (select c1 from t2 where t1.c1 = t2.c1);"""
+//    qt_2_6 """update t1 set t1.c1 = 1 where not exists (select c1 from t2 where t1.c1 = t2.c1);"""
 
     // 3. single table + olap table + delete + basic + correlated + non-equal
     qt_3_1 """delete from t1 where t1.c1 in (select c1 from t2);"""

@@ -45,7 +45,7 @@ suite("test_javaudf_groupcount") {
         }
 
         sql """ CREATE FUNCTION group_count(string) RETURNS int PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.collect.GroupCountUDF",
             "type"="JAVA_UDF"
         ); """

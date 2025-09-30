@@ -49,7 +49,7 @@ suite("test_javaudf_agg_map") {
         sql """
           
         CREATE AGGREGATE FUNCTION mapii(Map<Int,Int>) RETURNS BigInt PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.MySumMapInt",
             "type"="JAVA_UDF"
         ); 
@@ -59,7 +59,7 @@ suite("test_javaudf_agg_map") {
         sql """
           
         CREATE AGGREGATE FUNCTION mapid(Map<Int,Double>) RETURNS Double PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.MySumMapIntDou",
             "type"="JAVA_UDF"
         ); 

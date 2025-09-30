@@ -381,7 +381,7 @@ suite("test_create_view_nereids") {
 
     sql "drop function if exists java_udf_create_view_test(date, date)"
     sql """ CREATE FUNCTION java_udf_create_view_test(date, date) RETURNS boolean PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.DateTest1",
             "type"="JAVA_UDF"
         ); """

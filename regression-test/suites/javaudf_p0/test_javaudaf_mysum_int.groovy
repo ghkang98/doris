@@ -59,7 +59,7 @@ suite("test_javaudaf_mysum_int") {
         }
 
         sql """ CREATE AGGREGATE FUNCTION udaf_my_sum_int(int) RETURNS BigInt PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.MySumInt",
             "always_nullable"="false",
             "type"="JAVA_UDF"

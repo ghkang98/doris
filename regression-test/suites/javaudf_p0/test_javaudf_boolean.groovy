@@ -51,7 +51,7 @@ suite("test_javaudf_boolean") {
         }
 
         sql """ CREATE FUNCTION java_udf_boolean_test(BOOLEAN) RETURNS BOOLEAN PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.BooleanTest",
             "type"="JAVA_UDF"
         ); """

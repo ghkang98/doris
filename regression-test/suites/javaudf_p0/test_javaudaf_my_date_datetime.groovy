@@ -60,7 +60,7 @@ suite("test_javaudaf_my_date_datetime") {
         }
         // test datev2
         sql """ CREATE AGGREGATE FUNCTION udaf_my_day_datev2(datev2) RETURNS datev2 PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.MyDayDate",
             "always_nullable"="false",
             "type"="JAVA_UDF"
@@ -74,7 +74,7 @@ suite("test_javaudaf_my_date_datetime") {
 
         // test date
         sql """ CREATE AGGREGATE FUNCTION udaf_my_day_date(date) RETURNS date PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.MyDayDate",
             "always_nullable"="false",
             "type"="JAVA_UDF"
@@ -88,7 +88,7 @@ suite("test_javaudaf_my_date_datetime") {
 
         // test datetimev2
         sql """ CREATE AGGREGATE FUNCTION udaf_my_hour_datetimev2(datetimev2) RETURNS datetimev2 PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.MyHourDateTime",
             "always_nullable"="false",
             "type"="JAVA_UDF"
@@ -102,7 +102,7 @@ suite("test_javaudaf_my_date_datetime") {
 
         // test datetime
         sql """ CREATE AGGREGATE FUNCTION udaf_my_hour_datetime(datetime) RETURNS datetime PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.MyHourDateTime",
             "always_nullable"="false",
             "type"="JAVA_UDF"

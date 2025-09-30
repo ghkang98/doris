@@ -55,7 +55,7 @@ suite("test_javaudaf_return_map") {
         sql """
           
             CREATE AGGREGATE FUNCTION aggmap(int) RETURNS Map<int,int> PROPERTIES (
-                 "file"="file://${jarPath}",
+                 "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
                  "symbol"="org.apache.doris.udf.MySumReturnMapInt",
                  "type"="JAVA_UDF"
              ); 
@@ -65,7 +65,7 @@ suite("test_javaudaf_return_map") {
         sql """
           
             CREATE AGGREGATE FUNCTION aggmap2(int,double) RETURNS Map<int,double> PROPERTIES (
-                 "file"="file://${jarPath}",
+                 "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
                  "symbol"="org.apache.doris.udf.MySumReturnMapIntDou",
                  "type"="JAVA_UDF"
              ); 
@@ -77,7 +77,7 @@ suite("test_javaudaf_return_map") {
         sql """
           
             CREATE AGGREGATE FUNCTION aggmap3(int,double) RETURNS Map<String,String> PROPERTIES (
-                 "file"="file://${jarPath}",
+                 "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
                  "symbol"="org.apache.doris.udf.MyReturnMapString",
                  "type"="JAVA_UDF"
              ); 

@@ -52,7 +52,7 @@ suite("test_javaudf_decimal") {
         }
 
         sql """ CREATE FUNCTION java_udf_decimal_test(decimal(27,9),decimal(27,9)) RETURNS decimal(27,9) PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.DecimalTest",
             "type"="JAVA_UDF"
         ); """
@@ -69,7 +69,7 @@ suite("test_javaudf_decimal") {
 
         sql """ DROP FUNCTION if exists java_udf_decimal_string_test(decimal(27,9),String,String); """
         sql """ CREATE FUNCTION java_udf_decimal_string_test(decimal(27,9),String,String) RETURNS decimal(27,9) PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.DecimalStringTest",
             "type"="JAVA_UDF"
         ); """

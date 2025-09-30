@@ -35,10 +35,10 @@ suite("test_local_tvf_with_complex_type_insertinto_doris", "p0,external,external
         def transFile2="${dataFilePath}/comp_arr.parquet"
         for (List<Object> backend : backends) {
             def be_host = backend[1]
-            scpFiles("root", be_host, transFile01, outFilePath, false)
-            scpFiles("root", be_host, transFile02, outFilePath, false)
-            scpFiles ("root", be_host, transFile1, outFilePath, false)
-            scpFiles ("root", be_host, transFile2, outFilePath, false);
+//            scpFiles("root", be_host, transFile01, outFilePath, false)
+//            scpFiles("root", be_host, transFile02, outFilePath, false)
+//            scpFiles ("root", be_host, transFile1, outFilePath, false)
+//            scpFiles ("root", be_host, transFile2, outFilePath, false);
         }
     }
 
@@ -66,13 +66,13 @@ suite("test_local_tvf_with_complex_type_insertinto_doris", "p0,external,external
 
     qt_sql """
         select * from local(
-            "file_path" = "${outFilePath}/comp.orc",
+            "file_path" = "comp.orc",
             "backend_id" = "${be_id}",
             "format" = "orc");"""
 
     qt_sql """
         insert into ${table_name} select * from local (
-            "file_path" = "${outFilePath}/comp.orc",
+            "file_path" = "comp.orc",
             "backend_id" = "${be_id}",
              "format" = "orc");"""
 
@@ -80,13 +80,13 @@ suite("test_local_tvf_with_complex_type_insertinto_doris", "p0,external,external
 
     qt_sql """
         select * from local(
-            "file_path" = "${outFilePath}/comp.parquet",
+            "file_path" = "comp.parquet",
             "backend_id" = "${be_id}",
             "format" = "parquet"); """
 
     qt_sql """
         insert into ${table_name} select * from local(
-            "file_path" = "${outFilePath}/comp.parquet",
+            "file_path" = "comp.parquet",
             "backend_id" = "${be_id}",
             "format" = "parquet"); """
 
@@ -120,13 +120,13 @@ suite("test_local_tvf_with_complex_type_insertinto_doris", "p0,external,external
 
     qt_sql_orc_tvf """
         select * from local(
-            "file_path" = "${outFilePath}/comp_arr.orc",
+            "file_path" = "comp_arr.orc",
             "backend_id" = "${be_id}",
             "format" = "orc");"""
 
     qt_sql """
         insert into ${table_arr} select * from local (
-            "file_path" = "${outFilePath}/comp_arr.orc",
+            "file_path" = "comp_arr.orc",
             "backend_id" = "${be_id}",
              "format" = "orc");"""
 
@@ -136,13 +136,13 @@ suite("test_local_tvf_with_complex_type_insertinto_doris", "p0,external,external
 
     qt_sql_parquet_tvf """
         select * from local(
-            "file_path" = "${outFilePath}/comp_arr.parquet",
+            "file_path" = "comp_arr.parquet",
             "backend_id" = "${be_id}",
             "format" = "parquet"); """
 
     qt_sql """
         insert into ${table_arr} select * from local(
-            "file_path" = "${outFilePath}/comp_arr.parquet",
+            "file_path" = "comp_arr.parquet",
             "backend_id" = "${be_id}",
             "format" = "parquet"); """
 

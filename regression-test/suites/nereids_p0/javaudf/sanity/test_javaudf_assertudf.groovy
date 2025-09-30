@@ -40,7 +40,7 @@ suite("nereids_test_javaudf_assertudf") {
         }
 
         sql """ CREATE FUNCTION assert(boolean, string) RETURNS string PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.sanity.AssertUDF",
             "type"="JAVA_UDF"
         ); """

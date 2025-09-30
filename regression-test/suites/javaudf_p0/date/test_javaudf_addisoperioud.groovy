@@ -45,7 +45,7 @@ suite("test_javaudf_addisoperioud") {
         }
 
         sql """ CREATE FUNCTION add_days(string, string, string) RETURNS string PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.date.AddISOPeriodUDF",
             "type"="JAVA_UDF"
         ); """

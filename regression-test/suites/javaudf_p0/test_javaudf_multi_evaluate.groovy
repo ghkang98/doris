@@ -53,7 +53,7 @@ suite("test_javaudf_multi_evaluate") {
         }
 
         sql """ CREATE FUNCTION java_udf_multi_evaluate_test(FLOAT) RETURNS FLOAT PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.MultiEvaluateTest",
             "type"="JAVA_UDF"
         ); """
@@ -62,7 +62,7 @@ suite("test_javaudf_multi_evaluate") {
         qt_select """ SELECT java_udf_multi_evaluate_test(float_1) FROM ${tableName} where user_id = 2; """
 
         sql """ CREATE FUNCTION java_udf_multi_evaluate_test(int) RETURNS int PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.MultiEvaluateTest",
             "type"="JAVA_UDF"
         ); """
@@ -71,7 +71,7 @@ suite("test_javaudf_multi_evaluate") {
         qt_select """ SELECT java_udf_multi_evaluate_test(int_2) FROM ${tableName} where user_id = 3; """
         
         sql """ CREATE FUNCTION java_udf_multi_evaluate_test(int,int) RETURNS int PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.MultiEvaluateTest",
             "type"="JAVA_UDF"
         ); """

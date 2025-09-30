@@ -55,7 +55,7 @@ suite("nereids_test_javaudf_case") {
         }
 
         sql """ CREATE FUNCTION java_udf_dateCase_test(date,int,int) RETURNS String PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.DateCaseTest",
             "type"="JAVA_UDF"
         ); """

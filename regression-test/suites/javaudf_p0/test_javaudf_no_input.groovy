@@ -59,7 +59,7 @@ suite("test_javaudf_no_input") {
         }
 
         sql """ CREATE FUNCTION no_input_udf() RETURNS String PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.NoInputTest",
             "always_nullable"="true",
             "type"="JAVA_UDF"
@@ -69,7 +69,7 @@ suite("test_javaudf_no_input") {
         qt_select2 """ SELECT length(no_input_udf()) FROM ${tableName}; """
 
         sql """ CREATE GLOBAL FUNCTION global_no_input_udf() RETURNS String PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.NoInputTest",
             "always_nullable"="true",
             "type"="JAVA_UDF"

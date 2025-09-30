@@ -48,7 +48,7 @@ suite("test_dml_select_udf_auth","p0,auth_call") {
     log.info("Jar path: ${jarPath}".toString())
 
     sql """ CREATE FUNCTION ${dbName}.${udfName}(string) RETURNS int PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.collect.MurmurHash3UDF",
             "type"="JAVA_UDF"
         ); """

@@ -27,7 +27,7 @@ suite("test_tvf_csv_line_end", "p0,tvf,external,external_docker") {
 
     for (List<Object> backend : backends) {
         def be_host = backend[1]
-        scpFiles ("root", be_host, dataFilePath, outFilePath, false);
+//        scpFiles ("root", be_host, dataFilePath, outFilePath, false);
     }
 
     String filename = "lf_crlf_not_quotes.csv"
@@ -38,7 +38,7 @@ suite("test_tvf_csv_line_end", "p0,tvf,external,external_docker") {
     sql """ set keep_carriage_return = true; """
     // qt_csv_1"""
     // select * from local(
-    //     "file_path" = "${outFilePath}/${filename}",
+    //     "file_path" = "${filename}",
     //     "backend_id" = "${be_id}",
     //     "format" = "csv",
     //     "column_separator" = ","
@@ -48,7 +48,7 @@ suite("test_tvf_csv_line_end", "p0,tvf,external,external_docker") {
 
     qt_csv_2"""
     select  * from local(
-        "file_path" = "${outFilePath}/${filename}",
+        "file_path" = "${filename}",
         "backend_id" = "${be_id}",
         "format" = "csv",
         "column_separator" = ","
@@ -57,7 +57,7 @@ suite("test_tvf_csv_line_end", "p0,tvf,external,external_docker") {
     """
     List<List<String>> result1 = sql """
     select  * from local(
-        "file_path" = "${outFilePath}/${filename}",
+        "file_path" = "${filename}",
         "backend_id" = "${be_id}",
         "format" = "csv",
         "column_separator" = ","
@@ -66,7 +66,7 @@ suite("test_tvf_csv_line_end", "p0,tvf,external,external_docker") {
     """
     List<List<String>> result2 = sql """
     select  * from local(
-        "file_path" = "${outFilePath}/${filename}.gz",
+        "file_path" = "${filename}.gz",
         "backend_id" = "${be_id}",
         "format" = "csv",
         "column_separator" = ",",
@@ -86,7 +86,7 @@ suite("test_tvf_csv_line_end", "p0,tvf,external,external_docker") {
 
     // qt_csv_3 """
     // select * from local(
-    //     "file_path" = "${outFilePath}/${filename}",
+    //     "file_path" = "${filename}",
     //     "backend_id" = "${be_id}",
     //     "format" = "csv",
     //     "column_separator" = ","
@@ -96,7 +96,7 @@ suite("test_tvf_csv_line_end", "p0,tvf,external,external_docker") {
 
     qt_csv_4 """
     select * from local(
-        "file_path" = "${outFilePath}/${filename}",
+        "file_path" = "${filename}",
         "backend_id" = "${be_id}",
         "format" = "csv",
         "column_separator" = ","
@@ -105,7 +105,7 @@ suite("test_tvf_csv_line_end", "p0,tvf,external,external_docker") {
     """
     result1 = sql """
     select  * from local(
-        "file_path" = "${outFilePath}/${filename}",
+        "file_path" = "${filename}",
         "backend_id" = "${be_id}",
         "format" = "csv",
         "column_separator" = ","
@@ -114,7 +114,7 @@ suite("test_tvf_csv_line_end", "p0,tvf,external,external_docker") {
     """
     result2 = sql """
     select  * from local(
-        "file_path" = "${outFilePath}/${filename}.gz",
+        "file_path" = "${filename}.gz",
         "backend_id" = "${be_id}",
         "format" = "csv",
         "column_separator" = ",",
@@ -136,7 +136,7 @@ suite("test_tvf_csv_line_end", "p0,tvf,external,external_docker") {
     sql """ set keep_carriage_return = true; """
     // qt_csv_5"""
     // select * from local(
-    //     "file_path" = "${outFilePath}/${filename}",
+    //     "file_path" = "${filename}",
     //     "backend_id" = "${be_id}",
     //     "format" = "csv",
     //     "column_separator" = ",",
@@ -147,7 +147,7 @@ suite("test_tvf_csv_line_end", "p0,tvf,external,external_docker") {
 
     qt_csv_6"""
     select * from local(
-        "file_path" = "${outFilePath}/${filename}",
+        "file_path" = "${filename}",
         "backend_id" = "${be_id}",
         "format" = "csv",
         "column_separator" = ",",
@@ -158,7 +158,7 @@ suite("test_tvf_csv_line_end", "p0,tvf,external,external_docker") {
 
     result1 = sql """
     select  * from local(
-        "file_path" = "${outFilePath}/${filename}",
+        "file_path" = "${filename}",
         "backend_id" = "${be_id}",
         "format" = "csv",
         "column_separator" = ",",
@@ -168,7 +168,7 @@ suite("test_tvf_csv_line_end", "p0,tvf,external,external_docker") {
     """
     result2 = sql """
     select  * from local(
-        "file_path" = "${outFilePath}/${filename}.gz",
+        "file_path" = "${filename}.gz",
         "backend_id" = "${be_id}",
         "format" = "csv",
         "column_separator" = ",",
@@ -189,7 +189,7 @@ suite("test_tvf_csv_line_end", "p0,tvf,external,external_docker") {
 
     // qt_csv_7 """
     // select * from local(
-    //     "file_path" = "${outFilePath}/${filename}",
+    //     "file_path" = "${filename}",
     //     "backend_id" = "${be_id}",
     //     "format" = "csv",
     //     "column_separator" = ",",
@@ -200,7 +200,7 @@ suite("test_tvf_csv_line_end", "p0,tvf,external,external_docker") {
 
     qt_csv_8 """
     select * from local(
-        "file_path" = "${outFilePath}/${filename}",
+        "file_path" = "${filename}",
         "backend_id" = "${be_id}",
         "format" = "csv",
         "column_separator" = ",",
@@ -210,7 +210,7 @@ suite("test_tvf_csv_line_end", "p0,tvf,external,external_docker") {
     """
     result1 = sql """
     select  * from local(
-        "file_path" = "${outFilePath}/${filename}",
+        "file_path" = "${filename}",
         "backend_id" = "${be_id}",
         "format" = "csv",
         "column_separator" = ",",
@@ -220,7 +220,7 @@ suite("test_tvf_csv_line_end", "p0,tvf,external,external_docker") {
     """
     result2 = sql """
     select  * from local(
-        "file_path" = "${outFilePath}/${filename}.gz",
+        "file_path" = "${filename}.gz",
         "backend_id" = "${be_id}",
         "format" = "csv",
         "column_separator" = ",",

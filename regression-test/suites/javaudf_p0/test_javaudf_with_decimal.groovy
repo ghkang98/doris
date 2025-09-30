@@ -41,7 +41,7 @@ suite("test_javaudf_with_decimal") {
 
         sql """
         CREATE FUNCTION getarrscale(Array<Decimal(15,3)>) RETURNS int PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.MyArrayDecimal",
             "always_nullable"="true",
             "type"="JAVA_UDF"
@@ -50,7 +50,7 @@ suite("test_javaudf_with_decimal") {
 
         sql """
         CREATE FUNCTION retscale(int) RETURNS Map<Decimal(15,10),Decimal(15,10)> PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.MyMapRetDecimal",
             "always_nullable"="true",
             "type"="JAVA_UDF"

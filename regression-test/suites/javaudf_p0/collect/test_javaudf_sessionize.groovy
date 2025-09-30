@@ -46,7 +46,7 @@ suite("test_javaudf_sessionize") {
         }
 
         sql """ CREATE FUNCTION sessionize(string, bigint, int) RETURNS String PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.collect.SessionizeUDF",
             "type"="JAVA_UDF"
         ); """

@@ -48,7 +48,7 @@ suite("nereids_test_javaudf_md5") {
         }
 
         sql """ CREATE FUNCTION md5(string) RETURNS string PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.sketch.Md5",
             "type"="JAVA_UDF"
         ); """

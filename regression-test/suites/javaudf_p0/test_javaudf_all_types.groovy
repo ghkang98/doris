@@ -68,126 +68,126 @@ suite("test_javaudf_all_types") {
 
         sql """DROP FUNCTION IF EXISTS echo_boolean(boolean);"""
         sql """CREATE FUNCTION echo_boolean(boolean) RETURNS boolean PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.Echo\$EchoBoolean",
             "type"="JAVA_UDF"
         );"""
 
         sql """DROP FUNCTION IF EXISTS echo_tinyint(tinyint);"""
         sql """CREATE FUNCTION echo_tinyint(tinyint) RETURNS tinyint PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.Echo\$EchoByte",
             "type"="JAVA_UDF"
         );"""
 
         sql """DROP FUNCTION IF EXISTS echo_short(smallint);"""
         sql """CREATE FUNCTION echo_short(smallint) RETURNS smallint PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.Echo\$EchoShort",
             "type"="JAVA_UDF"
         );"""
 
         sql """DROP FUNCTION IF EXISTS echo_int(int);"""
         sql """CREATE FUNCTION echo_int(int) RETURNS int PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.Echo\$EchoInt",
             "type"="JAVA_UDF"
         );"""
 
         sql """DROP FUNCTION IF EXISTS echo_long(bigint);"""
         sql """CREATE FUNCTION echo_long(bigint) RETURNS bigint PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.Echo\$EchoLong",
             "type"="JAVA_UDF"
         );"""
 
         sql """DROP FUNCTION IF EXISTS echo_largeint(largeint);"""
         sql """CREATE FUNCTION echo_largeint(largeint) RETURNS largeint PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.Echo\$EchoLargeInt",
             "type"="JAVA_UDF"
         );"""
 
         sql """DROP FUNCTION IF EXISTS echo_decimal(decimal(15, 4));"""
         sql """CREATE FUNCTION echo_decimal(decimal(15, 4)) RETURNS decimal(15, 4) PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.Echo\$EchoDecimal",
             "type"="JAVA_UDF"
         );"""
 
         sql """DROP FUNCTION IF EXISTS echo_float(float);"""
         sql """CREATE FUNCTION echo_float(float) RETURNS float PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.Echo\$EchoFloat",
             "type"="JAVA_UDF"
         );"""
 
         sql """DROP FUNCTION IF EXISTS echo_double(double);"""
         sql """CREATE FUNCTION echo_double(double) RETURNS double PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.Echo\$EchoDouble",
             "type"="JAVA_UDF"
         );"""
 
         sql """DROP FUNCTION IF EXISTS echo_date(date);"""
         sql """CREATE FUNCTION echo_date(date) RETURNS date PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.Echo\$EchoDate",
             "type"="JAVA_UDF"
         );"""
 
         sql """DROP FUNCTION IF EXISTS echo_date2(date);"""
         sql """CREATE FUNCTION echo_date2(date) RETURNS date PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.Echo\$EchoDate2",
             "type"="JAVA_UDF"
         );"""
 
         sql """DROP FUNCTION IF EXISTS echo_date3(date);"""
         sql """CREATE FUNCTION echo_date3(date) RETURNS date PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.Echo\$EchoDate3",
             "type"="JAVA_UDF"
         );"""
 
         sql """DROP FUNCTION IF EXISTS echo_datetime(datetime(6));"""
         sql """CREATE FUNCTION echo_datetime(datetime(6)) RETURNS datetime(6) PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.Echo\$EchoDateTime",
             "type"="JAVA_UDF"
         );"""
 
         sql """DROP FUNCTION IF EXISTS echo_datetime2(datetime(6));"""
         sql """CREATE FUNCTION echo_datetime2(datetime(6)) RETURNS datetime(6) PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.Echo\$EchoDateTime2",
             "type"="JAVA_UDF"
         );"""
 
         sql """DROP FUNCTION IF EXISTS echo_datetime3(datetime(6));"""
         sql """CREATE FUNCTION echo_datetime3(datetime(6)) RETURNS datetime(6) PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.Echo\$EchoDateTime3",
             "type"="JAVA_UDF"
         );"""
 
         sql """DROP FUNCTION IF EXISTS echo_string(string);"""
         sql """CREATE FUNCTION echo_string(string) RETURNS string PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.Echo\$EchoString",
             "type"="JAVA_UDF"
         );"""
 
         sql """DROP FUNCTION IF EXISTS echo_list(array<string>);"""
         sql """CREATE FUNCTION echo_list(array<string>) RETURNS array<string> PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.Echo\$EchoList",
             "type"="JAVA_UDF"
         );"""
 
         sql """DROP FUNCTION IF EXISTS echo_map(map<string,int>);"""
         sql """CREATE FUNCTION echo_map(map<string,int>) RETURNS map<string,int> PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.Echo\$EchoMap",
             "type"="JAVA_UDF"
         );"""

@@ -64,7 +64,7 @@ suite("nereids_test_javaudf_array") {
 
     //     sql """ DROP FUNCTION IF EXISTS java_udf_array_int_test(array<int>); """
     //     sql """ CREATE FUNCTION java_udf_array_int_test(array<int>) RETURNS int PROPERTIES (
-    //         "file"="file://${jarPath}",
+    //         "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
     //         "symbol"="org.apache.doris.udf.ArrayIntTest",
     //         "type"="JAVA_UDF"
     //     ); """
@@ -74,7 +74,7 @@ suite("nereids_test_javaudf_array") {
 
     //     sql """ DROP FUNCTION IF EXISTS java_udf_array_return_int_test(array<int>); """
     //     sql """ CREATE FUNCTION java_udf_array_return_int_test(array<int>) RETURNS array<int> PROPERTIES (
-    //         "file"="file://${jarPath}",
+    //         "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
     //         "symbol"="org.apache.doris.udf.ArrayReturnArrayIntTest",
     //         "type"="JAVA_UDF"
     //     ); """
@@ -85,7 +85,7 @@ suite("nereids_test_javaudf_array") {
 
     //     sql """ DROP FUNCTION IF EXISTS java_udf_array_return_string_test(array<string>); """
     //     sql """ CREATE FUNCTION java_udf_array_return_string_test(array<string>) RETURNS array<string> PROPERTIES (
-    //         "file"="file://${jarPath}",
+    //         "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
     //         "symbol"="org.apache.doris.udf.ArrayReturnArrayStringTest",
     //         "type"="JAVA_UDF"
     //     ); """
@@ -95,7 +95,7 @@ suite("nereids_test_javaudf_array") {
 
     //     sql """ DROP FUNCTION IF EXISTS java_udf_array_string_test(array<string>); """
     //     sql """ CREATE FUNCTION java_udf_array_string_test(array<string>) RETURNS string PROPERTIES (
-    //         "file"="file://${jarPath}",
+    //         "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
     //         "symbol"="org.apache.doris.udf.ArrayStringTest",
     //         "type"="JAVA_UDF"
     //     ); """
@@ -106,7 +106,7 @@ suite("nereids_test_javaudf_array") {
     //     //ArrayDateTimeTest
     //     sql """ DROP FUNCTION IF EXISTS java_udf_array_datatime_test(array<datetime>); """
     //     sql """ CREATE FUNCTION java_udf_array_datatime_test(array<datetime>) RETURNS array<datetime> PROPERTIES (
-    //         "file"="file://${jarPath}",
+    //         "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
     //         "symbol"="org.apache.doris.udf.ArrayDateTimeTest",
     //         "type"="JAVA_UDF"
     //     ); """
@@ -114,7 +114,7 @@ suite("nereids_test_javaudf_array") {
 
     //     sql """ DROP FUNCTION IF EXISTS java_udf_array_date_test(array<date>); """
     //     sql """ CREATE FUNCTION java_udf_array_date_test(array<date>) RETURNS array<date> PROPERTIES (
-    //         "file"="file://${jarPath}",
+    //         "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
     //         "symbol"="org.apache.doris.udf.ArrayDateTest",
     //         "type"="JAVA_UDF"
     //     ); """

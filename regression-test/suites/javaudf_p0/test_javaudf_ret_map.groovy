@@ -68,7 +68,7 @@ suite("test_javaudf_ret_map") {
           sql """
           
         CREATE FUNCTION retii(map<int,int>) RETURNS map<int,int> PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.MapiiTest",
             "type"="JAVA_UDF"
         ); 
@@ -78,7 +78,7 @@ suite("test_javaudf_ret_map") {
         sql """
           
         CREATE FUNCTION retss(map<String,String>) RETURNS map<String,String> PROPERTIES (
-                    "file"="file://${jarPath}",
+                    "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
                     "symbol"="org.apache.doris.udf.MapssTest",
                     "always_nullable"="true",
                     "type"="JAVA_UDF"
@@ -90,7 +90,7 @@ suite("test_javaudf_ret_map") {
         sql """
           
             CREATE FUNCTION retid(map<int,Double>) RETURNS map<int,Double> PROPERTIES (
-                        "file"="file://${jarPath}",
+                        "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
                         "symbol"="org.apache.doris.udf.MapidTest",
                         "always_nullable"="true",
                         "type"="JAVA_UDF"
@@ -101,7 +101,7 @@ suite("test_javaudf_ret_map") {
         sql """
           
         CREATE FUNCTION retidss(int ,double) RETURNS map<String,String> PROPERTIES (
-                    "file"="file://${jarPath}",
+                    "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
                     "symbol"="org.apache.doris.udf.MapidssTest",
                     "always_nullable"="true",
                     "type"="JAVA_UDF"

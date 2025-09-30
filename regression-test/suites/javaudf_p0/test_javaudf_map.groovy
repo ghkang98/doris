@@ -48,7 +48,7 @@ suite("test_javaudf_map") {
         sql """ INSERT INTO map_ii VALUES(3, {3:1}); """
         sql """ DROP FUNCTION IF EXISTS udfii(Map<INT, INT>); """
         sql """ CREATE FUNCTION udfii(Map<INT, INT>) RETURNS INT PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.MapIntIntTest",
             "type"="JAVA_UDF"
         ); """
@@ -71,7 +71,7 @@ suite("test_javaudf_map") {
         sql """ DROP FUNCTION IF EXISTS udfss(Map<String, String>); """
 
         sql """ CREATE FUNCTION udfss(Map<String, String>) RETURNS STRING PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.MapStrStrTest",
             "type"="JAVA_UDF"
         ); """

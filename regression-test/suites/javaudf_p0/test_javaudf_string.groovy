@@ -63,7 +63,7 @@ suite("test_javaudf_string") {
         }
 
         sql """ CREATE FUNCTION java_udf_string_test(string, int, int) RETURNS string PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.StringTest",
             "type"="JAVA_UDF"
         ); """
@@ -100,7 +100,7 @@ suite("test_javaudf_string") {
         qt_select_5 """ select count(0) from (select k1, max(k2) as k2 from tbl1 group by k1)v where java_udf_string_test(k2, 0, 1) = "asd" """;
 
         sql """ CREATE FUNCTION java_udf_string_test_not_nullabel(string, int, int) RETURNS string PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.StringTest",
             "always_nullable"="false",
             "type"="JAVA_UDF"

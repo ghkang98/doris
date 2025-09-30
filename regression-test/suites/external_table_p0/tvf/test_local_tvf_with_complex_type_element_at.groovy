@@ -31,8 +31,8 @@ suite("test_local_tvf_with_complex_type_element_at", "p0,external,external_docke
         def transFile02="${dataFilePath}/t.parquet"
         for (List<Object> backend : backends) {
             def be_host = backend[1]
-            scpFiles ("root", be_host, transFile01, outFilePath, false);
-            scpFiles ("root", be_host, transFile02, outFilePath, false);
+//            scpFiles ("root", be_host, transFile01, outFilePath, false);
+//            scpFiles ("root", be_host, transFile02, outFilePath, false);
         }
 
 
@@ -53,82 +53,82 @@ suite("test_local_tvf_with_complex_type_element_at", "p0,external,external_docke
 
     qt_sql """
         select * from local(
-            "file_path" = "${outFilePath}/t.orc",
+            "file_path" = "t.orc",
             "backend_id" = "${be_id}",
             "format" = "orc");"""
 
     qt_sql """
             select count(*) from local(
-                "file_path" = "${outFilePath}/t.orc",
+                "file_path" = "t.orc",
                 "backend_id" = "${be_id}",
                 "format" = "orc");"""
 
     qt_sql """ select arr_arr[1][1] from local (
-                "file_path" = "${outFilePath}/t.orc",
+                "file_path" = "t.orc",
                 "backend_id" = "${be_id}",          
                 "format" = "orc");"""
 
     qt_sql """ select arr_map[1] from local (
-                "file_path" = "${outFilePath}/t.orc",
+                "file_path" = "t.orc",
                 "backend_id" = "${be_id}",          
                 "format" = "orc");"""
     qt_sql """ select arr_map[1]["WdTnFb-LHW8Nel-laB-HCQA"] from local (
-                "file_path" = "${outFilePath}/t.orc",
+                "file_path" = "t.orc",
                 "backend_id" = "${be_id}",          
                 "format" = "orc");"""
 
     qt_sql """ select map_map["W1iF16-DE1gzJx-avC-Mrf6"]["HJVQSC-46l3xm7-J6c-moIH"] from local (
-                "file_path" = "${outFilePath}/t.orc",
+                "file_path" = "t.orc",
                 "backend_id" = "${be_id}",          
                 "format" = "orc");"""
 
     qt_sql """ select map_arr[1] from local (
-                "file_path" = "${outFilePath}/t.orc",
+                "file_path" = "t.orc",
                 "backend_id" = "${be_id}",          
                 "format" = "orc");"""
     qt_sql """ select map_arr[1][7] from local (
-                "file_path" = "${outFilePath}/t.orc",
+                "file_path" = "t.orc",
                 "backend_id" = "${be_id}",          
                 "format" = "orc");"""
 
     qt_sql """
         select * from local(
-            "file_path" = "${outFilePath}/t.parquet",
+            "file_path" = "t.parquet",
             "backend_id" = "${be_id}",
             "format" = "parquet"); """
 
    qt_sql """
             select count(*) from local(
-                "file_path" = "${outFilePath}/t.parquet",
+                "file_path" = "t.parquet",
                 "backend_id" = "${be_id}",
                 "format" = "parquet"); """
 
 
     qt_sql """ select arr_arr[1][1] from local (
-                "file_path" = "${outFilePath}/t.parquet",
+                "file_path" = "t.parquet",
                 "backend_id" = "${be_id}",          
                 "format" = "parquet");"""
 
     qt_sql """ select arr_map[1] from local (
-                "file_path" = "${outFilePath}/t.parquet",
+                "file_path" = "t.parquet",
                 "backend_id" = "${be_id}",          
                 "format" = "parquet");"""
     qt_sql """ select arr_map[1]["WdTnFb-LHW8Nel-laB-HCQA"] from local (
-                "file_path" = "${outFilePath}/t.parquet",
+                "file_path" = "t.parquet",
                 "backend_id" = "${be_id}",          
                 "format" = "parquet");"""
 
     qt_sql """ select map_map["W1iF16-DE1gzJx-avC-Mrf6"]["HJVQSC-46l3xm7-J6c-moIH"] from local (
-                "file_path" = "${outFilePath}/t.parquet",
+                "file_path" = "t.parquet",
                 "backend_id" = "${be_id}",          
                 "format" = "parquet");"""
 
     qt_sql """ select map_arr[1] from local (
-                "file_path" = "${outFilePath}/t.parquet",
+                "file_path" = "t.parquet",
                 "backend_id" = "${be_id}",          
                 "format" = "parquet");"""
     qt_sql """ select map_arr[1][7] from local (
-                "file_path" = "${outFilePath}/t.parquet",
+                "file_path" = "t.parquet",
                 "backend_id" = "${be_id}",          
                 "format" = "parquet");"""
 }

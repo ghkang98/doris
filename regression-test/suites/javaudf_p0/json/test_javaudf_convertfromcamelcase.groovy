@@ -45,7 +45,7 @@ suite("test_javaudf_convertfromcamelcase") {
         }
 
         sql """ CREATE FUNCTION convert_from_camel(string) RETURNS string PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.json.ConvertFromCamelCaseUDF",
             "type"="JAVA_UDF"
         ); """

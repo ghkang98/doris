@@ -46,7 +46,7 @@ suite("test_javaudf_auth") {
 
     sql """USE ${dbName}"""
     sql """ CREATE FUNCTION java_udf_auth_test(int) RETURNS int PROPERTIES (
-        "file"="file://${jarPath}",
+        "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
         "symbol"="org.apache.doris.udf.IntTest",
         "type"="JAVA_UDF"
     ); """

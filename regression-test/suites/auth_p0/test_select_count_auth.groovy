@@ -34,7 +34,10 @@ suite("test_select_count_auth","p0,auth") {
 
     sql """grant select_priv on regression_test to ${user}"""
 
-    connect(user, "${pwd}", context.config.jdbcUrl) {
+    // define vars
+    def password = "${pwd}"
+    def url = context.config.jdbcUrl
+    connect(user=user, password=password, url=url) {
         test {
               sql """
                   select count(*) from __internal_schema.audit_log;
@@ -57,7 +60,7 @@ suite("test_select_count_auth","p0,auth") {
 
     sql """grant select_priv(query_id) on __internal_schema.audit_log to ${user}"""
 
-    connect(user, "${pwd}", context.config.jdbcUrl) {
+    connect(user=user, password=password, url=url) {
         test {
               sql """
                   select count(*) from __internal_schema.audit_log;
@@ -77,7 +80,7 @@ suite("test_select_count_auth","p0,auth") {
 
     sql """grant select_priv on __internal_schema.audit_log to ${user}"""
 
-    connect(user, "${pwd}", context.config.jdbcUrl) {
+    connect(user=user, password=password, url=url) {
         sql """
               select count(*) from __internal_schema.audit_log;
           """

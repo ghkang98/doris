@@ -53,7 +53,10 @@ suite("test_partitions_auth","p0,auth") {
 
     sql """grant select_priv on regression_test to ${user}"""
 
-    connect(user, "${pwd}", context.config.jdbcUrl) {
+    // define vars
+    def password = "${pwd}"
+    def url = context.config.jdbcUrl
+    connect(user=user, password=password, url=url) {
         test {
               sql """
                  show partitions from ${dbName}.${tableName};
@@ -70,7 +73,7 @@ suite("test_partitions_auth","p0,auth") {
 
     sql """grant select_priv on ${dbName}.${tableName} to ${user}"""
 
-    connect(user, "${pwd}", context.config.jdbcUrl) {
+    connect(user=user, password=password, url=url) {
         sql """
              show partitions from ${dbName}.${tableName};
           """

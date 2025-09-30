@@ -26,7 +26,7 @@ suite("map_uniq_with_local_tvf", "p0") {
     def transFile01="${dataFilePath}/mm.orc"
     for (List<Object> backend : backends) {
          def be_host = backend[1]
-         scpFiles ("root", be_host, transFile01, outFilePath, false);
+//         scpFiles ("root", be_host, transFile01, outFilePath, false);
     }
     sql "DROP TABLE IF EXISTS ${table_name};"
     sql """
@@ -48,7 +48,7 @@ suite("map_uniq_with_local_tvf", "p0") {
 
     qt_sql """
            insert into ${table_name} select * from local(
-                       "file_path" = "${outFilePath}/mm.orc",
+                       "file_path" = "mm.orc",
                        "backend_id" = "${be_id}",
                        "format" = "orc");"""
     qt_sql  """ select count(m) from ${table_name}; """

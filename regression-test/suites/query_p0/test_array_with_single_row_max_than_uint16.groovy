@@ -30,7 +30,7 @@ suite("test_array_with_single_row_max_than_uint16", "query") {
         def transFile01 = "${dataFilePath}/arr_max.orc"
         for (List<Object> backend : backends) {
             def be_host = backend[1]
-            scpFiles("root", be_host, transFile01, outFilePath, false)
+//            scpFiles("root", be_host, transFile01, outFilePath, false)
         }
     }
 
@@ -53,7 +53,7 @@ suite("test_array_with_single_row_max_than_uint16", "query") {
     // prepare data
     qt_sql """
             insert into ${testTable} select * from local(
-                "file_path" = "${outFilePath}/arr_max.orc",
+                "file_path" = "arr_max.orc",
                 "backend_id" = "${be_id}",
                 "format" = "orc");"""
 

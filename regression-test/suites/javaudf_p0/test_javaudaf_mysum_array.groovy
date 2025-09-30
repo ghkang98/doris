@@ -60,7 +60,7 @@ suite("test_javaudaf_mysum_array") {
 
         sql """ DROP FUNCTION IF EXISTS udaf_my_sum_arrayint(array<int>); """
         sql """ CREATE AGGREGATE FUNCTION udaf_my_sum_arrayint(array<int>) RETURNS BigInt PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.MySumArrayInt",
             "type"="JAVA_UDF"
         ); """
@@ -78,7 +78,7 @@ suite("test_javaudaf_mysum_array") {
 
         sql """ DROP FUNCTION IF EXISTS udaf_my_sum_return_arrayint(array<int>); """
         sql """ CREATE AGGREGATE FUNCTION udaf_my_sum_return_arrayint(array<int>) RETURNS array<int> PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.MySumReturnArrayInt",
             "type"="JAVA_UDF"
         ); """
@@ -91,7 +91,7 @@ suite("test_javaudaf_mysum_array") {
 
         sql """ DROP FUNCTION IF EXISTS udaf_my_sum_return_arraystring(array<string>); """
         sql """ CREATE AGGREGATE FUNCTION udaf_my_sum_return_arraystring(array<string>) RETURNS array<string> PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.MyReturnArrayString",
             "type"="JAVA_UDF"
         ); """
@@ -104,7 +104,7 @@ suite("test_javaudaf_mysum_array") {
 
         sql """ DROP FUNCTION IF EXISTS udaf_my_sum_arraystring(array<string>); """
         sql """ CREATE AGGREGATE FUNCTION udaf_my_sum_arraystring(array<string>) RETURNS string PROPERTIES (
-            "file"="file://${jarPath}",
+            "file"="file:///opt/apache-doris/fe/custom_lib/java-udf-case-jar-with-dependencies.jar",
             "symbol"="org.apache.doris.udf.MyArrayString",
             "type"="JAVA_UDF"
         ); """
