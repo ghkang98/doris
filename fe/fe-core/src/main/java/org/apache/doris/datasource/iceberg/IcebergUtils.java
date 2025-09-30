@@ -77,6 +77,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -593,6 +594,26 @@ public class IcebergUtils {
 
     }
 
+    /**
+     * Get iceberg schema from catalog and convert them to doris schema
+     */
+    public static List<Column> getSchema(ExternalCatalog catalog, Supplier<Schema> schemaSupplier) {
+        try {
+            return catalog.getPreExecutionAuthenticator().execute(() -> {
+                Schema schema = schemaSupplier.get();
+                List<Types.NestedField> columns = schema.columns();
+                List<Column> tmpSchema = Lists.newArrayListWithCapacity(columns.size());
+                for (Types.NestedField field : columns) {
+                    tmpSchema.add(new Column(field.name().toLowerCase(Locale.ROOT),
+                            IcebergUtils.icebergTypeToDorisType(field.type()), true, null, true, field.doc(), true,
+                            schema.caseInsensitiveFindField(field.name()).fieldId()));
+                }
+                return tmpSchema;
+            });
+        } catch (Exception e) {
+            throw new RuntimeException(ExceptionUtils.getRootCauseMessage(e), e);
+        }
+    }
 
     /**
      * Estimate iceberg table row count.
@@ -691,5 +712,21 @@ public class IcebergUtils {
 
         hiveCatalog.initialize(name, catalogProperties);
         return hiveCatalog;
+    }
+
+    public static org.apache.iceberg.view.View getIcebergView(ExternalCatalog catalog, String dbName, String tblName) {
+        return getIcebergViewInternal(catalog, dbName, tblName);
+    }
+
+    private static org.apache.iceberg.view.View getIcebergViewInternal(ExternalCatalog catalog, String dbName,
+                                                                       String tblName) {
+        IcebergMetadataCache metadataCache = Env.getCurrentEnv().getExtMetaCacheMgr().getIcebergMetadataCache();
+        return metadataCache.getIcebergView(catalog, dbName, tblName);
+    }
+
+    public static String showCreateView(IcebergExternalTable icebergExternalTable) {
+        return String.format("CREATE VIEW `%s` AS ", icebergExternalTable.getName())
+            +
+            icebergExternalTable.getViewText();
     }
 }

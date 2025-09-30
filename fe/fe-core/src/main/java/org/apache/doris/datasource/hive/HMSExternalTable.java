@@ -554,7 +554,9 @@ public class HMSExternalTable extends ExternalTable implements MTMVRelatedTableI
     }
 
     private Optional<SchemaCacheValue> getIcebergSchema() {
-        List<Column> columns = IcebergUtils.getSchema(catalog, getRemoteDbName(), getRemoteName());
+        org.apache.iceberg.Table icebergTable = IcebergUtils.getIcebergTable(getCatalog(), getRemoteDbName(),
+                getRemoteName());
+        List<Column> columns = IcebergUtils.getSchema(getCatalog(), icebergTable::schema);
         List<Column> partitionColumns = initPartitionColumns(columns);
         return Optional.of(new HMSSchemaCacheValue(columns, partitionColumns));
     }

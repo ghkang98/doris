@@ -1209,4 +1209,14 @@ public abstract class ExternalCatalog
     public ThreadPoolExecutor getThreadPoolWithPreAuth() {
         return threadPoolWithPreAuth;
     }
+
+    /**
+     * Check if an external view exists.
+     * @param dbName
+     * @param viewName
+     * @return
+     */
+    public boolean viewExists(String dbName, String viewName) {
+        throw new UnsupportedOperationException("View is not supported.");
+    }
 }
