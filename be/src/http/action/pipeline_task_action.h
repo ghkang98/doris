@@ -17,24 +17,26 @@
 
 #pragma once
 
-#include "http/http_handler.h"
+#include "http/http_handler_with_auth.h"
 
 namespace doris {
 
 class HttpRequest;
 
-class PipelineTaskAction : public HttpHandler {
+class PipelineTaskAction : public HttpHandlerWithAuth {
 public:
-    PipelineTaskAction() = default;
+    PipelineTaskAction(ExecEnv* exec_env, TPrivilegeHier::type hier,
+                           TPrivilegeType::type type);
 
     ~PipelineTaskAction() override = default;
 
     void handle(HttpRequest* req) override;
 };
 
-class LongPipelineTaskAction : public HttpHandler {
+class LongPipelineTaskAction : public HttpHandlerWithAuth {
 public:
-    LongPipelineTaskAction() = default;
+    LongPipelineTaskAction(ExecEnv* exec_env, TPrivilegeHier::type hier,
+                               TPrivilegeType::type type);
 
     ~LongPipelineTaskAction() override = default;
 

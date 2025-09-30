@@ -37,7 +37,7 @@
 #include "common/object_pool.h"
 #include "http/ev_http_server.h"
 #include "http/http_channel.h"
-#include "http/http_handler.h"
+#include "http/http_handler_with_auth.h"
 #include "http/http_method.h"
 #include "http/http_request.h"
 #include "io/fs/local_file_system.h"
@@ -54,9 +54,11 @@ static const int kPprofDefaultSampleSecs = 30;
 // Protect, only one thread can work
 static std::mutex kPprofActionMutex;
 
-class HeapAction : public HttpHandler {
+class HeapAction : public HttpHandlerWithAuth {
 public:
-    HeapAction() {}
+    HeapAction(ExecEnv* exec_env, TPrivilegeHier::type hier, TPrivilegeType::type type)
+                : HttpHandlerWithAuth(exec_env, hier, type) {}
+
     virtual ~HeapAction() {}
 
     virtual void handle(HttpRequest* req) override;
@@ -106,9 +108,11 @@ void HeapAction::handle(HttpRequest* req) {
 #endif
 }
 
-class GrowthAction : public HttpHandler {
+class GrowthAction : public HttpHandlerWithAuth {
 public:
-    GrowthAction() {}
+    GrowthAction(ExecEnv* exec_env, TPrivilegeHier::type hier, TPrivilegeType::type type)
+                : HttpHandlerWithAuth(exec_env, hier, type) {}
+
     virtual ~GrowthAction() {}
 
     virtual void handle(HttpRequest* req) override;
@@ -130,9 +134,11 @@ void GrowthAction::handle(HttpRequest* req) {
 #endif
 }
 
-class ProfileAction : public HttpHandler {
+class ProfileAction : public HttpHandlerWithAuth {
 public:
-    ProfileAction() {}
+    ProfileAction(ExecEnv* exec_env, TPrivilegeHier::type hier, TPrivilegeType::type type)
+                : HttpHandlerWithAuth(exec_env, hier, type) {}
+
     virtual ~ProfileAction() {}
 
     virtual void handle(HttpRequest* req) override;
@@ -202,24 +208,30 @@ void ProfileAction::handle(HttpRequest* req) {
 #endif
 }
 
-class PmuProfileAction : public HttpHandler {
+class PmuProfileAction : public HttpHandlerWithAuth {
 public:
-    PmuProfileAction() {}
+    PmuProfileAction(ExecEnv* exec_env, TPrivilegeHier::type hier, TPrivilegeType::type type)
+                : HttpHandlerWithAuth(exec_env, hier, type) {}
+
     virtual ~PmuProfileAction() {}
     virtual void handle(HttpRequest* req) override {}
 };
 
-class ContentionAction : public HttpHandler {
+class ContentionAction : public HttpHandlerWithAuth {
 public:
-    ContentionAction() {}
+    ContentionAction(ExecEnv* exec_env, TPrivilegeHier::type hier, TPrivilegeType::type type)
+                : HttpHandlerWithAuth(exec_env, hier, type) {}
+
     virtual ~ContentionAction() {}
 
     virtual void handle(HttpRequest* req) override {}
 };
 
-class CmdlineAction : public HttpHandler {
+class CmdlineAction : public HttpHandlerWithAuth {
 public:
-    CmdlineAction() {}
+    CmdlineAction(ExecEnv* exec_env, TPrivilegeHier::type hier, TPrivilegeType::type type)
+                : HttpHandlerWithAuth(exec_env, hier, type) {}
+
     virtual ~CmdlineAction() {}
     virtual void handle(HttpRequest* req) override;
 };
@@ -245,9 +257,11 @@ void CmdlineAction::handle(HttpRequest* req) {
     HttpChannel::send_reply(req, str);
 }
 
-class SymbolAction : public HttpHandler {
+class SymbolAction : public HttpHandlerWithAuth {
 public:
-    SymbolAction(BfdParser* parser) : _parser(parser) {}
+    SymbolAction(ExecEnv* exec_env, TPrivilegeHier::type hier, TPrivilegeType::type type)
+                : HttpHandlerWithAuth(exec_env, hier, type), _parser(exec_env->bfd_parser()) {}
+
     virtual ~SymbolAction() {}
 
     virtual void handle(HttpRequest* req) override;
@@ -300,15 +314,24 @@ Status PprofActions::setup(ExecEnv* exec_env, EvHttpServer* http_server, ObjectP
         RETURN_IF_ERROR(io::global_local_filesystem()->create_directory(config::pprof_profile_dir));
     }
 
-    http_server->register_handler(HttpMethod::GET, "/pprof/heap", pool.add(new HeapAction()));
-    http_server->register_handler(HttpMethod::GET, "/pprof/growth", pool.add(new GrowthAction()));
-    http_server->register_handler(HttpMethod::GET, "/pprof/profile", pool.add(new ProfileAction()));
+    http_server->register_handler(
+            HttpMethod::GET, "/pprof/heap",
+            pool.add(new HeapAction(exec_env, TPrivilegeHier::GLOBAL, TPrivilegeType::NONE)));
+    http_server->register_handler(
+            HttpMethod::GET, "/pprof/growth",
+            pool.add(new GrowthAction(exec_env, TPrivilegeHier::GLOBAL, TPrivilegeType::NONE)));
+    http_server->register_handler(
+            HttpMethod::GET, "/pprof/profile",
+            pool.add(new ProfileAction(exec_env, TPrivilegeHier::GLOBAL, TPrivilegeType::NONE)));
     http_server->register_handler(HttpMethod::GET, "/pprof/pmuprofile",
-                                  pool.add(new PmuProfileAction()));
+            pool.add(new PmuProfileAction(exec_env, TPrivilegeHier::GLOBAL, TPrivilegeType::NONE)));
     http_server->register_handler(HttpMethod::GET, "/pprof/contention",
-                                  pool.add(new ContentionAction()));
-    http_server->register_handler(HttpMethod::GET, "/pprof/cmdline", pool.add(new CmdlineAction()));
-    auto action = pool.add(new SymbolAction(exec_env->bfd_parser()));
+            pool.add(new ContentionAction(exec_env, TPrivilegeHier::GLOBAL, TPrivilegeType::NONE)));
+    http_server->register_handler(
+            HttpMethod::GET, "/pprof/cmdline",
+            pool.add(new CmdlineAction(exec_env, TPrivilegeHier::GLOBAL, TPrivilegeType::NONE)));
+    auto action =
+            pool.add(new SymbolAction(exec_env, TPrivilegeHier::GLOBAL, TPrivilegeType::NONE));
     http_server->register_handler(HttpMethod::GET, "/pprof/symbol", action);
     http_server->register_handler(HttpMethod::HEAD, "/pprof/symbol", action);
     http_server->register_handler(HttpMethod::POST, "/pprof/symbol", action);

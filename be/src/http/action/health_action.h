@@ -17,16 +17,16 @@
 
 #pragma once
 
-#include "http/http_handler.h"
+#include "http/http_handler_with_auth.h"
 
 namespace doris {
 
 class HttpRequest;
 
 // Get BE health state from http API.
-class HealthAction : public HttpHandler {
+class HealthAction : public HttpHandlerWithAuth {
 public:
-    HealthAction();
+    HealthAction(ExecEnv* exec_env, TPrivilegeHier::type hier, TPrivilegeType::type type);
 
     ~HealthAction() override = default;
 

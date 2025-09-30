@@ -215,7 +215,7 @@ void DownloadBinlogAction::handle(HttpRequest* req) {
     Status status;
     if (config::enable_token_check) {
         // FIXME(Drogon): support check token
-        // status = _check_token(req);
+        status = _check_token(req);
         if (!status.ok()) {
             HttpChannel::send_reply(req, HttpStatus::UNAUTHORIZED, status.to_string());
             return;

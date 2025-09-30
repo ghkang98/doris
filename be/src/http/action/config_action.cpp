@@ -44,6 +44,10 @@ const static std::string HEADER_JSON = "application/json";
 const static std::string PERSIST_PARAM = "persist";
 const std::string CONF_ITEM = "conf_item";
 
+ConfigAction::ConfigAction(ConfigActionType type, ExecEnv* exec_env, TPrivilegeHier::type hier,
+                           TPrivilegeType::type privilege_type)
+        : HttpHandlerWithAuth(exec_env, hier, privilege_type), _type(type) {}
+
 void ConfigAction::handle(HttpRequest* req) {
     if (_type == ConfigActionType::UPDATE_CONFIG) {
         handle_update_config(req);

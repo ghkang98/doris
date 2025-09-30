@@ -23,7 +23,9 @@
 #include "http/http_request.h"
 
 namespace doris {
-
+AdjustLogLevelAction::AdjustLogLevelAction(ExecEnv* exec_env, TPrivilegeHier::type hier,
+                         TPrivilegeType::type type)
+    : HttpHandlerWithAuth(exec_env, hier, type) {}
 // **Note**: If the module_name does not exist in the vlog modules, vlog
 // would create corresponding module for it.
 int handle_request(HttpRequest* req) {

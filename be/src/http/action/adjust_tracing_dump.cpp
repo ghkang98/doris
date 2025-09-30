@@ -24,6 +24,10 @@
 #include "runtime/exec_env.h"
 
 namespace doris {
+AdjustTracingDump::AdjustTracingDump(ExecEnv* exec_env, TPrivilegeHier::type hier,
+                                           TPrivilegeType::type type)
+        : HttpHandlerWithAuth(exec_env, hier, type) {}
+
 void AdjustTracingDump::handle(HttpRequest* req) {
     auto* ctx = ExecEnv::GetInstance()->pipeline_tracer_context();
     auto* params = req->params();

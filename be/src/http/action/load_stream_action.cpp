@@ -40,6 +40,10 @@ namespace doris {
 
 const static std::string HEADER_JSON = "application/json";
 
+LoadStreamAction::LoadStreamAction(ExecEnv* exec_env, TPrivilegeHier::type hier,
+                             TPrivilegeType::type type)
+        : HttpHandlerWithAuth(exec_env, hier, type) {}
+
 void LoadStreamAction::handle(HttpRequest* req) {
     req->add_output_header(HttpHeaders::CONTENT_TYPE, HEADER_JSON.c_str());
     HttpChannel::send_reply(req, HttpStatus::OK, _get_load_streams().ToString());

@@ -176,11 +176,11 @@ Status HttpService::start() {
     _ev_http_server->register_handler(HttpMethod::POST, "/api/_tablet/_batch_download",
                                       batch_download_action);
 
-    AdjustLogLevelAction* adjust_log_level_action = _pool.add(new AdjustLogLevelAction());
+    AdjustLogLevelAction* adjust_log_level_action = _pool.add(new AdjustLogLevelAction(_env, TPrivilegeHier::GLOBAL, TPrivilegeType::NONE));
     _ev_http_server->register_handler(HttpMethod::POST, "api/glog/adjust", adjust_log_level_action);
 
     //TODO: add query GET interface
-    auto* adjust_tracing_dump = _pool.add(new AdjustTracingDump());
+    auto* adjust_tracing_dump = _pool.add(new AdjustTracingDump(_env, TPrivilegeHier::GLOBAL, TPrivilegeType::NONE));
     _ev_http_server->register_handler(HttpMethod::POST, "api/pipeline/tracing",
                                       adjust_tracing_dump);
 
@@ -190,26 +190,26 @@ Status HttpService::start() {
     _ev_http_server->register_handler(HttpMethod::GET, "/api/be_version_info", version_action);
 
     // Register BE health action
-    HealthAction* health_action = _pool.add(new HealthAction());
+    HealthAction* health_action = _pool.add(new HealthAction(_env, TPrivilegeHier::GLOBAL, TPrivilegeType::NONE));
     _ev_http_server->register_handler(HttpMethod::GET, "/api/health", health_action);
 
     // Clear cache action
-    ClearCacheAction* clear_cache_action = _pool.add(new ClearCacheAction());
+    ClearCacheAction* clear_cache_action = _pool.add(new ClearCacheAction(_env, TPrivilegeHier::GLOBAL, TPrivilegeType::NONE));
     _ev_http_server->register_handler(HttpMethod::GET, "/api/clear_cache/{type}",
                                       clear_cache_action);
 
     // Dump all running pipeline tasks
-    PipelineTaskAction* pipeline_task_action = _pool.add(new PipelineTaskAction());
+    PipelineTaskAction* pipeline_task_action = _pool.add(new PipelineTaskAction(_env, TPrivilegeHier::GLOBAL, TPrivilegeType::NONE));
     _ev_http_server->register_handler(HttpMethod::GET, "/api/running_pipeline_tasks",
                                       pipeline_task_action);
 
     // Dump all running pipeline tasks which has been running for more than {duration} seconds
-    LongPipelineTaskAction* long_pipeline_task_action = _pool.add(new LongPipelineTaskAction());
+    LongPipelineTaskAction* long_pipeline_task_action = _pool.add(new LongPipelineTaskAction(_env, TPrivilegeHier::GLOBAL, TPrivilegeType::NONE));
     _ev_http_server->register_handler(HttpMethod::GET, "/api/running_pipeline_tasks/{duration}",
                                       long_pipeline_task_action);
 
     // Register BE LoadStream action
-    LoadStreamAction* load_stream_action = _pool.add(new LoadStreamAction());
+    LoadStreamAction* load_stream_action = _pool.add(new LoadStreamAction(_env, TPrivilegeHier::GLOBAL, TPrivilegeType::NONE));
     _ev_http_server->register_handler(HttpMethod::GET, "/api/load_streams", load_stream_action);
 
     QueryPipelineTaskAction* query_pipeline_task_action = _pool.add(new QueryPipelineTaskAction());
@@ -264,7 +264,7 @@ Status HttpService::start() {
             _pool.add(new MetaAction(_env, TPrivilegeHier::GLOBAL, TPrivilegeType::ADMIN));
     _ev_http_server->register_handler(HttpMethod::GET, "/api/meta/{op}/{tablet_id}", meta_action);
 
-    FileCacheAction* file_cache_action = _pool.add(new FileCacheAction());
+    FileCacheAction* file_cache_action = _pool.add(new FileCacheAction(_env, TPrivilegeHier::GLOBAL, TPrivilegeType::NONE));
     _ev_http_server->register_handler(HttpMethod::GET, "/api/file_cache", file_cache_action);
 
 #ifndef BE_TEST
@@ -312,10 +312,10 @@ Status HttpService::start() {
                                       run_status_compaction_action);
 
     ConfigAction* update_config_action =
-            _pool.add(new ConfigAction(ConfigActionType::UPDATE_CONFIG));
+            _pool.add(new ConfigAction(ConfigActionType::UPDATE_CONFIG, _env, TPrivilegeHier::GLOBAL, TPrivilegeType::NONE));
     _ev_http_server->register_handler(HttpMethod::POST, "/api/update_config", update_config_action);
 
-    ConfigAction* show_config_action = _pool.add(new ConfigAction(ConfigActionType::SHOW_CONFIG));
+    ConfigAction* show_config_action = _pool.add(new ConfigAction(ConfigActionType::SHOW_CONFIG, _env, TPrivilegeHier::GLOBAL, TPrivilegeType::NONE));
     _ev_http_server->register_handler(HttpMethod::GET, "/api/show_config", show_config_action);
 
     // 3 check action

@@ -29,7 +29,9 @@ namespace doris {
 
 const static std::string HEADER_JSON = "application/json";
 
-HealthAction::HealthAction() {}
+HealthAction::HealthAction(ExecEnv* exec_env, TPrivilegeHier::type hier,
+                             TPrivilegeType::type type)
+        : HttpHandlerWithAuth(exec_env, hier, type) {}
 
 void HealthAction::handle(HttpRequest* req) {
     std::stringstream ss;

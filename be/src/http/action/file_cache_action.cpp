@@ -36,6 +36,10 @@ namespace doris {
 const static std::string HEADER_JSON = "application/json";
 const static std::string OP = "op";
 
+FileCacheAction::FileCacheAction(ExecEnv* exec_env, TPrivilegeHier::type hier,
+                                 TPrivilegeType::type type)
+        : HttpHandlerWithAuth(exec_env, hier, type) {}
+
 Status FileCacheAction::_handle_header(HttpRequest* req, std::string* json_metrics) {
     req->add_output_header(HttpHeaders::CONTENT_TYPE, HEADER_JSON.c_str());
     std::string operation = req->param(OP);

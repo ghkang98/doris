@@ -122,9 +122,25 @@ void DownloadAction::handle_normal(HttpRequest* req, const std::string& file_par
 }
 
 void DownloadAction::handle_error_log(HttpRequest* req, const std::string& file_param) {
+    // check token
+    Status status;
+    if (config::enable_token_check) {
+        status = check_token(req);
+        if (!status.ok()) {
+            std::string error_msg = status.to_string();
+            if (status.is<ErrorCode::NOT_AUTHORIZED>()) {
+                HttpChannel::send_reply(req, HttpStatus::UNAUTHORIZED, error_msg);
+                return;
+            } else {
+                HttpChannel::send_reply(req, HttpStatus::INTERNAL_SERVER_ERROR, error_msg);
+                return;
+            }
+        }
+    }
+
     const std::string absolute_path = _error_log_root_dir + "/" + file_param;
 
-    Status status = check_log_path_is_allowed(absolute_path);
+    status = check_log_path_is_allowed(absolute_path);
     if (!status.ok()) {
         std::string error_msg = status.to_string();
         if (status.is<ErrorCode::NOT_AUTHORIZED>()) {

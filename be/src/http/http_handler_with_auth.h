@@ -54,8 +54,10 @@ public:
 
 protected:
     ExecEnv* _exec_env;
-    TPrivilegeHier::type _hier = TPrivilegeHier::GLOBAL;
-    TPrivilegeType::type _type = TPrivilegeType::ADMIN;
+
+private:
+    TPrivilegeHier::type _hier;
+    TPrivilegeType::type _type;
 };
 
 } // namespace doris
