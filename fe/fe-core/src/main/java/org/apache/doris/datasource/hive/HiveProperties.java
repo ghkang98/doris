@@ -72,7 +72,7 @@ public class HiveProperties {
         // This method is used for text format.
         Optional<String> fieldDelim = HiveMetaStoreClientHelper.getSerdeProperty(table, PROP_FIELD_DELIMITER);
         Optional<String> serFormat = HiveMetaStoreClientHelper.getSerdeProperty(table, PROP_SERIALIZATION_FORMAT);
-        return HiveMetaStoreClientHelper.getByte(HiveMetaStoreClientHelper.firstPresentOrDefault(
+        return HiveMetaStoreClientHelper.firstPresentOrDefault(HiveMetaStoreClientHelper.firstPresentOrDefault(
                 DEFAULT_FIELD_DELIMITER, fieldDelim, serFormat));
     }
 
@@ -84,13 +84,13 @@ public class HiveProperties {
 
     public static String getLineDelimiter(Table table) {
         Optional<String> lineDelim = HiveMetaStoreClientHelper.getSerdeProperty(table, PROP_LINE_DELIMITER);
-        return HiveMetaStoreClientHelper.getByte(HiveMetaStoreClientHelper.firstPresentOrDefault(
+        return HiveMetaStoreClientHelper.firstPresentOrDefault(HiveMetaStoreClientHelper.firstPresentOrDefault(
                 DEFAULT_LINE_DELIMITER, lineDelim));
     }
 
     public static String getMapKvDelimiter(Table table) {
         Optional<String> mapkvDelim = HiveMetaStoreClientHelper.getSerdeProperty(table, PROP_MAP_KV_DELIMITER);
-        return HiveMetaStoreClientHelper.getByte(HiveMetaStoreClientHelper.firstPresentOrDefault(
+        return HiveMetaStoreClientHelper.firstPresentOrDefault(HiveMetaStoreClientHelper.firstPresentOrDefault(
                 DEFAULT_MAP_KV_DELIMITER, mapkvDelim));
     }
 
@@ -99,7 +99,7 @@ public class HiveProperties {
                 PROP_COLLECTION_DELIMITER_HIVE2);
         Optional<String> collectionDelimHive3 = HiveMetaStoreClientHelper.getSerdeProperty(table,
                 PROP_COLLECTION_DELIMITER_HIVE3);
-        return HiveMetaStoreClientHelper.getByte(HiveMetaStoreClientHelper.firstPresentOrDefault(
+        return HiveMetaStoreClientHelper.firstPresentOrDefault(HiveMetaStoreClientHelper.firstPresentOrDefault(
                 DEFAULT_COLLECTION_DELIMITER, collectionDelimHive2, collectionDelimHive3));
     }
 
