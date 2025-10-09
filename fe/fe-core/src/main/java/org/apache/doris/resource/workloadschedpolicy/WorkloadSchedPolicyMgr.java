@@ -621,7 +621,7 @@ public class WorkloadSchedPolicyMgr extends MasterDaemon implements Writable, Gs
                     for (WorkloadConditionMeta cm : conditionList) {
                         cmStr.append(cm.toString()).append(";");
                     }
-                    String retStr = cmStr.toString().toLowerCase();
+                    String retStr = cmStr.toString();
                     row.add(retStr.substring(0, retStr.length() - 1));
 
                     List<WorkloadActionMeta> actionList = policy.getActionMetaList();
@@ -629,7 +629,7 @@ public class WorkloadSchedPolicyMgr extends MasterDaemon implements Writable, Gs
                     for (WorkloadActionMeta am : actionList) {
                         actionStr.append(am.toString()).append(";");
                     }
-                    String retStr2 = actionStr.toString().toLowerCase();
+                    String retStr2 = actionStr.toString();
                     row.add(retStr2.substring(0, retStr2.length() - 1));
 
                     row.add(String.valueOf(policy.getPriority()));

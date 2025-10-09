@@ -47,7 +47,7 @@ public class WorkloadActionMeta {
 
     public String toString() {
         if (StringUtils.isEmpty(actionArgs)) {
-            return action.toString();
+            return action.toString().toLowerCase();
         } else {
             String retActionArgs = actionArgs;
             if (WorkloadActionType.MOVE_QUERY_TO_GROUP.equals(action)) {
@@ -55,7 +55,7 @@ public class WorkloadActionMeta {
                         .getWorkloadGroupNameById(Long.valueOf(actionArgs));
             }
             retActionArgs = retActionArgs == null ? "-1" : retActionArgs;
-            return action + " \"" + retActionArgs + "\"";
+            return action.toString().toLowerCase() + " \"" + retActionArgs + "\"";
         }
     }
 }

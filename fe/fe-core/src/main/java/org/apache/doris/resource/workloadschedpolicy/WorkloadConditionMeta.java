@@ -49,6 +49,10 @@ public class WorkloadConditionMeta {
     }
 
     public String toString() {
-        return metricName + " " + WorkloadConditionCompareUtils.getOperatorStr(op) + " " + value;
+        return metricName.toString().toLowerCase()
+            + " "
+            + WorkloadConditionCompareUtils.getOperatorStr(op)
+            + " "
+            + value;
     }
 }
