@@ -141,7 +141,8 @@ public class GrantStmt extends DdlStmt {
         if (userIdent != null) {
             userIdent.analyze();
         } else {
-            if (CollectionUtils.isEmpty(privileges) && CollectionUtils.isEmpty(roles) && MapUtils.isEmpty(colPrivileges)) {
+            if (CollectionUtils.isEmpty(privileges)
+                    && CollectionUtils.isEmpty(roles) && MapUtils.isEmpty(colPrivileges)) {
                 throw new AnalysisException("No privileges or roles in grant statement.");
             }
         }

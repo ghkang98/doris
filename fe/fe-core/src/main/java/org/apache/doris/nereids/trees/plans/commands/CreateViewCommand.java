@@ -46,7 +46,7 @@ public class CreateViewCommand extends Command implements ForwardWithSync {
         createViewInfo.validate(ctx);
         CreateViewStmt createViewStmt = createViewInfo.translateToLegacyStmt(ctx);
         Env.getCurrentEnv().createView(createViewStmt,
-            () -> StmtHelper.wrapAndGrantAuto(ctx, createViewStmt));
+                () -> StmtHelper.wrapAndGrantAuto(ctx, createViewStmt));
     }
 
     @Override

@@ -283,7 +283,7 @@ public class RestBaseController extends BaseController {
             redirectUrl += request.getQueryString();
         }
         LOG.info("Redirect url: {}", request.getScheme() + "://" + addr.getHostname() + ":"
-            + addr.getPort() + urlObj.getPath());
+                + addr.getPort() + urlObj.getPath());
         return redirectUrl;
     }
 

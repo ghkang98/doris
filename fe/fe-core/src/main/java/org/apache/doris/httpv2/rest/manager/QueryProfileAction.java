@@ -480,13 +480,13 @@ public class QueryProfileAction extends RestBaseController {
                     graph.put("profile", detailed);
                 } else {
                     ProfileTreeNode treeRoot = ProfileManager.getInstance()
-                        .getInstanceProfileTree(queryId, queryId, fragmentId, instanceId);
+                            .getInstanceProfileTree(queryId, queryId, fragmentId, instanceId);
                     json = ProfileTreePrinter.printFragmentTreeInJson(treeRoot, ProfileTreePrinter.PrintLevel.INSTANCE);
                     graph.put("profile", json.toJSONString());
                 }
             } catch (Exception e) {
                 LOG.warn("get profile graph error, queryId:{}, fragementId:{}, instanceId:{}", queryId, fragmentId,
-                    instanceId, e);
+                        instanceId, e);
             }
         }
         return ResponseEntityBuilder.ok(graph);

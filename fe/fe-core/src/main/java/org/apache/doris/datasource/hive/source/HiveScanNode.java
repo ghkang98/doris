@@ -320,7 +320,7 @@ public class HiveScanNode extends FileQueryScanNode {
                             getRealFileSplitSize(needSplit ? status.getBlockSize() : Long.MAX_VALUE),
                             status.getBlockLocations(), status.getLength(), status.getModificationTime(),
                             isSplittable, fileCacheValue.getPartitionValues(),
-                            new HiveSplitCreator(fileCacheValue.getAcidInfo())));
+                        new HiveSplitCreator(fileCacheValue.getAcidInfo())));
                 }
             }
         }
@@ -332,7 +332,7 @@ public class HiveScanNode extends FileQueryScanNode {
             allFiles.addAll(FileSplitter.splitFile(status.getPath(), getRealFileSplitSize(status.getBlockSize()),
                     status.getBlockLocations(), status.getLength(), status.getModificationTime(),
                     status.isSplittable(), status.getPartitionValues(),
-                    new HiveSplitCreator(status.getAcidInfo())));
+                new HiveSplitCreator(status.getAcidInfo())));
         }
     }
 

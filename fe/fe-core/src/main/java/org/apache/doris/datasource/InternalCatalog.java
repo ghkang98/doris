@@ -1794,7 +1794,7 @@ public class InternalCatalog implements CatalogIf<Database> {
 
                 LOG.info("succeed in creating partition[{}], temp: {}", partitionId, isTempPartition);
             } finally {
-
+                LOG.info("no need to do anything after add partition");
             }
         } catch (DdlException e) {
             failedCleanCallback.run();

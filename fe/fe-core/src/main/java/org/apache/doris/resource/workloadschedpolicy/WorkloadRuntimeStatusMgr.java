@@ -51,7 +51,7 @@ public class WorkloadRuntimeStatusMgr extends MasterDaemon {
     private Map<Long, BeReportInfo> beToQueryStatsMap = Maps.newConcurrentMap();
     private final ReentrantReadWriteLock queryAuditEventLock = new ReentrantReadWriteLock();
     private LinkedBlockingDeque<AuditEvent> queryAuditEventList =
-        Queues.newLinkedBlockingDeque(Config.audit_event_wait_queue_size);
+            Queues.newLinkedBlockingDeque(Config.audit_event_wait_queue_size);
 
 
     private class BeReportInfo {
@@ -126,7 +126,7 @@ public class WorkloadRuntimeStatusMgr extends MasterDaemon {
         } catch (Exception e) {
             LOG.warn("audit log event queue size {} is full or push exception this may cause audit log missed."
                     + " you can check whether qps is too high or reset audit_event_log_queue_size",
-                queryAuditEventList.size(), e);
+                    queryAuditEventList.size(), e);
         } finally {
             queryAuditEventLogWriteUnlock();
         }

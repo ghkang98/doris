@@ -422,15 +422,15 @@ public class InternalSchemaInitializer extends Thread {
         List<AlterClause> clauses = Lists.newArrayList();
 
         Map<String, ColumnDef> defs = InternalSchema.getCopiedSchema(AuditHotSpotLoader.HOT_SPOT_TABLE)
-            .stream()
-            .collect(Collectors.toMap(ColumnDef::getName, t -> t));
+                .stream()
+                .collect(Collectors.toMap(ColumnDef::getName, t -> t));
 
         Set<String> tmpFullCols = Sets.newHashSet();
         for (Column col : table.fullSchema) {
             if (!defs.containsKey(col.getName())) {
                 LOG.warn("hotspot need to delete column: {}", col.getName());
                 DropColumnClause dropColumnClause = new DropColumnClause(
-                    col.getName(), null, Maps.newHashMap());
+                        col.getName(), null, Maps.newHashMap());
                 dropColumnClause.analyze(null);
                 clauses.add(dropColumnClause);
             }
@@ -440,7 +440,7 @@ public class InternalSchemaInitializer extends Thread {
             if (!tmpFullCols.contains(entry.getKey())) {
                 LOG.warn("hotspot need to add column: {}", entry.getKey());
                 AddColumnClause addColumnClause = new AddColumnClause(
-                    entry.getValue(), null, null, Maps.newHashMap());
+                        entry.getValue(), null, null, Maps.newHashMap());
                 addColumnClause.analyze(null);
                 clauses.add(addColumnClause);
             }
@@ -448,7 +448,7 @@ public class InternalSchemaInitializer extends Thread {
 
         if (!clauses.isEmpty()) {
             TableName tableName = new TableName(InternalCatalog.INTERNAL_CATALOG_NAME,
-                StatisticConstants.DB_NAME, table.getName());
+                    StatisticConstants.DB_NAME, table.getName());
             AlterTableStmt alter = new AlterTableStmt(tableName, clauses);
             Env.getCurrentEnv().alterTable(alter);
         }
@@ -462,7 +462,7 @@ public class InternalSchemaInitializer extends Thread {
         List<AlterClause> clauses = Lists.newArrayList();
 
         TableName tableName = new TableName(InternalCatalog.INTERNAL_CATALOG_NAME,
-            StatisticConstants.DB_NAME, table.getName());
+                StatisticConstants.DB_NAME, table.getName());
 
         //modify hotspot table `s dynamic partition props
         Map<String, String> newProps = new HashMap<>();

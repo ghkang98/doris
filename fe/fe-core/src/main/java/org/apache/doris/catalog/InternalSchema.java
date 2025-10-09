@@ -118,17 +118,17 @@ public class InternalSchema {
                 false, AggregateType.REPLACE_IF_NOT_NULL, false,
                 ColumnDef.DefaultValue.CURRENT_TIMESTAMP_DEFAULT_VALUE, "last visit date"));
         HOT_SPOT_SCHEMA.add(new ColumnDef("write_file_count", TypeDef.create(PrimitiveType.BIGINT),
-            false, AggregateType.SUM, false,
-            new ColumnDef.DefaultValue(true, "0"), "write file count"));
+                false, AggregateType.SUM, false,
+                new ColumnDef.DefaultValue(true, "0"), "write file count"));
         HOT_SPOT_SCHEMA.add(new ColumnDef("write_row_count", TypeDef.create(PrimitiveType.BIGINT),
-            false, AggregateType.SUM, false,
-            new ColumnDef.DefaultValue(true, "0"), "write file count"));
+                false, AggregateType.SUM, false,
+                new ColumnDef.DefaultValue(true, "0"), "write file count"));
         HOT_SPOT_SCHEMA.add(new ColumnDef("write_data_length", TypeDef.create(PrimitiveType.BIGINT),
-            false, AggregateType.SUM, false,
-            new ColumnDef.DefaultValue(true, "0"), "write data length"));
+                false, AggregateType.SUM, false,
+                new ColumnDef.DefaultValue(true, "0"), "write data length"));
         HOT_SPOT_SCHEMA.add(new ColumnDef("write_time", TypeDef.create(PrimitiveType.BIGINT),
-            false, AggregateType.SUM, false,
-            new ColumnDef.DefaultValue(true, "0"), "write time"));
+                false, AggregateType.SUM, false,
+                new ColumnDef.DefaultValue(true, "0"), "write time"));
     }
 
     // Get copied schema for statistic table

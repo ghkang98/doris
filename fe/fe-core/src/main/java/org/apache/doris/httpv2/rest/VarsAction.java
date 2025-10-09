@@ -55,9 +55,9 @@ public class VarsAction extends RestBaseController {
 
     @PutMapping("/api/_set_vars")
     public Object setVars(
-        HttpServletRequest request,
-        HttpServletResponse response,
-        @RequestBody List<Variable> vars
+            HttpServletRequest request,
+            HttpServletResponse response,
+            @RequestBody List<Variable> vars
     ) throws Exception {
         executeCheckPassword(request, response);
         checkGlobalAuth(ConnectContext.get().getCurrentUserIdentity(), PrivPredicate.ADMIN);
@@ -102,15 +102,15 @@ public class VarsAction extends RestBaseController {
                 return ResponseEntityBuilder.badRequest(message);
             } else {
                 List<String> successfullySetVarNames = alreadySetVars.keySet().stream()
-                    .map(SetVar::getVariable).collect(Collectors.toList());
+                        .map(SetVar::getVariable).collect(Collectors.toList());
                 List<Variable> failedToSetVarNames = vars.stream()
-                    .filter(variable -> !successfullySetVarNames.contains(variable.getName()))
-                    .collect(Collectors.toList());
+                        .filter(variable -> !successfullySetVarNames.contains(variable.getName()))
+                        .collect(Collectors.toList());
                 String message = "vars value set partially successful, successful vars is: " + successfullySetVarNames
-                    +
-                    ", failed vars is: " + failedToSetVarNames
-                    +
-                    ", invalid value for var is: " + firstInvalidVarName;
+                        +
+                        ", failed vars is: " + failedToSetVarNames
+                        +
+                        ", invalid value for var is: " + firstInvalidVarName;
                 return ResponseEntityBuilder.ok(message);
             }
         } finally {
@@ -124,9 +124,9 @@ public class VarsAction extends RestBaseController {
 
     @PutMapping("/api/_unset_vars")
     public Object unsetVars(
-        HttpServletRequest request,
-        HttpServletResponse response,
-        @RequestBody List<String> varNames
+            HttpServletRequest request,
+            HttpServletResponse response,
+            @RequestBody List<String> varNames
     ) throws Exception {
         executeCheckPassword(request, response);
         checkGlobalAuth(ConnectContext.get().getCurrentUserIdentity(), PrivPredicate.ADMIN);
@@ -145,7 +145,7 @@ public class VarsAction extends RestBaseController {
             for (String varName : distinctVarNames) {
                 String defaultValue = VariableMgr.getDefaultValue(varName);
                 SetVar var = new SetVar(SetType.GLOBAL, varName,
-                    new StringLiteral(defaultValue), SetVar.SetVarType.SET_SESSION_VAR);
+                        new StringLiteral(defaultValue), SetVar.SetVarType.SET_SESSION_VAR);
                 VariableMgr.setVar(sessionVariable, var);
             }
         } finally {
@@ -204,7 +204,7 @@ public class VarsAction extends RestBaseController {
 
     private void checkVarsValueNotNull(List<Variable> varNames) throws DdlException {
         List<Variable> nullValueList = varNames.stream()
-            .filter(v -> Objects.isNull(v.getValue())).collect(Collectors.toList());
+                .filter(v -> Objects.isNull(v.getValue())).collect(Collectors.toList());
         if (CollectionUtils.isNotEmpty(nullValueList)) {
             throw new DdlException("variable value is null: " + nullValueList);
         }
@@ -230,20 +230,20 @@ public class VarsAction extends RestBaseController {
     }
 
     private void rollbackModifiedVars(SessionVariable sessionVariable, Map<SetVar, String> alreadySetVars)
-        throws DdlException {
+            throws DdlException {
         if (!alreadySetVars.isEmpty()) {
             List<SetVar> rollbackSetVars = alreadySetVars.entrySet()
-                .stream().map(entry -> {
-                    SetVar setVar = entry.getKey();
-                    String originValue = entry.getValue();
-                    return new SetVar(
-                        SetType.GLOBAL,
-                        setVar.getVariable(),
-                        new StringLiteral(originValue),
-                        SetVar.SetVarType.SET_SESSION_VAR
-                    );
-                })
-                .collect(Collectors.toList());
+                    .stream().map(entry -> {
+                        SetVar setVar = entry.getKey();
+                        String originValue = entry.getValue();
+                        return new SetVar(
+                                SetType.GLOBAL,
+                                setVar.getVariable(),
+                                new StringLiteral(originValue),
+                                SetVar.SetVarType.SET_SESSION_VAR
+                        );
+                    })
+                    .collect(Collectors.toList());
             // it should not occur exception when set vars with origin value, so we do not need to guarantee acid hear
             for (SetVar setVar : rollbackSetVars) {
                 VariableMgr.setVar(sessionVariable, setVar);
@@ -253,8 +253,8 @@ public class VarsAction extends RestBaseController {
 
     @PutMapping("/api/_unset_all_vars")
     public Object unsetAllVars(
-        HttpServletRequest request,
-        HttpServletResponse response
+            HttpServletRequest request,
+            HttpServletResponse response
     ) throws Exception {
         executeCheckPassword(request, response);
         checkGlobalAuth(ConnectContext.get().getCurrentUserIdentity(), PrivPredicate.ADMIN);

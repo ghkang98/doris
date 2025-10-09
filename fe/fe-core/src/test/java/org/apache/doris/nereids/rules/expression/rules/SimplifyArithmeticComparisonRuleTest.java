@@ -152,7 +152,6 @@ class SimplifyArithmeticComparisonRuleTest extends ExpressionRewriteTestHelper {
         assertRewriteAfterTypeCoercion("seconds_add(AA, 1) > '2021-01-01'", "(AA > '2020-12-31 23:59:59')");
         assertRewriteAfterTypeCoercion("seconds_sub(AA, 1) > '2021-01-01'", "(AA > '2021-01-01 00:00:01')");
 
-
         // test date type
         assertRewriteAfterTypeCoercion("years_add(CA, 1) > '2021-01-01'", "(years_add(CA, 1) > date '2021-01-01')");
         assertRewriteAfterTypeCoercion("years_sub(CA, 1) > '2021-01-01'", "(years_sub(CA, 1) > date '2021-01-01')");

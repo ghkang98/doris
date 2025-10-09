@@ -2988,7 +2988,7 @@ public class StmtExecutor {
     private void handleDdlStmt() {
         try {
             DdlExecutor.execute(context, (DdlStmt) parsedStmt,
-                () -> StmtHelper.wrapAndGrantAuto(context, (DdlStmt) parsedStmt));
+                    () -> StmtHelper.wrapAndGrantAuto(context, (DdlStmt) parsedStmt));
             if (!(parsedStmt instanceof AnalyzeStmt)) {
                 context.getState().setOk();
             }
@@ -3016,7 +3016,7 @@ public class StmtExecutor {
         try {
             // create table
             DdlExecutor.execute(context, ctasStmt,
-                () -> StmtHelper.wrapAndGrantAuto(context, ctasStmt));
+                    () -> StmtHelper.wrapAndGrantAuto(context, ctasStmt));
             context.getState().setOk();
         } catch (Exception e) {
             // Maybe our bug

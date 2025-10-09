@@ -345,7 +345,7 @@ public class StmtExecutorTest {
                 result = symbol;
 
                 ctx.hasCoord();
-                minTimes =0;
+                minTimes = 0;
                 result = true;
             }
         };
