@@ -343,6 +343,10 @@ public class StmtExecutorTest {
                 parser.parse();
                 minTimes = 0;
                 result = symbol;
+
+                ctx.hasCoord();
+                minTimes =0;
+                result = true;
             }
         };
 

@@ -1598,7 +1598,7 @@ public class StmtExecutor {
             }
         }
 
-        if (killCtx == null) {
+        if (killCtx == null || !killCtx.hasCoord()) {
             TUniqueId tQueryId = null;
             try {
                 tQueryId = DebugUtil.parseTUniqueIdFromString(queryId);

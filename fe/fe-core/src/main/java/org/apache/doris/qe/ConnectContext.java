@@ -83,6 +83,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Objects;
 import java.util.Set;
 import javax.annotation.Nullable;
 
@@ -833,6 +834,13 @@ public class ConnectContext {
 
     public StmtExecutor getExecutor() {
         return executor;
+    }
+
+    public boolean hasCoord() {
+        if (executor == null) {
+            return  false;
+        }
+        return Objects.nonNull(executor.getCoord());
     }
 
     public void clear() {
