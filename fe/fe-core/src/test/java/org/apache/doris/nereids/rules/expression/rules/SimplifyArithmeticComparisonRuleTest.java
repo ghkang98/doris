@@ -32,7 +32,7 @@ class SimplifyArithmeticComparisonRuleTest extends ExpressionRewriteTestHelper {
     @Test
     public void testNumeric() {
         executor = new ExpressionRuleExecutor(ImmutableList.of(
-                ExpressionRewrite.bottomUp(SimplifyArithmeticComparisonRule.INSTANCE)
+            ExpressionRewrite.bottomUp(SimplifyArithmeticComparisonRule.INSTANCE)
         ));
 
         // test tinyint type
@@ -114,10 +114,11 @@ class SimplifyArithmeticComparisonRuleTest extends ExpressionRewriteTestHelper {
     @Test
     public void testDateLike() {
         executor = new ExpressionRuleExecutor(ImmutableList.of(
-                bottomUp(
-                        SimplifyArithmeticRule.INSTANCE,
-                        SimplifyArithmeticComparisonRule.INSTANCE
-                )
+            bottomUp(
+                SimplifyArithmeticRule.INSTANCE,
+                SimplifyArithmeticComparisonRule.INSTANCE,
+                FoldConstantRuleOnFE.VISITOR_INSTANCE
+            )
         ));
 
         // test datetimev2 type
@@ -125,62 +126,63 @@ class SimplifyArithmeticComparisonRuleTest extends ExpressionRewriteTestHelper {
         assertRewriteAfterTypeCoercion("years_sub(AA, 1) > '2021-01-01 00:00:00'", "(years_sub(AA, 1) > '2021-01-01 00:00:00')");
         assertRewriteAfterTypeCoercion("months_add(AA, 1) > '2021-01-01 00:00:00'", "(months_add(AA, 1) > '2021-01-01 00:00:00')");
         assertRewriteAfterTypeCoercion("months_sub(AA, 1) > '2021-01-01 00:00:00'", "(months_sub(AA, 1) > '2021-01-01 00:00:00')");
-        assertRewriteAfterTypeCoercion("weeks_add(AA, 1) > '2021-01-01 00:00:00'", "AA > weeks_sub('2021-01-01 00:00:00', 1)");
-        assertRewriteAfterTypeCoercion("weeks_sub(AA, 1) > '2021-01-01 00:00:00'", "AA > weeks_add('2021-01-01 00:00:00', 1)");
-        assertRewriteAfterTypeCoercion("days_add(AA, 1) > '2021-01-01 00:00:00'", "AA > days_sub('2021-01-01 00:00:00', 1)");
-        assertRewriteAfterTypeCoercion("days_sub(AA, 1) > '2021-01-01 00:00:00'", "AA > days_add('2021-01-01 00:00:00', 1)");
-        assertRewriteAfterTypeCoercion("hours_add(AA, 1) > '2021-01-01 00:00:00'", "AA > hours_sub('2021-01-01 00:00:00', 1)");
-        assertRewriteAfterTypeCoercion("hours_sub(AA, 1) > '2021-01-01 00:00:00'", "AA > hours_add('2021-01-01 00:00:00', 1)");
-        assertRewriteAfterTypeCoercion("minutes_add(AA, 1) > '2021-01-01 00:00:00'", "AA > minutes_sub('2021-01-01 00:00:00', 1)");
-        assertRewriteAfterTypeCoercion("minutes_sub(AA, 1) > '2021-01-01 00:00:00'", "AA > minutes_add('2021-01-01 00:00:00', 1)");
-        assertRewriteAfterTypeCoercion("seconds_add(AA, 1) > '2021-01-01 00:00:00'", "AA > seconds_sub('2021-01-01 00:00:00', 1)");
-        assertRewriteAfterTypeCoercion("seconds_sub(AA, 1) > '2021-01-01 00:00:00'", "AA > seconds_add('2021-01-01 00:00:00', 1)");
+        assertRewriteAfterTypeCoercion("weeks_add(AA, 1) > '2021-01-01 00:00:00'", "(AA > '2020-12-25 00:00:00')");
+        assertRewriteAfterTypeCoercion("weeks_sub(AA, 1) > '2021-01-01 00:00:00'", "(AA > '2021-01-08 00:00:00')");
+        assertRewriteAfterTypeCoercion("days_add(AA, 1) > '2021-01-01 00:00:00'", "(AA > '2020-12-31 00:00:00')");
+        assertRewriteAfterTypeCoercion("days_sub(AA, 1) > '2021-01-01 00:00:00'", "(AA > '2021-01-02 00:00:00')");
+        assertRewriteAfterTypeCoercion("hours_add(AA, 1) > '2021-01-01 00:00:00'", "(AA > '2020-12-31 23:00:00')");
+        assertRewriteAfterTypeCoercion("hours_sub(AA, 1) > '2021-01-01 00:00:00'", "(AA > '2021-01-01 01:00:00')");
+        assertRewriteAfterTypeCoercion("minutes_add(AA, 1) > '2021-01-01 00:00:00'", "(AA > '2020-12-31 23:59:00')");
+        assertRewriteAfterTypeCoercion("minutes_sub(AA, 1) > '2021-01-01 00:00:00'", "(AA > '2021-01-01 00:01:00')");
+        assertRewriteAfterTypeCoercion("seconds_add(AA, 1) > '2021-01-01 00:00:00'", "(AA > '2020-12-31 23:59:59')");
+        assertRewriteAfterTypeCoercion("seconds_sub(AA, 1) > '2021-01-01 00:00:00'", "(AA > '2021-01-01 00:00:01')");
 
         assertRewriteAfterTypeCoercion("years_add(AA, 1) > '2021-01-01'", "(years_add(AA, 1) > '2021-01-01 00:00:00')");
         assertRewriteAfterTypeCoercion("years_sub(AA, 1) > '2021-01-01'", "(years_sub(AA, 1) > '2021-01-01 00:00:00')");
         assertRewriteAfterTypeCoercion("months_add(AA, 1) > '2021-01-01'", "(months_add(AA, 1) > '2021-01-01 00:00:00')");
         assertRewriteAfterTypeCoercion("months_sub(AA, 1) > '2021-01-01'", "(months_sub(AA, 1) > '2021-01-01 00:00:00')");
-        assertRewriteAfterTypeCoercion("weeks_add(AA, 1) > '2021-01-01'", "AA > weeks_sub('2021-01-01 00:00:00', 1)");
-        assertRewriteAfterTypeCoercion("weeks_sub(AA, 1) > '2021-01-01'", "AA > weeks_add('2021-01-01 00:00:00', 1)");
-        assertRewriteAfterTypeCoercion("days_add(AA, 1) > '2021-01-01'", "AA > days_sub('2021-01-01 00:00:00', 1)");
-        assertRewriteAfterTypeCoercion("days_sub(AA, 1) > '2021-01-01'", "AA > days_add('2021-01-01 00:00:00', 1)");
-        assertRewriteAfterTypeCoercion("hours_add(AA, 1) > '2021-01-01'", "AA > hours_sub('2021-01-01 00:00:00', 1)");
-        assertRewriteAfterTypeCoercion("hours_sub(AA, 1) > '2021-01-01'", "AA > hours_add('2021-01-01 00:00:00', 1)");
-        assertRewriteAfterTypeCoercion("minutes_add(AA, 1) > '2021-01-01'", "AA > minutes_sub('2021-01-01 00:00:00', 1)");
-        assertRewriteAfterTypeCoercion("minutes_sub(AA, 1) > '2021-01-01'", "AA > minutes_add('2021-01-01 00:00:00', 1)");
-        assertRewriteAfterTypeCoercion("seconds_add(AA, 1) > '2021-01-01'", "AA > seconds_sub('2021-01-01 00:00:00', 1)");
-        assertRewriteAfterTypeCoercion("seconds_sub(AA, 1) > '2021-01-01'", "AA > seconds_add('2021-01-01 00:00:00', 1)");
+        assertRewriteAfterTypeCoercion("weeks_add(AA, 1) > '2021-01-01'", "(AA > '2020-12-25 00:00:00')");
+        assertRewriteAfterTypeCoercion("weeks_sub(AA, 1) > '2021-01-01'", "(AA > '2021-01-08 00:00:00')");
+        assertRewriteAfterTypeCoercion("days_add(AA, 1) > '2021-01-01'", "(AA > '2020-12-31 00:00:00')");
+        assertRewriteAfterTypeCoercion("days_sub(AA, 1) > '2021-01-01'", "(AA > '2021-01-02 00:00:00')");
+        assertRewriteAfterTypeCoercion("hours_add(AA, 1) > '2021-01-01'", "(AA > '2020-12-31 23:00:00')");
+        assertRewriteAfterTypeCoercion("hours_sub(AA, 1) > '2021-01-01'", "(AA > '2021-01-01 01:00:00')");
+        assertRewriteAfterTypeCoercion("minutes_add(AA, 1) > '2021-01-01'", "(AA > '2020-12-31 23:59:00')");
+        assertRewriteAfterTypeCoercion("minutes_sub(AA, 1) > '2021-01-01'", "(AA > '2021-01-01 00:01:00')");
+        assertRewriteAfterTypeCoercion("seconds_add(AA, 1) > '2021-01-01'", "(AA > '2020-12-31 23:59:59')");
+        assertRewriteAfterTypeCoercion("seconds_sub(AA, 1) > '2021-01-01'", "(AA > '2021-01-01 00:00:01')");
+
 
         // test date type
-        assertRewriteAfterTypeCoercion("years_add(CA, 1) > '2021-01-01'", "years_add(CA, 1) > cast('2021-01-01' as date)");
-        assertRewriteAfterTypeCoercion("years_sub(CA, 1) > '2021-01-01'", "years_sub(CA, 1) > cast('2021-01-01' as date)");
-        assertRewriteAfterTypeCoercion("months_add(CA, 1) > '2021-01-01'", "months_add(CA, 1) > cast('2021-01-01' as date)");
-        assertRewriteAfterTypeCoercion("months_sub(CA, 1) > '2021-01-01'", "months_sub(CA, 1) > cast('2021-01-01' as date)");
-        assertRewriteAfterTypeCoercion("weeks_add(CA, 1) > '2021-01-01'", "CA > weeks_sub(cast('2021-01-01' as date), 1)");
-        assertRewriteAfterTypeCoercion("weeks_sub(CA, 1) > '2021-01-01'", "CA > weeks_add(cast('2021-01-01' as date), 1)");
-        assertRewriteAfterTypeCoercion("days_add(CA, 1) > '2021-01-01'", "CA > days_sub(cast('2021-01-01' as date), 1)");
-        assertRewriteAfterTypeCoercion("days_sub(CA, 1) > '2021-01-01'", "CA > days_add(cast('2021-01-01' as date), 1)");
-        assertRewriteAfterTypeCoercion("hours_add(CA, 1) > '2021-01-01'", "cast(CA as datetime) > hours_sub('2021-01-01 00:00:00', 1)");
-        assertRewriteAfterTypeCoercion("hours_sub(CA, 1) > '2021-01-01'", "cast(CA as datetime) > hours_add('2021-01-01 00:00:00', 1)");
-        assertRewriteAfterTypeCoercion("minutes_add(CA, 1) > '2021-01-01'", "cast(CA as datetime) > minutes_sub('2021-01-01 00:00:00', 1)");
-        assertRewriteAfterTypeCoercion("minutes_sub(CA, 1) > '2021-01-01'", "cast(CA as datetime) > minutes_add('2021-01-01 00:00:00', 1)");
-        assertRewriteAfterTypeCoercion("seconds_add(CA, 1) > '2021-01-01'", "cast(CA as datetime) > seconds_sub('2021-01-01 00:00:00', 1)");
-        assertRewriteAfterTypeCoercion("seconds_sub(CA, 1) > '2021-01-01'", "cast(CA as datetime) > seconds_add('2021-01-01 00:00:00', 1)");
+        assertRewriteAfterTypeCoercion("years_add(CA, 1) > '2021-01-01'", "(years_add(CA, 1) > date '2021-01-01')");
+        assertRewriteAfterTypeCoercion("years_sub(CA, 1) > '2021-01-01'", "(years_sub(CA, 1) > date '2021-01-01')");
+        assertRewriteAfterTypeCoercion("months_add(CA, 1) > '2021-01-01'", "(months_add(CA, 1) > date '2021-01-01')");
+        assertRewriteAfterTypeCoercion("months_sub(CA, 1) > '2021-01-01'", "(months_sub(CA, 1) > date '2021-01-01')");
+        assertRewriteAfterTypeCoercion("weeks_add(CA, 1) > '2021-01-01'", "(CA > date '2020-12-25')");
+        assertRewriteAfterTypeCoercion("weeks_sub(CA, 1) > '2021-01-01'", "(CA > date '2021-01-08')");
+        assertRewriteAfterTypeCoercion("days_add(CA, 1) > '2021-01-01'", "(CA > date '2020-12-31')");
+        assertRewriteAfterTypeCoercion("days_sub(CA, 1) > '2021-01-01'", "(CA > date '2021-01-02')");
+        assertRewriteAfterTypeCoercion("hours_add(CA, 1) > '2021-01-01'", "(cast(CA as DATETIMEV2(0)) > '2020-12-31 23:00:00')");
+        assertRewriteAfterTypeCoercion("hours_sub(CA, 1) > '2021-01-01'", "(cast(CA as DATETIMEV2(0)) > '2021-01-01 01:00:00')");
+        assertRewriteAfterTypeCoercion("minutes_add(CA, 1) > '2021-01-01'", "(cast(CA as DATETIMEV2(0)) > '2020-12-31 23:59:00')");
+        assertRewriteAfterTypeCoercion("minutes_sub(CA, 1) > '2021-01-01'", "(cast(CA as DATETIMEV2(0)) > '2021-01-01 00:01:00')");
+        assertRewriteAfterTypeCoercion("seconds_add(CA, 1) > '2021-01-01'", "(cast(CA as DATETIMEV2(0)) > '2020-12-31 23:59:59')");
+        assertRewriteAfterTypeCoercion("seconds_sub(CA, 1) > '2021-01-01'", "(cast(CA as DATETIMEV2(0)) > '2021-01-01 00:00:01')");
 
-        assertRewriteAfterTypeCoercion("years_add(CA, 1) > '2021-01-01 00:00:00'", "years_add(CA, 1) > cast('2021-01-01' as date)");
-        assertRewriteAfterTypeCoercion("years_sub(CA, 1) > '2021-01-01 00:00:00'", "years_sub(CA, 1) > cast('2021-01-01' as date)");
-        assertRewriteAfterTypeCoercion("months_add(CA, 1) > '2021-01-01 00:00:00'", "months_add(CA, 1) > cast('2021-01-01' as date)");
-        assertRewriteAfterTypeCoercion("months_sub(CA, 1) > '2021-01-01 00:00:00'", "months_sub(CA, 1) > cast('2021-01-01' as date)");
-        assertRewriteAfterTypeCoercion("weeks_add(CA, 1) > '2021-01-01 00:00:00'", "CA > weeks_sub(cast('2021-01-01' as date), 1)");
-        assertRewriteAfterTypeCoercion("weeks_sub(CA, 1) > '2021-01-01 00:00:00'", "CA > weeks_add(cast('2021-01-01' as date), 1)");
-        assertRewriteAfterTypeCoercion("days_add(CA, 1) > '2021-01-01 00:00:00'", "CA > days_sub(cast('2021-01-01' as date), 1)");
-        assertRewriteAfterTypeCoercion("days_sub(CA, 1) > '2021-01-01 00:00:00'", "CA > days_add(cast('2021-01-01' as date), 1)");
-        assertRewriteAfterTypeCoercion("hours_add(CA, 1) > '2021-01-01 00:00:00'", "cast(CA as datetime) > hours_sub('2021-01-01 00:00:00', 1)");
-        assertRewriteAfterTypeCoercion("hours_sub(CA, 1) > '2021-01-01 00:00:00'", "cast(CA as datetime) > hours_add('2021-01-01 00:00:00', 1)");
-        assertRewriteAfterTypeCoercion("minutes_add(CA, 1) > '2021-01-01 00:00:00'", "cast(CA as datetime) > minutes_sub('2021-01-01 00:00:00', 1)");
-        assertRewriteAfterTypeCoercion("minutes_sub(CA, 1) > '2021-01-01 00:00:00'", "cast(CA as datetime) > minutes_add('2021-01-01 00:00:00', 1)");
-        assertRewriteAfterTypeCoercion("seconds_add(CA, 1) > '2021-01-01 00:00:00'", "cast(CA as datetime) > seconds_sub('2021-01-01 00:00:00', 1)");
-        assertRewriteAfterTypeCoercion("seconds_sub(CA, 1) > '2021-01-01 00:00:00'", "cast(CA as datetime) > seconds_add('2021-01-01 00:00:00', 1)");
+        assertRewriteAfterTypeCoercion("years_add(CA, 1) > '2021-01-01 00:00:00'", "(years_add(CA, 1) > date '2021-01-01')");
+        assertRewriteAfterTypeCoercion("years_sub(CA, 1) > '2021-01-01 00:00:00'", "(years_sub(CA, 1) > date '2021-01-01')");
+        assertRewriteAfterTypeCoercion("months_add(CA, 1) > '2021-01-01 00:00:00'", "(months_add(CA, 1) > date '2021-01-01')");
+        assertRewriteAfterTypeCoercion("months_sub(CA, 1) > '2021-01-01 00:00:00'", "(months_sub(CA, 1) > date '2021-01-01')");
+        assertRewriteAfterTypeCoercion("weeks_add(CA, 1) > '2021-01-01 00:00:00'", "(CA > date '2020-12-25')");
+        assertRewriteAfterTypeCoercion("weeks_sub(CA, 1) > '2021-01-01 00:00:00'", "(CA > date '2021-01-08')");
+        assertRewriteAfterTypeCoercion("days_add(CA, 1) > '2021-01-01 00:00:00'", "(CA > date '2020-12-31')");
+        assertRewriteAfterTypeCoercion("days_sub(CA, 1) > '2021-01-01 00:00:00'", "(CA > date '2021-01-02')");
+        assertRewriteAfterTypeCoercion("hours_add(CA, 1) > '2021-01-01 00:00:00'", "(cast(CA as DATETIMEV2(0)) > '2020-12-31 23:00:00')");
+        assertRewriteAfterTypeCoercion("hours_sub(CA, 1) > '2021-01-01 00:00:00'", "(cast(CA as DATETIMEV2(0)) > '2021-01-01 01:00:00')");
+        assertRewriteAfterTypeCoercion("minutes_add(CA, 1) > '2021-01-01 00:00:00'", "(cast(CA as DATETIMEV2(0)) > '2020-12-31 23:59:00')");
+        assertRewriteAfterTypeCoercion("minutes_sub(CA, 1) > '2021-01-01 00:00:00'", "(cast(CA as DATETIMEV2(0)) > '2021-01-01 00:01:00')");
+        assertRewriteAfterTypeCoercion("seconds_add(CA, 1) > '2021-01-01 00:00:00'", "(cast(CA as DATETIMEV2(0)) > '2020-12-31 23:59:59')");
+        assertRewriteAfterTypeCoercion("seconds_sub(CA, 1) > '2021-01-01 00:00:00'", "(cast(CA as DATETIMEV2(0)) > '2021-01-01 00:00:01')");
     }
 
     private void assertRewriteAfterSimplify(String expr, String expected) {
