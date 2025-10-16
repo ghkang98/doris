@@ -241,14 +241,14 @@ public class SessionVariable implements Serializable, Writable {
 
     public static final String ENABLE_INFER_PREDICATE = "enable_infer_predicate";
 
-    public static final long DEFAULT_INSERT_VISIBLE_TIMEOUT_MS = 10_000;
+    public static final long DEFAULT_INSERT_VISIBLE_TIMEOUT_MS = 120_000;
 
     public static final String ENABLE_VECTORIZED_ENGINE = "enable_vectorized_engine";
 
     public static final String EXTRACT_WIDE_RANGE_EXPR = "extract_wide_range_expr";
 
     // If user set a very small value, use this value instead.
-    public static final long MIN_INSERT_VISIBLE_TIMEOUT_MS = 1000;
+    public static final long MIN_INSERT_VISIBLE_TIMEOUT_MS = 30000;
 
     public static final String ENABLE_PIPELINE_ENGINE = "enable_pipeline_engine";
 
@@ -1489,7 +1489,7 @@ public class SessionVariable implements Serializable, Writable {
     // for nereids, fallback will cause the Doris return the correct result although the syntax is unsupported
     // in nereids for some mistaken modification. You should set it on the
     @VariableMgr.VarAttr(name = ENABLE_FALLBACK_TO_ORIGINAL_PLANNER, needForward = true)
-    public boolean enableFallbackToOriginalPlanner = true;
+    public boolean enableFallbackToOriginalPlanner = false;
 
     @VariableMgr.VarAttr(name = ENABLE_NEREIDS_TIMEOUT, needForward = true)
     public boolean enableNereidsTimeout = true;

@@ -213,21 +213,21 @@ PInternalServiceImpl::PInternalServiceImpl(ExecEnv* exec_env)
         : _exec_env(exec_env),
           _heavy_work_pool(config::brpc_heavy_work_pool_threads != -1
                                    ? config::brpc_heavy_work_pool_threads
-                                   : std::max(128, CpuInfo::num_cores() * 4),
+                                   : std::min(256, CpuInfo::num_cores() * 4),
                            config::brpc_heavy_work_pool_max_queue_size != -1
                                    ? config::brpc_heavy_work_pool_max_queue_size
                                    : std::max(10240, CpuInfo::num_cores() * 320),
                            "brpc_heavy"),
           _light_work_pool(config::brpc_light_work_pool_threads != -1
                                    ? config::brpc_light_work_pool_threads
-                                   : std::max(128, CpuInfo::num_cores() * 4),
+                                   : std::min(256, CpuInfo::num_cores() * 4),
                            config::brpc_light_work_pool_max_queue_size != -1
                                    ? config::brpc_light_work_pool_max_queue_size
                                    : std::max(10240, CpuInfo::num_cores() * 320),
                            "brpc_light"),
           _arrow_flight_work_pool(config::brpc_arrow_flight_work_pool_threads != -1
                                           ? config::brpc_arrow_flight_work_pool_threads
-                                          : std::max(512, CpuInfo::num_cores() * 2),
+                                          : std::min(128, CpuInfo::num_cores() * 2),
                                   config::brpc_arrow_flight_work_pool_max_queue_size != -1
                                           ? config::brpc_arrow_flight_work_pool_max_queue_size
                                           : std::max(20480, CpuInfo::num_cores() * 640),

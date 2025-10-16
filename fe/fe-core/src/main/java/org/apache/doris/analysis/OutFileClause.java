@@ -188,7 +188,7 @@ public class OutFileClause {
     private boolean parquetDisableDictionary = false;
     private static final String PARQUET_VERSION = "version";
     private static TParquetVersion parquetVersion = TParquetVersion.PARQUET_1_0;
-    private boolean enableInt96Timestamps = false;
+    private boolean enableInt96Timestamps = true;
 
     public OutFileClause(String filePath, String format, Map<String, String> properties) {
         this.filePath = filePath;

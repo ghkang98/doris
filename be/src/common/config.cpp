@@ -204,7 +204,7 @@ DEFINE_Int32(calc_delete_bitmap_max_thread, "32");
 // the count of thread to clear transaction task
 DEFINE_Int32(clear_transaction_task_worker_count, "1");
 // the count of thread to delete
-DEFINE_Int32(delete_worker_count, "3");
+DEFINE_Int32(delete_worker_count, "8");
 // the count of thread to alter table
 DEFINE_Int32(alter_tablet_worker_count, "3");
 // the count of thread to alter index
@@ -288,7 +288,7 @@ DEFINE_Int32(doris_scanner_thread_pool_thread_num, "-1");
 DEFINE_Validator(doris_scanner_thread_pool_thread_num, [](const int config) -> bool {
     if (config == -1) {
         CpuInfo::init();
-        doris_scanner_thread_pool_thread_num = std::max(48, CpuInfo::num_cores() * 2);
+        doris_scanner_thread_pool_thread_num = std::min(128, CpuInfo::num_cores() * 2);
     }
     return true;
 });
@@ -298,7 +298,7 @@ DEFINE_Int32(doris_max_remote_scanner_thread_pool_thread_num, "-1");
 // number of olap scanner thread pool queue size
 DEFINE_Int32(doris_scanner_thread_pool_queue_size, "102400");
 // default thrift client connect timeout(in seconds)
-DEFINE_mInt32(thrift_connect_timeout_seconds, "3");
+DEFINE_mInt32(thrift_connect_timeout_seconds, "10");
 DEFINE_mInt32(fetch_rpc_timeout_seconds, "30");
 
 // default thrift client retry interval (in milliseconds)
