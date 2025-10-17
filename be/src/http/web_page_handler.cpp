@@ -48,7 +48,9 @@ namespace doris {
 
 static std::string s_html_content_type = "text/html";
 
-WebPageHandler::WebPageHandler(EvHttpServer* server) : _http_server(server) {
+WebPageHandler::WebPageHandler(EvHttpServer* server, ExecEnv* exec_env, TPrivilegeHier::type hier,
+                               TPrivilegeType::type type)
+        : HttpHandlerWithAuth(exec_env, hier, type), _http_server(server) {
     _www_path = std::string(getenv("DORIS_HOME")) + "/www/";
 
     // Make WebPageHandler to be static file handler, static files, e.g. css, png, will be handled by WebPageHandler.

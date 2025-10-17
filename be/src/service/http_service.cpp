@@ -100,7 +100,8 @@ std::shared_ptr<bufferevent_rate_limit_group> get_rate_limit_group(event_base* e
 HttpService::HttpService(ExecEnv* env, int port, int num_threads)
         : _env(env),
           _ev_http_server(new EvHttpServer(port, num_threads)),
-          _web_page_handler(new WebPageHandler(_ev_http_server.get())) {}
+          _web_page_handler(new WebPageHandler(_ev_http_server.get(), env, TPrivilegeHier::GLOBAL,
+                                                         TPrivilegeType::NONE)) {}
 
 HttpService::~HttpService() {
     stop();
@@ -312,7 +313,7 @@ Status HttpService::start() {
                                       run_status_compaction_action);
 
     ConfigAction* update_config_action =
-            _pool.add(new ConfigAction(ConfigActionType::UPDATE_CONFIG, _env, TPrivilegeHier::GLOBAL, TPrivilegeType::NONE));
+            _pool.add(new ConfigAction(ConfigActionType::UPDATE_CONFIG, _env, TPrivilegeHier::GLOBAL, TPrivilegeType::ADMIN));
     _ev_http_server->register_handler(HttpMethod::POST, "/api/update_config", update_config_action);
 
     ConfigAction* show_config_action = _pool.add(new ConfigAction(ConfigActionType::SHOW_CONFIG, _env, TPrivilegeHier::GLOBAL, TPrivilegeType::NONE));
