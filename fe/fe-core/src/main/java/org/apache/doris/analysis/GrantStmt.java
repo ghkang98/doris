@@ -141,20 +141,6 @@ public class GrantStmt extends DdlStmt {
         if (userIdent != null) {
             userIdent.analyze();
         } else {
-            if (CollectionUtils.isEmpty(privileges)
-                    && CollectionUtils.isEmpty(roles) && MapUtils.isEmpty(colPrivileges)) {
-                throw new AnalysisException("No privileges or roles in grant statement.");
-            }
-        }
-    }
-
-    @Override
-    public void analyze(Analyzer analyzer) throws UserException {
-        super.analyze(analyzer);
-
-        if (userIdent != null) {
-            userIdent.analyze();
-        } else {
             FeNameFormat.checkRoleName(role, false /* can not be admin */, "Can not grant to role");
         }
 
@@ -182,7 +168,12 @@ public class GrantStmt extends DdlStmt {
         if (CollectionUtils.isEmpty(privileges) && CollectionUtils.isEmpty(roles) && MapUtils.isEmpty(colPrivileges)) {
             throw new AnalysisException("No privileges or roles in grant statement.");
         }
+    }
 
+    @Override
+    public void analyze(Analyzer analyzer) throws UserException {
+        super.analyze(analyzer);
+        analyzeAttr(analyzer);
         if (tblPattern != null) {
             checkTablePrivileges(privileges, tblPattern, colPrivileges);
         } else if (resourcePattern != null) {
