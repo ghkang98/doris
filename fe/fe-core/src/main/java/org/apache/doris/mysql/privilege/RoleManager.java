@@ -177,19 +177,19 @@ public class RoleManager implements Writable, GsonPostProcessable {
                             }, (s1, s2) -> s1 + " " + s2
                     ));
             Stream.of(PrivLevel.GLOBAL, PrivLevel.CATALOG, PrivLevel.DATABASE, PrivLevel.TABLE)
-                .forEach(level -> {
-                    String infoItem = infoMap.get(level);
-                    if (Strings.isNullOrEmpty(infoItem)) {
-                        infoItem = FeConstants.null_string;
-                    }
-                    info.add(infoItem);
-                });
+                    .forEach(level -> {
+                        String infoItem = infoMap.get(level);
+                        if (Strings.isNullOrEmpty(infoItem)) {
+                            infoItem = FeConstants.null_string;
+                        }
+                        info.add(infoItem);
+                    });
 
             //add column priv, keep the order same as show grants
             List<String> colPrivs = Lists.newArrayList();
             for (Entry<ColPrivilegeKey, Set<String>> entry : role.getColPrivMap().entrySet()) {
                 colPrivs.add(String.format("%s.%s.%s: %s%s", entry.getKey().getCtl(), entry.getKey().getDb(),
-                    entry.getKey().getTbl(), entry.getKey().getPrivilege(), entry.getValue()));
+                        entry.getKey().getTbl(), entry.getKey().getPrivilege(), entry.getValue()));
             }
             if (colPrivs.isEmpty()) {
                 info.add(FeConstants.null_string);
@@ -198,7 +198,7 @@ public class RoleManager implements Writable, GsonPostProcessable {
             }
 
             Stream.of(PrivLevel.RESOURCE, PrivLevel.WORKLOAD_GROUP)
-                .forEach(level -> {
+                    .forEach(level -> {
                         String infoItem = infoMap.get(level);
                         if (Strings.isNullOrEmpty(infoItem)) {
                             infoItem = FeConstants.null_string;
