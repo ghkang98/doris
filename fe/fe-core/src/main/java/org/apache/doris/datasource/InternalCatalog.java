@@ -1694,7 +1694,7 @@ public class InternalCatalog implements CatalogIf<Database> {
             if (olapTable.checkPartitionNameExist(partitionName)) {
                 LOG.info("table[{}] add partition[{}] which already exists", olapTable.getName(), partitionName);
                 if (singlePartitionDesc.isSetIfNotExists()) {
-                    failedCleanCallback.run();
+                    LOG.info("table[{}] add partition[{}] which already exists2", olapTable.getName(), partitionName);
                     return;
                 } else {
                     ErrorReport.reportDdlException(ErrorCode.ERR_SAME_NAME_PARTITION, partitionName);
