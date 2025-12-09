@@ -125,7 +125,8 @@ Status S3FileReader::read_at_impl(size_t offset, Slice result, size_t* bytes_rea
         _s3_stats.total_get_request_counter++;
         if (!outcome.IsSuccess()) {
             auto error = outcome.GetError();
-            if (error.GetResponseCode() == Aws::Http::HttpResponseCode::TOO_MANY_REQUESTS) {
+            if (Aws::Http::IsRetryableHttpResponseCode(error.GetResponseCode()) ||
+                error.GetErrorType() == Aws::S3::S3Errors::NETWORK_CONNECTION) {
                 s3_file_reader_too_many_request_counter << 1;
                 retry_count++;
                 int wait_time = std::min(base_wait_time * (1 << retry_count),
@@ -136,7 +137,7 @@ Status S3FileReader::read_at_impl(size_t offset, Slice result, size_t* bytes_rea
                 total_sleep_time += wait_time;
                 continue;
             } else {
-                // Handle other errors
+                //Handle other errors
                 return s3fs_error(outcome.GetError(), "failed to read");
             }
         }
