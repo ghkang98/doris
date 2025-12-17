@@ -174,7 +174,7 @@ public class ExternalTable implements TableIf, Writable, GsonPostProcessable {
     @Override
     public List<Column> getFullSchema() {
         ExternalSchemaCache cache = Env.getCurrentEnv().getExtMetaCacheMgr().getSchemaCache(catalog);
-        Optional<SchemaCacheValue> schemaCacheValue = cache.getSchemaValue(getRemoteDbName(), getRemoteName());
+        Optional<SchemaCacheValue> schemaCacheValue = cache.getSchemaValue(getDbName(), getName());
         return schemaCacheValue.map(SchemaCacheValue::getSchema).orElse(null);
     }
 
@@ -414,7 +414,7 @@ public class ExternalTable implements TableIf, Writable, GsonPostProcessable {
 
     protected Optional<SchemaCacheValue> getSchemaCacheValue() {
         ExternalSchemaCache cache = Env.getCurrentEnv().getExtMetaCacheMgr().getSchemaCache(catalog);
-        return cache.getSchemaValue(getRemoteDbName(), getRemoteName());
+        return cache.getSchemaValue(getDbName(), getName());
     }
 
     /**

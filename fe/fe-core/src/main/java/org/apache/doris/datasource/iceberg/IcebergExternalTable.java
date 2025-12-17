@@ -69,7 +69,7 @@ public class IcebergExternalTable extends ExternalTable {
             return Optional.of(new SchemaCacheValue(
                 IcebergUtils.getSchema(getCatalog(), icebergView::schema)));
         } else {
-            Table icebergTable = IcebergUtils.getIcebergTable(getCatalog(), getDbName(), getName());
+            Table icebergTable = IcebergUtils.getIcebergTable(getCatalog(), getRemoteDbName(), getRemoteName());
             return Optional.of(new SchemaCacheValue(
                 IcebergUtils.getSchema(getCatalog(), icebergTable::schema)));
         }
