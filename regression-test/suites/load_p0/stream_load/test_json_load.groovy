@@ -780,7 +780,7 @@ suite("test_json_load", "p0") {
                 def command = "curl ${url}"
                 log.info("command: ${command}".toString())
                 def process = command.execute()
-                def code = process.waitFor()
+                def code = process.waitForOrKill(10) ?: -1
                 def out = process.text
                 log.info("result: ${out}".toString())
                 def reason = "Reason: There is no column matching jsonpaths in the json file, columns:[name, age, agent_id, ], please check columns and jsonpaths:[\"\$.Name\", \"\$.Age\", \"\$.Agent_id\"]. src line [{\"name\":\"Name1\",\"age\":21,\"agent_id\":\"1\"}]; \n"
@@ -816,7 +816,7 @@ suite("test_json_load", "p0") {
                 def command = "curl ${url}"
                 log.info("command: ${command}".toString())
                 def process = command.execute()
-                def code = process.waitFor()
+                def code = process.waitForOrKill(10) ?: -1
                 def out = process.text
                 log.info("result: ${out}".toString())
                 def reason = "Reason: There is no column matching jsonpaths in the json file, columns:[Name, Age, Agent_id, ], please check columns and jsonpaths:. src line [{\"name\":\"Name1\",\"age\":21,\"agent_id\":\"1\"}]; \n"

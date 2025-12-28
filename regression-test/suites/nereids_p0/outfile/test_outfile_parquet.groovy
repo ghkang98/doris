@@ -38,7 +38,7 @@ suite("test_outfile_parquet") {
 
     String command = strBuilder.toString()
     def process = command.toString().execute()
-    def code = process.waitFor()
+    def code = process.waitForOrKill(10) ?: -1
     def err = IOGroovyMethods.getText(new BufferedReader(new InputStreamReader(process.getErrorStream())));
     def out = process.getText()
     logger.info("Request FE Config: code=" + code + ", out=" + out + ", err=" + err)
@@ -152,7 +152,7 @@ suite("test_outfile_parquet") {
         commandBuilder.append(""" -H format:parquet -T """ + files[0].getAbsolutePath() + """ http://${context.config.feHttpAddress}/api/""" + dbName + "/" + tableName2 + "/_stream_load")
         command = commandBuilder.toString()
         process = command.execute()
-        code = process.waitFor()
+        code = process.waitForOrKill(10) ?: -1
         err = IOGroovyMethods.getText(new BufferedReader(new InputStreamReader(process.getErrorStream())))
         out = process.getText()
         logger.info("Run command: command=" + command + ",code=" + code + ", out=" + out + ", err=" + err)

@@ -93,7 +93,7 @@ suite("test_load_with_transfer_encoding", "p0") {
         def command = """curl --location-trusted -u ${context.config.feHttpUser}:${context.config.feHttpPassword} -H read_json_by_line:false -H Expect:100-continue -H max_filter_ratio:1 -H strict_mode:false -H strip_outer_array:true -H columns:id,created,creater,deleted,updated,card_id,card_type_id,card_type_name,cash_balance,cashier_id,client_id,cost,creater_name,details,id_name,id_number,last_client_id,login_id,operation_type,place_id,present,present_balance,remark,shift_id,source_type,online_account -H format:json -H Transfer-Encoding:chunked -T ${fileName} -XPUT http://${context.config.feHttpAddress}/api/${db}/${table_name}/_stream_load"""
         log.info("stream load: ${command}")
         def process = command.execute()
-        def code = process.waitFor()
+        def code = process.waitForOrKill(10) ?: -1
         def out = process.text
         def json = parseJson(out)
         log.info("stream load result is:: ${out}".toString())

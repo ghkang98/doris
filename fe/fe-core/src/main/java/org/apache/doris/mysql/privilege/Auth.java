@@ -1117,6 +1117,16 @@ public class Auth implements Writable {
         }
     }
 
+
+    public int getDeleteTimeout(String qualifiedUser) {
+        readLock();
+        try {
+            return propertyMgr.getDeleteTimeout(qualifiedUser);
+        } finally {
+            readUnlock();
+        }
+    }
+
     public long getMaxQueryInstances(String qualifiedUser) {
         readLock();
         try {

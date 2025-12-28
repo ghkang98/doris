@@ -122,9 +122,9 @@ Suite.metaClass.curl = { String method, String url, String body = null /* param 
     }
 
     Integer timeout = 10; // 10 seconds;
-    Integer maxRetries = 10; // Maximum number of retries
+    Integer maxRetries = 3; // Maximum number of retries
     Integer retryCount = 0; // Current retry count
-    Integer sleepTime = 5000; // Sleep time in milliseconds
+    Integer sleepTime = 2000; // Sleep time in milliseconds
 
     String cmd
     if (method == "POST" && body != null) {
@@ -141,7 +141,7 @@ Suite.metaClass.curl = { String method, String url, String body = null /* param 
 
     while (retryCount < maxRetries) {
         process = cmd.execute()
-        code = process.waitFor()
+        code = process.waitForOrKill(10) ?: -1
         err = IOGroovyMethods.getText(new BufferedReader(new InputStreamReader(process.getErrorStream())))
         out = process.getText()
 

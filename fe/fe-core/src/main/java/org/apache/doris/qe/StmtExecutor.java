@@ -524,6 +524,18 @@ public class StmtExecutor {
                 || parsedStmt instanceof CreateTableAsSelectStmt || parsedStmt instanceof DeleteStmt;
     }
 
+    public boolean isDeleteStmt() {
+        if (parsedStmt == null) {
+            return false;
+        }
+        if (parsedStmt instanceof LogicalPlanAdapter) {
+            LogicalPlan logicalPlan = ((LogicalPlanAdapter) parsedStmt).getLogicalPlan();
+            return logicalPlan instanceof DeleteFromCommand;
+        } else {
+            return parsedStmt instanceof DeleteStmt;
+        }
+    }
+
     public boolean isAnalyzeStmt() {
         if (parsedStmt == null) {
             return false;

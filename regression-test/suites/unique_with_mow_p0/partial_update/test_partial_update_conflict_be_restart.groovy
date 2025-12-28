@@ -69,7 +69,7 @@ suite("test_partial_update_conflict_be_restart", 'docker') {
             log.info("http_stream execute 2pc: ${command}")
 
             def process = command.execute()
-            code = process.waitFor()
+            code = process.waitForOrKill(10) ?: -1
             out = process.text
             json2pc = parseJson(out)
             log.info("http_stream 2pc result: ${out}".toString())

@@ -838,7 +838,7 @@ public class ConnectContext {
 
     public boolean hasCoord() {
         if (executor == null) {
-            return  false;
+            return false;
         }
         return Objects.nonNull(executor.getCoord());
     }
@@ -1056,6 +1056,9 @@ public class ConnectContext {
      */
     public int getExecTimeout() {
         if (executor != null && executor.isSyncLoadKindStmt()) {
+            if (executor.isDeleteStmt()) {
+                return getDeleteTimeoutS();
+            }
             // particular for insert stmt, we can expand other type of timeout in the same way
             return Math.max(getInsertTimeoutS(), getQueryTimeoutS());
         } else if (executor != null && executor.isAnalyzeStmt()) {
@@ -1085,6 +1088,23 @@ public class ConnectContext {
         }
         return env.getAuth().getInsertTimeout(getQualifiedUser());
     }
+
+    public int getDeleteTimeoutS() {
+        int userDeleteTimeout = getDeleteTimeoutSFromProperty();
+        if (userDeleteTimeout > 0) {
+            return userDeleteTimeout;
+        }
+        return sessionVariable.getDeleteTimeoutS();
+    }
+
+    private int getDeleteTimeoutSFromProperty() {
+        if (env == null || env.getAuth() == null || StringUtils.isEmpty(getQualifiedUser())) {
+            return 0;
+        }
+        return env.getAuth().getDeleteTimeout(getQualifiedUser());
+    }
+
+
 
     /**
      * First, retrieve from the user's attributes. If not, retrieve from the session variable

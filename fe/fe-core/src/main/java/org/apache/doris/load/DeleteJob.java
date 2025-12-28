@@ -343,6 +343,12 @@ public class DeleteJob extends AbstractTxnStateChangeCallback implements DeleteJ
                     for (Replica replica : tablet.getReplicas()) {
                         long replicaId = replica.getId();
                         long backendId = replica.getBackendId();
+
+                        //if backend has been dropped or unAlive will skip task dispatch
+                        if (!Env.getCurrentSystemInfo().checkBackendAlive(backendId)) {
+                            continue;
+                        }
+
                         countDownLatch.addMark(backendId, tabletId);
 
                         // create push task for each replica
@@ -400,31 +406,6 @@ public class DeleteJob extends AbstractTxnStateChangeCallback implements DeleteJ
             errMsg = "unfinished replicas [BackendId=TabletId]: " + Joiner.on(", ").join(subList);
         }
         LOG.warn(errMsg);
-        checkAndUpdateQuorum();
-        switch (state) {
-            case UN_QUORUM:
-                LOG.warn("delete job timeout: transactionId {}, timeout {}, {}",
-                        signature, timeoutMs, errMsg);
-                throw new UserException(String.format("delete job timeout, timeout(ms):%s, msg:%s", timeoutMs, errMsg));
-            case QUORUM_FINISHED:
-            case FINISHED:
-                long nowQuorumTimeMs = System.currentTimeMillis();
-                long endQuorumTimeoutMs = nowQuorumTimeMs + timeoutMs / 2;
-                // if job's state is quorum_finished then wait for a period of time and commit it.
-                while (state == DeleteState.QUORUM_FINISHED
-                        && endQuorumTimeoutMs > nowQuorumTimeMs) {
-                    checkAndUpdateQuorum();
-                    Thread.sleep(1000);
-                    nowQuorumTimeMs = System.currentTimeMillis();
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("wait for quorum finished delete job: {}, txn id: {}",
-                                id, signature);
-                    }
-                }
-                break;
-            default:
-                throw new IllegalStateException("wrong delete job state: " + state.name());
-        }
     }
 
     @Override
@@ -549,12 +530,11 @@ public class DeleteJob extends AbstractTxnStateChangeCallback implements DeleteJ
                     params.getTable().getName(), getDeleteCondString(params.getDeleteConditions()),
                     noPartitionSpecified, partitionIds, partitionNames);
             DeleteJob deleteJob = new DeleteJob(jobId, -1, label, partitionReplicaNum, deleteInfo);
-            long replicaNum = partitions.stream().mapToLong(Partition::getAllReplicaCount).sum();
             deleteJob.setPartitions(partitions);
             deleteJob.setDeleteConditions(params.getDeleteConditions());
             deleteJob.setTargetDb(params.getDb());
             deleteJob.setTargetTbl(params.getTable());
-            deleteJob.setCountDownLatch(new MarkedCountDownLatch<>((int) replicaNum));
+            deleteJob.setCountDownLatch(new MarkedCountDownLatch<>());
             ConnectContext connectContext = ConnectContext.get();
             if (connectContext != null) {
                 deleteJob.setTimeoutS(connectContext.getExecTimeout());

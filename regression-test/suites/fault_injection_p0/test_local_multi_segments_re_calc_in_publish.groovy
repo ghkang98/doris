@@ -86,7 +86,7 @@ suite("test_local_multi_segments_re_calc_in_publish", "docker") {
             log.info("http_stream execute 2pc: ${command}")
 
             def process = command.execute()
-            def code = process.waitFor()
+            def code = process.waitForOrKill(10) ?: -1
             def out = process.text
             def json2pc = parseJson(out)
             log.info("http_stream 2pc result: ${out}".toString())

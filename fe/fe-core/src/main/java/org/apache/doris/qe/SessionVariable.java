@@ -87,6 +87,7 @@ public class SessionVariable implements Serializable, Writable {
 
     public static final String MAX_EXECUTION_TIME = "max_execution_time";
     public static final String INSERT_TIMEOUT = "insert_timeout";
+    public static final String DELETE_TIMEOUT = "delete_timeout";
     public static final String ENABLE_PROFILE = "enable_profile";
     public static final String ENABLE_VERBOSE_PROFILE = "enable_verbose_profile";
     public static final String RPC_VERBOSE_PROFILE_MAX_INSTANCE_COUNT = "rpc_verbose_profile_max_instance_count";
@@ -773,6 +774,10 @@ public class SessionVariable implements Serializable, Writable {
 
     @VariableMgr.VarAttr(name = INSERT_TIMEOUT)
     public int insertTimeoutS = 14400;
+
+
+    @VariableMgr.VarAttr(name = DELETE_TIMEOUT)
+    public int deleteTimeoutS = 300;
 
     // if true, need report to coordinator when plan fragment execute successfully.
     @VariableMgr.VarAttr(name = ENABLE_PROFILE, needForward = true)
@@ -2612,6 +2617,9 @@ public class SessionVariable implements Serializable, Writable {
         return insertTimeoutS;
     }
 
+    public int getDeleteTimeoutS() {
+        return deleteTimeoutS;
+    }
 
     public void setInsertTimeoutS(int insertTimeoutS) {
         this.insertTimeoutS = insertTimeoutS;

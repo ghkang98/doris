@@ -65,7 +65,7 @@ suite("test_partial_update_delete_sign_with_conflict") {
         log.info("http_stream execute 2pc: ${command}")
 
         def process = command.execute()
-        def code = process.waitFor()
+        def code = process.waitForOrKill(10) ?: -1
         def out = process.text
         def json2pc = parseJson(out)
         log.info("http_stream 2pc result: ${out}".toString())

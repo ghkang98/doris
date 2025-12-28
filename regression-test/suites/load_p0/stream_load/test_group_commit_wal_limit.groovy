@@ -49,7 +49,7 @@ suite("test_group_commit_wal_limit") {
     String command = strBuilder.toString()
     logger.info("command is " + command)
     def process = ['bash','-c',command].execute() 
-    def code = process.waitFor()
+    def code = process.waitForOrKill(10) ?: -1
     assertEquals(code, 0)
     def out = process.text
     logger.info("out is " + out )
@@ -68,7 +68,7 @@ suite("test_group_commit_wal_limit") {
     command = strBuilder.toString()
     logger.info("command is " + command)
     process = ['bash','-c',command].execute() 
-    code = process.waitFor()
+    code = process.waitForOrKill(10) ?: -1
     assertEquals(code, 0)
     out = process.text
     logger.info("out is " + out )

@@ -64,6 +64,9 @@ public class CommonUserProperties implements Writable {
     @SerializedName("insertTimeout")
     private int insertTimeout = -1;
 
+    @SerializedName("deleteTimeout")
+    private int deleteTimeout = -1;
+
     @SerializedName("workloadGroup")
     private String workloadGroup = WorkloadGroupMgr.DEFAULT_GROUP_NAME;
 
@@ -152,6 +155,14 @@ public class CommonUserProperties implements Writable {
 
     public void setInsertTimeout(int insertTimeout) {
         this.insertTimeout = insertTimeout;
+    }
+
+    public int getDeleteTimeout() {
+        return deleteTimeout;
+    }
+
+    public void setDeleteTimeout(int deleteTimeout) {
+        this.deleteTimeout = deleteTimeout;
     }
 
     public String getWorkloadGroup() {

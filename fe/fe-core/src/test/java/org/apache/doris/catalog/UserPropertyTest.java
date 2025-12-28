@@ -108,6 +108,7 @@ public class UserPropertyTest {
         properties.add(Pair.of("sql_block_rules", "rule1,rule2"));
         properties.add(Pair.of("cpu_resource_limit", "2"));
         properties.add(Pair.of("query_timeout", "500"));
+        properties.add(Pair.of("delete_timeout", "300"));
 
         UserProperty userProperty = new UserProperty();
         userProperty.update(properties);
@@ -141,6 +142,8 @@ public class UserPropertyTest {
                 Assert.assertEquals("2", value);
             } else if (key.equalsIgnoreCase("query_timeout")) {
                 Assert.assertEquals("500", value);
+            } else if (key.equalsIgnoreCase("delete_timeout")) {
+                Assert.assertEquals("300", value);
             }
         }
 

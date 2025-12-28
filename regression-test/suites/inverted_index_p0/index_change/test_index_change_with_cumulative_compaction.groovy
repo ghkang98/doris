@@ -79,7 +79,7 @@ suite("test_index_change_with_cumulative_compaction", "nonConcurrent") {
         showConfigCommand.append("/api/show_config")
         logger.info(showConfigCommand.toString())
         def process = showConfigCommand.toString().execute()
-        int code = process.waitFor()
+        int code = process.waitForOrKill(10) ?: -1
         String err = IOGroovyMethods.getText(new BufferedReader(new InputStreamReader(process.getErrorStream())));
         String out = process.getText()
         logger.info("Show config: code=" + code + ", out=" + out + ", err=" + err)
@@ -185,7 +185,7 @@ suite("test_index_change_with_cumulative_compaction", "nonConcurrent") {
             String command = sb.toString()
             // wait for cleaning stale_rowsets
             process = command.execute()
-            code = process.waitFor()
+            code = process.waitForOrKill(10) ?: -1
             err = IOGroovyMethods.getText(new BufferedReader(new InputStreamReader(process.getErrorStream())));
             out = process.getText()
             logger.info("Show tablets status: code=" + code + ", out=" + out + ", err=" + err)

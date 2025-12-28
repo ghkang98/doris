@@ -299,7 +299,7 @@ suite("insert_group_commit_into") {
                         String command = sb.toString()
                         logger.info(command)
                         def process = command.execute()
-                        def code = process.waitFor()
+                        def code = process.waitForOrKill(10) ?: -1
                         def err = IOGroovyMethods.getText(new BufferedReader(new InputStreamReader(process.getErrorStream())));
                         def out = process.getText()
                         logger.info("Get profile: code=" + code + ", out=" + out + ", err=" + err)

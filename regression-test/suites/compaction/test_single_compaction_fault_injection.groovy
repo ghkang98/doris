@@ -58,7 +58,7 @@ suite("test_single_compaction_fault_injection", "p2, nonConcurrent") {
 
         while (retryCount < maxRetries) {
             process = cmd.execute()
-            code_3 = process.waitFor()
+            code_3 = process.waitForOrKill(10) ?: -1
             err_3 = IOGroovyMethods.getText(new BufferedReader(new InputStreamReader(process.getErrorStream())))
             out_3 = process.getText()
 
@@ -87,7 +87,7 @@ suite("test_single_compaction_fault_injection", "p2, nonConcurrent") {
             String command = sb.toString()
             logger.info(command)
             def process = command.execute()
-            def code = process.waitFor()
+            def code = process.waitForOrKill(10) ?: -1
             def out = process.getText()
             logger.info("Get compaction status: code=" + code + ", out=" + out)
             assertEquals(code, 0)
@@ -108,7 +108,7 @@ suite("test_single_compaction_fault_injection", "p2, nonConcurrent") {
         String command = sb.toString()
         logger.info(command)
         def process = command.execute()
-        def code = process.waitFor()
+        def code = process.waitForOrKill(10) ?: -1
         def out = process.getText()
         logger.info("Get tablet status:  =" + code + ", out=" + out)
         assertEquals(code, 0)

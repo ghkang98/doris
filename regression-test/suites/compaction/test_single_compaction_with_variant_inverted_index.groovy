@@ -55,7 +55,7 @@ suite("test_single_compaction_with_variant_inverted", "p2, nonConcurrent") {
         String command = sb.toString()
         logger.info(command)
         def process = command.execute()
-        code = process.waitFor()
+        code = process.waitForOrKill(10) ?: -1
         err = IOGroovyMethods.getText(new BufferedReader(new InputStreamReader(process.getErrorStream())));
         out = process.getText()
         logger.info("Run compaction: code=" + code + ", out=" + out + ", disableAutoCompaction " + disableAutoCompaction + ", err=" + err)
@@ -76,7 +76,7 @@ suite("test_single_compaction_with_variant_inverted", "p2, nonConcurrent") {
         String command = sb.toString()
         logger.info(command)
         def process = command.execute()
-        code = process.waitFor()
+        code = process.waitForOrKill(10) ?: -1
         err = IOGroovyMethods.getText(new BufferedReader(new InputStreamReader(process.getErrorStream())));
         out = process.getText()
         logger.info("Run compaction: code=" + code + ", out=" + out + ", disableAutoCompaction " + disableAutoCompaction + ", err=" + err)
@@ -98,7 +98,7 @@ suite("test_single_compaction_with_variant_inverted", "p2, nonConcurrent") {
             String command = sb.toString()
             logger.info(command)
             def process = command.execute()
-            code = process.waitFor()
+            code = process.waitForOrKill(10) ?: -1
             out = process.getText()
             logger.info("Get compaction status: code=" + code + ", out=" + out)
             assertEquals(code, 0)
@@ -119,7 +119,7 @@ suite("test_single_compaction_with_variant_inverted", "p2, nonConcurrent") {
         String command = sb.toString()
         logger.info(command)
         def process = command.execute()
-        code = process.waitFor()
+        code = process.waitForOrKill(10) ?: -1
         out = process.getText()
         logger.info("Get tablet status: code=" + code + ", out=" + out)
         assertEquals(code, 0)

@@ -72,6 +72,7 @@ public class UserProperty implements Writable {
     private static final String PROP_USER_QUERY_TIMEOUT = "query_timeout";
 
     private static final String PROP_USER_INSERT_TIMEOUT = "insert_timeout";
+    private static final String PROP_USER_DELETE_TIMEOUT = "delete_timeout";
     // advanced properties end
 
     private static final String PROP_LOAD_CLUSTER = "load_cluster";
@@ -153,6 +154,10 @@ public class UserProperty implements Writable {
         return this.commonProperties.getInsertTimeout();
     }
 
+    public int getDeleteTimeout() {
+        return this.commonProperties.getDeleteTimeout();
+    }
+
     public long getMaxQueryInstances() {
         return commonProperties.getMaxQueryInstances(); // maxQueryInstances;
     }
@@ -201,6 +206,7 @@ public class UserProperty implements Writable {
         long execMemLimit = this.commonProperties.getExecMemLimit();
         int queryTimeout = this.commonProperties.getQueryTimeout();
         int insertTimeout = this.commonProperties.getInsertTimeout();
+        int deleteTimeout = this.commonProperties.getDeleteTimeout();
         String workloadGroup = this.commonProperties.getWorkloadGroup();
 
         String newDefaultLoadCluster = defaultLoadCluster;
@@ -332,6 +338,15 @@ public class UserProperty implements Writable {
                 } catch (NumberFormatException e) {
                     throw new DdlException(PROP_USER_INSERT_TIMEOUT + " is not number");
                 }
+            } else if (keyArr[0].equalsIgnoreCase(PROP_USER_DELETE_TIMEOUT)) {
+                if (keyArr.length != 1) {
+                    throw new DdlException(PROP_USER_DELETE_TIMEOUT + " format error");
+                }
+                try {
+                    deleteTimeout = Integer.parseInt(value);
+                } catch (NumberFormatException e) {
+                    throw new DdlException(PROP_USER_DELETE_TIMEOUT + " is not number");
+                }
             } else if (keyArr[0].equalsIgnoreCase(PROP_WORKLOAD_GROUP)) {
                 if (keyArr.length != 1) {
                     throw new DdlException(PROP_WORKLOAD_GROUP + " format error");
@@ -363,6 +378,7 @@ public class UserProperty implements Writable {
         this.commonProperties.setExecMemLimit(execMemLimit);
         this.commonProperties.setQueryTimeout(queryTimeout);
         this.commonProperties.setInsertTimeout(insertTimeout);
+        this.commonProperties.setDeleteTimeout(deleteTimeout);
         this.commonProperties.setWorkloadGroup(workloadGroup);
         if (newDppConfigs.containsKey(newDefaultLoadCluster)) {
             defaultLoadCluster = newDefaultLoadCluster;
@@ -494,6 +510,9 @@ public class UserProperty implements Writable {
 
         // insert timeout
         result.add(Lists.newArrayList(PROP_USER_INSERT_TIMEOUT, String.valueOf(commonProperties.getInsertTimeout())));
+
+        // delete timeout
+        result.add(Lists.newArrayList(PROP_USER_DELETE_TIMEOUT, String.valueOf(commonProperties.getDeleteTimeout())));
 
         // resource tag
         result.add(Lists.newArrayList(PROP_RESOURCE_TAGS, Joiner.on(", ").join(commonProperties.getResourceTags())));

@@ -49,7 +49,7 @@ suite("test_cumulative_compaction_with_format_v2", "inverted_index_format_v2") {
         String command = sb.toString()
         // wait for cleaning stale_rowsets
         def process = command.execute()
-        def code = process.waitFor()
+        def code = process.waitForOrKill(10) ?: -1
         def err = IOGroovyMethods.getText(new BufferedReader(new InputStreamReader(process.getErrorStream())));
         def out = process.getText()
         logger.info("Show tablets status: code=" + code + ", out=" + out + ", err=" + err)
@@ -80,7 +80,7 @@ suite("test_cumulative_compaction_with_format_v2", "inverted_index_format_v2") {
         showConfigCommand.append("/api/show_config")
         logger.info(showConfigCommand.toString())
         def process = showConfigCommand.toString().execute()
-        int code = process.waitFor()
+        int code = process.waitForOrKill(10) ?: -1
         String err = IOGroovyMethods.getText(new BufferedReader(new InputStreamReader(process.getErrorStream())));
         String out = process.getText()
         logger.info("Show config: code=" + code + ", out=" + out + ", err=" + err)

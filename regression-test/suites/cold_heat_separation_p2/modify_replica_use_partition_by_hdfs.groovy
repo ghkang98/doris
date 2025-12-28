@@ -61,7 +61,7 @@ suite("modify_replica_use_partition_by_hdfs") {
             String command = sb.toString()
             log.info(command)
             def process = command.execute()
-            int code = process.waitFor()
+            int code = process.waitForOrKill(10) ?: -1
             def err = IOGroovyMethods.getText(new BufferedReader(new InputStreamReader(process.getErrorStream())));
             def out = process.getText()
             logger.info("Run compaction: code=" + code + ", err=" + err)

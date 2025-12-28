@@ -113,7 +113,7 @@ suite("window_funnel") {
 
     def command = strBuilder.toString()
     def process = command.toString().execute()
-    def code = process.waitFor()
+    def code = process.waitForOrKill(10) ?: -1
     def err = IOGroovyMethods.getText(new BufferedReader(new InputStreamReader(process.getErrorStream())));
     def out = process.getText()
     logger.info("Request FE Config: code=" + code + ", out=" + out + ", err=" + err)
