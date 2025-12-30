@@ -594,7 +594,7 @@ Status SchemaColumnsScanner::_fill_block_impl(vectorized::Block* block) {
     // COLUMN_KEY
     {
         StringRef str = StringRef("", 0);
-        Sstd::vector<StringRef> strs(columns_num);
+        std::vector<StringRef> strs(columns_num);
         for (int i = 0; i < columns_num; ++i) {
             if (_desc_result.columns[i].columnDesc.__isset.columnKey) {
                 strs[i] = StringRef(_desc_result.columns[i].columnDesc.columnKey.c_str(),

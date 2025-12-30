@@ -108,7 +108,7 @@ Status SchemaCollationsScanner::_fill_block_impl(vectorized::Block* block) {
     }
     // IS_COMPILED
     {
-        std::vector<int64_t> srcs(row_num);
+        std::vector<StringRef> strs(row_num);
         for (int i = 0; i < row_num; ++i) {
             strs[i] = StringRef(_s_collations[i].is_compile, strlen(_s_collations[i].is_compile));
             datas[i] = strs.data() + i;
