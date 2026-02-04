@@ -61,7 +61,7 @@ public class HudiCachedPartitionProcessor extends HudiPartitionProcessor {
                 Config.max_external_table_cache_num,
                 true,
                 null);
-        this.partitionCache = partitionCacheFactory.buildCache(key -> new TablePartitionValues(), null, executor);
+        this.partitionCache = partitionCacheFactory.buildCache(key -> new TablePartitionValues(), executor);
     }
 
     @Override

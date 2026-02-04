@@ -59,7 +59,7 @@ public class IcebergMetadataCache {
                 Config.max_external_table_cache_num,
                 true,
                 null);
-        this.snapshotListCache = snapshotListCacheFactory.buildCache(key -> loadSnapshots(key), null, executor);
+        this.snapshotListCache = snapshotListCacheFactory.buildCache(key -> loadSnapshots(key), executor);
 
         CacheFactory tableCacheFactory = new CacheFactory(
                 OptionalLong.of(28800L),
@@ -67,8 +67,8 @@ public class IcebergMetadataCache {
                 Config.max_external_table_cache_num,
                 true,
                 null);
-        this.tableCache = tableCacheFactory.buildCache(key -> loadTable(key), null, executor);
-        this.viewCache = tableCacheFactory.buildCache(key -> loadView(key), null, executor);
+        this.tableCache = tableCacheFactory.buildCache(key -> loadTable(key), executor);
+        this.viewCache = tableCacheFactory.buildCache(key -> loadView(key), executor);
     }
 
     public List<Snapshot> getSnapshotList(TIcebergMetadataParams params) throws UserException {

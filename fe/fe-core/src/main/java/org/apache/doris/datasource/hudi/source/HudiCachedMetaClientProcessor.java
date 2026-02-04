@@ -50,7 +50,6 @@ public class HudiCachedMetaClientProcessor {
         this.hudiTableMetaClientCache =
                 partitionCacheFactory.buildCache(
                         this::createHoodieTableMetaClient,
-                        null,
                         executor);
     }
 
