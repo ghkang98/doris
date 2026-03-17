@@ -298,7 +298,8 @@ Status OlapMeta::iterate(const int column_family_index, const std::string& seek_
             break;
         }
     }
-    if (!it->status().ok()) {
+    status = it->status();
+    if (!status.ok()) {
         return Status::Error<META_ITERATOR_ERROR>("rocksdb iterator failed. reason: {}",
                                                   status.ToString());
     }
