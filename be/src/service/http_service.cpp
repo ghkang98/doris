@@ -213,7 +213,7 @@ Status HttpService::start() {
     LoadStreamAction* load_stream_action = _pool.add(new LoadStreamAction(_env, TPrivilegeHier::GLOBAL, TPrivilegeType::NONE));
     _ev_http_server->register_handler(HttpMethod::GET, "/api/load_streams", load_stream_action);
 
-    QueryPipelineTaskAction* query_pipeline_task_action = _pool.add(new QueryPipelineTaskAction());
+    QueryPipelineTaskAction* query_pipeline_task_action = _pool.add(new QueryPipelineTaskAction(_env, TPrivilegeHier::GLOBAL, TPrivilegeType::NONE));
     _ev_http_server->register_handler(HttpMethod::GET, "/api/query_pipeline_tasks/{query_id}",
                                       query_pipeline_task_action);
 
