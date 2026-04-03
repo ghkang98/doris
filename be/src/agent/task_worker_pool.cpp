@@ -1387,6 +1387,13 @@ void create_tablet_callback(StorageEngine& engine, const TAgentTaskRequest& req)
                 .error(status);
     } else {
         increase_report_version();
+        DBUG_EXECUTE_IF("create_tablet_callback.block", DBUG_BLOCK);
+        DBUG_EXECUTE_IF("create_tablet_callback.health_check", {
+            auto created_tablet = engine.tablet_manager()->get_tablet(create_tablet_req.tablet_id);
+            if (created_tablet != nullptr) {
+                created_tablet->data_dir()->health_check();
+            }
+        });
         // get path hash of the created tablet
         TabletSharedPtr tablet;
         std::string error_msg;
@@ -1422,6 +1429,7 @@ void create_tablet_callback(StorageEngine& engine, const TAgentTaskRequest& req)
                     .tag("signature", req.signature)
                     .tag("tablet_id", create_tablet_req.tablet_id)
                     .error(status);
+	}
     }
 
     TFinishTaskRequest finish_task_request;

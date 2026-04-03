@@ -63,6 +63,7 @@
 #include "olap/txn_manager.h"
 #include "olap/utils.h" // for check_dir_existed
 #include "service/backend_options.h"
+#include "util/debug_points.h"
 #include "util/doris_metrics.h"
 #include "util/string_util.h"
 #include "util/uid_util.h"
@@ -250,6 +251,9 @@ void DataDir::health_check() {
 }
 
 Status DataDir::_read_and_write_test_file() {
+    DBUG_EXECUTE_IF("_read_and_write_test_file.io_error", {
+        return Status::Error<IO_ERROR>("debug point injected io error");
+    });
     auto test_file = fmt::format("{}/{}", _path, kTestFilePath);
     return read_write_test_file(test_file);
 }
