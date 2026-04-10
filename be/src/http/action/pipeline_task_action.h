@@ -43,9 +43,10 @@ public:
     void handle(HttpRequest* req) override;
 };
 
-class QueryPipelineTaskAction : public HttpHandler {
+class QueryPipelineTaskAction : public HttpHandlerWithAuth {
 public:
-    QueryPipelineTaskAction() = default;
+    QueryPipelineTaskAction(ExecEnv* exec_env, TPrivilegeHier::type hier,
+                               TPrivilegeType::type type);
 
     ~QueryPipelineTaskAction() override = default;
 

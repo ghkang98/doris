@@ -64,6 +64,10 @@ void LongPipelineTaskAction::handle(HttpRequest* req) {
                             ExecEnv::GetInstance()->fragment_mgr()->dump_pipeline_tasks(duration));
 }
 
+QueryPipelineTaskAction::QueryPipelineTaskAction(ExecEnv* exec_env, TPrivilegeHier::type hier,
+                                       TPrivilegeType::type type)
+        : HttpHandlerWithAuth(exec_env, hier, type) {}
+
 void QueryPipelineTaskAction::handle(HttpRequest* req) {
     req->add_output_header(HttpHeaders::CONTENT_TYPE, "text/plain; version=0.0.4");
     int64_t high = 0;
