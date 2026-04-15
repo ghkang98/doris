@@ -577,15 +577,17 @@ public:
         res_offset.resize(input_rows_count);
 
         const char* partition_type = chars_list[0]->raw_data();
-        // partition type is list|range
-        if (!std::strncmp(partition_type, "list", 4)) {
+        // partition type is list|range (case-insensitive)
+        if (strncasecmp(partition_type, "list", 4) == 0) {
             return _auto_partition_type_of_list(chars_list, offsets_list, is_const_args, null_list,
                                                 res_data, res_offset, input_rows_count,
                                                 argument_size, block, result, res);
-        } else if (!std::strncmp(partition_type, "range", 5)) {
+        } else if (strncasecmp(partition_type, "range", 5) == 0) {
             return _auto_partition_type_of_range(chars_list, offsets_list, is_const_args, res_data,
                                                  res_offset, input_rows_count, argument_size, block,
                                                  result, res);
+        } else {
+            return Status::InvalidArgument("partition type must be list or range, got: {}", partition_type);
         }
         return Status::OK();
     }
