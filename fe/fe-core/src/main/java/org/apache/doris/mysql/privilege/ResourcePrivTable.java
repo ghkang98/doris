@@ -29,7 +29,7 @@ public class ResourcePrivTable extends PrivTable {
     public void getPrivs(String resourceName, PrivBitSet savedPrivs) {
         // need check all entries, because may have 2 entries match resourceName,
         // For example, if the resourceName is g1, there are two entry `%` and `g1` compound requirements
-        for (PrivEntry entry : entries) {
+        for (PrivEntry entry : getEntries()) {
             ResourcePrivEntry resourcePrivEntry = (ResourcePrivEntry) entry;
             // check resource
             if (resourcePrivEntry.getResourcePattern().match(resourceName)) {

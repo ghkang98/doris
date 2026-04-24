@@ -41,7 +41,7 @@ public class UserPrivTable extends PrivTable {
      */
     public CatalogPrivTable degradeToInternalCatalogPriv() throws IOException {
         CatalogPrivTable catalogPrivTable = new CatalogPrivTable();
-        for (PrivEntry privEntry : entries) {
+        for (PrivEntry privEntry : getEntries()) {
             GlobalPrivEntry globalPrivEntry = (GlobalPrivEntry) privEntry;
             if (!globalPrivEntry.match(UserIdentity.ROOT, true)
                     && !globalPrivEntry.match(UserIdentity.ADMIN, true)

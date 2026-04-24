@@ -31,7 +31,6 @@ public class TablePrivEntry extends DbPrivEntry {
     private static final String ANY_TBL = "*";
 
     private PatternMatcher tblPattern;
-    private String origTbl;
     private boolean isAnyTbl;
 
     protected TablePrivEntry() {
@@ -44,7 +43,7 @@ public class TablePrivEntry extends DbPrivEntry {
             PrivBitSet privSet) {
         super(ctlPattern, origCtl, dbPattern, origDb, privSet);
         this.tblPattern = tblPattern;
-        this.origTbl = origTbl;
+        key = new PrivKey.TablePrivKey(origCtl, origDb, origTbl);
         if (origTbl.equals(ANY_TBL)) {
             isAnyTbl = true;
         }
@@ -74,7 +73,7 @@ public class TablePrivEntry extends DbPrivEntry {
     }
 
     public String getOrigTbl() {
-        return origTbl;
+        return ((PrivKey.TablePrivKey) key).getTbl();
     }
 
     public boolean isAnyTbl() {
@@ -82,40 +81,19 @@ public class TablePrivEntry extends DbPrivEntry {
     }
 
     @Override
-    public int compareTo(PrivEntry other) {
-        if (!(other instanceof TablePrivEntry)) {
-            throw new ClassCastException("cannot cast " + other.getClass().toString() + " to " + this.getClass());
-        }
-
-        TablePrivEntry otherEntry = (TablePrivEntry) other;
-        return compareAssist(
-                origCtl, otherEntry.origCtl,
-                origDb, otherEntry.origDb,
-                origTbl, otherEntry.origTbl);
-    }
-
-    @Override
-    public boolean keyMatch(PrivEntry other) {
-        if (!(other instanceof TablePrivEntry)) {
-            return false;
-        }
-
-        TablePrivEntry otherEntry = (TablePrivEntry) other;
-        return origCtl.equals(otherEntry.origCtl) && origDb.equals(otherEntry.origDb)
-                && origTbl.equals(otherEntry.origTbl);
-    }
-
-    @Override
     public String toString() {
-        return String.format("table privilege.ctl: %s, db: %s, tbl: %s, priv: %s", origCtl, origDb, origTbl,
-                privSet.toString());
+        return String.format("table privilege.ctl: %s, db: %s, tbl: %s, priv: %s", getOrigCtl(), getOrigDb(),
+            getOrigTbl(), privSet.toString());
     }
 
     @Deprecated
     public void readFields(DataInput in) throws IOException {
         super.readFields(in);
 
-        origTbl = Text.readString(in);
+        String origCtl = getOrigCtl();
+        String origDb = getOrigDb();
+        String origTbl = Text.readString(in);
+        this.key = new PrivKey.TablePrivKey(origCtl, origDb, origTbl);
         try {
             tblPattern = PatternMatcher.createMysqlPattern(origTbl, CaseSensibility.TABLE.getCaseSensibility());
         } catch (PatternMatcherException e) {

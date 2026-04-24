@@ -20,7 +20,6 @@ package org.apache.doris.mysql.privilege;
 import org.apache.doris.analysis.AlterRoleStmt;
 import org.apache.doris.analysis.AlterUserStmt;
 import org.apache.doris.analysis.AlterUserStmt.OpType;
-import org.apache.doris.analysis.CompoundPredicate;
 import org.apache.doris.analysis.CreateRoleStmt;
 import org.apache.doris.analysis.CreateUserStmt;
 import org.apache.doris.analysis.DropRoleStmt;
@@ -90,7 +89,6 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class Auth implements Writable {
@@ -269,14 +267,12 @@ public class Auth implements Writable {
         try {
             Set<Role> roles = getRolesByUserWithLdap(currentUser);
             PrivBitSet savedPrivs = PrivBitSet.of();
-            return checkPriWithMultiRoles(wanted, (privPredicate) -> {
-                for (Role role : roles) {
-                    if (role.checkGlobalPriv(privPredicate, savedPrivs)) {
-                        return true;
-                    }
+            for (Role role : roles) {
+                if (role.checkGlobalPriv(wanted, savedPrivs)) {
+                    return true;
                 }
-                return false;
-            });
+            }
+            return false;
         } finally {
             readUnlock();
         }
@@ -295,14 +291,12 @@ public class Auth implements Writable {
         try {
             Set<Role> roles = getRolesByUserWithLdap(currentUser);
             PrivBitSet savedPrivs = PrivBitSet.of();
-            return checkPriWithMultiRoles(wanted, (privPredicate) -> {
-                for (Role role : roles) {
-                    if (role.checkCtlPriv(ctl, privPredicate, savedPrivs)) {
-                        return true;
-                    }
+            for (Role role : roles) {
+                if (role.checkCtlPriv(ctl, wanted, savedPrivs)) {
+                    return true;
                 }
-                return false;
-            });
+            }
+            return false;
         } finally {
             readUnlock();
         }
@@ -321,14 +315,12 @@ public class Auth implements Writable {
         try {
             Set<Role> roles = getRolesByUserWithLdap(currentUser);
             PrivBitSet savedPrivs = PrivBitSet.of();
-            return checkPriWithMultiRoles(wanted, (privPredicate) -> {
-                for (Role role : roles) {
-                    if (role.checkDbPriv(ctl, db, privPredicate, savedPrivs)) {
-                        return true;
-                    }
+            for (Role role : roles) {
+                if (role.checkDbPriv(ctl, db, wanted, savedPrivs)) {
+                    return true;
                 }
-                return false;
-            });
+            }
+            return false;
         } finally {
             readUnlock();
         }
@@ -347,14 +339,12 @@ public class Auth implements Writable {
         try {
             Set<Role> roles = getRolesByUserWithLdap(currentUser);
             PrivBitSet savedPrivs = PrivBitSet.of();
-            return checkPriWithMultiRoles(wanted, (privPredicate) -> {
-                for (Role role : roles) {
-                    if (role.checkTblPriv(ctl, db, tbl, privPredicate, savedPrivs)) {
-                        return true;
-                    }
+            for (Role role : roles) {
+                if (role.checkTblPriv(ctl, db, tbl, wanted, savedPrivs)) {
+                    return true;
                 }
-                return false;
-            });
+            }
+            return false;
         } finally {
             readUnlock();
         }
@@ -392,14 +382,12 @@ public class Auth implements Writable {
         try {
             Set<Role> roles = getRolesByUserWithLdap(currentUser);
             PrivBitSet savedPrivs = PrivBitSet.of();
-            return checkPriWithMultiRoles(wanted, (privPredicate) -> {
-                for (Role role : roles) {
-                    if (role.checkResourcePriv(resourceName, privPredicate, savedPrivs)) {
-                        return true;
-                    }
+            for (Role role : roles) {
+                if (role.checkResourcePriv(resourceName, wanted, savedPrivs)) {
+                    return true;
                 }
-                return false;
-            });
+            }
+            return false;
         } finally {
             readUnlock();
         }
@@ -417,46 +405,14 @@ public class Auth implements Writable {
 
             Set<Role> roles = getRolesByUserWithLdap(currentUser);
             PrivBitSet savedPrivs = PrivBitSet.of();
-            return checkPriWithMultiRoles(wanted, (privPredicate) -> {
-                for (Role role : roles) {
-                    if (role.checkWorkloadGroupPriv(workloadGroupName, privPredicate, savedPrivs)) {
-                        return true;
-                    }
-                }
-                return false;
-            });
-        } finally {
-            readUnlock();
-        }
-    }
-
-    /**
-     * when wanted privs is in different roles, single role is not satisfied,but all roles may satisfy.
-     * example: the role1 has select_priv, the role2 has grant_priv, the wanted privs are select_priv && grant_priv,
-     *          neither role1 nor role2 is satisfied, but (role1 && role2) is satisfied.
-     * so can not check by for-loop simply
-     * */
-    private boolean checkPriWithMultiRoles(PrivPredicate wanted, Function<PrivPredicate, Boolean> function) {
-        //only and-operator should check by split PrivPredicate
-        if (wanted.getOp() == CompoundPredicate.Operator.AND) {
-            List<Privilege> privileges = wanted.getPrivs().toPrivilegeList();
-            long expected = (2L << (privileges.size() - 1)) - 1;
-            long actual = 0L;
-            for (int i = 0; i < privileges.size(); i++) {
-                PrivPredicate singleWanted = PrivPredicate.of(PrivBitSet.of(privileges.get(i)), wanted.getOp());
-                boolean singlePriCheckRet = function.apply(singleWanted);
-                if (singlePriCheckRet) {
-                    actual |= (1L << i);
-                } else {
-                    actual &= ~(1L << i);
-                }
-                if (expected == actual) {
+            for (Role role : roles) {
+                if (role.checkWorkloadGroupPriv(workloadGroupName, wanted, savedPrivs)) {
                     return true;
                 }
             }
             return false;
-        } else {
-            return function.apply(wanted);
+        } finally {
+            readUnlock();
         }
     }
 
@@ -1264,7 +1220,7 @@ public class Auth implements Writable {
                                 : "NO";
 
                         // workload group
-                        for (PrivEntry entry : getUserWorkloadGroupPrivTable(user.getUserIdentity()).entries) {
+                        for (PrivEntry entry : getUserWorkloadGroupPrivTable(user.getUserIdentity()).getEntries()) {
                             WorkloadGroupPrivEntry workloadGroupPrivEntry = (WorkloadGroupPrivEntry) entry;
                             PrivBitSet savedPrivs = workloadGroupPrivEntry.getPrivSet().copy();
 
@@ -1322,13 +1278,13 @@ public class Auth implements Writable {
         }
         // ==============GlobalPrivs==============
         PrivBitSet globalPrivs = new PrivBitSet();
-        List<PrivEntry> globalEntries = getUserGlobalPrivTable(userIdent).entries;
+        List<PrivEntry> globalEntries = getUserGlobalPrivTable(userIdent).getEntries();
         if (!CollectionUtils.isEmpty(globalEntries)) {
             globalPrivs.or(globalEntries.get(0).privSet);
         }
         userAuthInfo.add(globalPrivs.isEmpty() ? FeConstants.null_string : globalPrivs.toString());
         // ============== CatalogPrivs ========================
-        String ctlPrivs = getUserCtlPrivTable(userIdent).entries.stream()
+        String ctlPrivs = getUserCtlPrivTable(userIdent).getEntries().stream()
                 .map(entry -> String.format("%s: %s",
                         ((CatalogPrivEntry) entry).getOrigCtl(), entry.privSet))
                 .collect(Collectors.joining("; "));
@@ -1338,7 +1294,7 @@ public class Auth implements Writable {
         userAuthInfo.add(ctlPrivs);
         // ============== DatabasePrivs ==============
         List<String> dbPrivs = Lists.newArrayList();
-        for (PrivEntry entry : getUserDbPrivTable(userIdent).entries) {
+        for (PrivEntry entry : getUserDbPrivTable(userIdent).getEntries()) {
             DbPrivEntry dEntry = (DbPrivEntry) entry;
             PrivBitSet savedPrivs = dEntry.getPrivSet().copy();
             dbPrivs.add(String.format("%s.%s: %s", dEntry.getOrigCtl(), dEntry.getOrigDb(),
@@ -1353,7 +1309,7 @@ public class Auth implements Writable {
 
         // tbl
         List<String> tblPrivs = Lists.newArrayList();
-        for (PrivEntry entry : getUserTblPrivTable(userIdent).entries) {
+        for (PrivEntry entry : getUserTblPrivTable(userIdent).getEntries()) {
             TablePrivEntry tEntry = (TablePrivEntry) entry;
             PrivBitSet savedPrivs = tEntry.getPrivSet().copy();
             tblPrivs.add(String.format("%s.%s.%s: %s", tEntry.getOrigCtl(), tEntry.getOrigDb(),
@@ -1381,7 +1337,7 @@ public class Auth implements Writable {
 
         // resource
         List<String> resourcePrivs = Lists.newArrayList();
-        for (PrivEntry entry : getUserResourcePrivTable(userIdent).entries) {
+        for (PrivEntry entry : getUserResourcePrivTable(userIdent).getEntries()) {
             ResourcePrivEntry rEntry = (ResourcePrivEntry) entry;
             PrivBitSet savedPrivs = rEntry.getPrivSet().copy();
             resourcePrivs.add(rEntry.getOrigResource() + ": " + savedPrivs.toString());
@@ -1395,7 +1351,7 @@ public class Auth implements Writable {
 
         // workload group
         List<String> workloadGroupPrivs = Lists.newArrayList();
-        for (PrivEntry entry : getUserWorkloadGroupPrivTable(userIdent).entries) {
+        for (PrivEntry entry : getUserWorkloadGroupPrivTable(userIdent).getEntries()) {
             WorkloadGroupPrivEntry workloadGroupPrivEntry = (WorkloadGroupPrivEntry) entry;
             PrivBitSet savedPrivs = workloadGroupPrivEntry.getPrivSet().copy();
             workloadGroupPrivs.add(workloadGroupPrivEntry.getOrigWorkloadGroupName() + ": " + savedPrivs);
@@ -1650,7 +1606,7 @@ public class Auth implements Writable {
                         if (userGlobalPrivTable.isEmpty()) {
                             continue;
                         }
-                        PrivEntry privEntry = userGlobalPrivTable.entries.get(0);
+                        PrivEntry privEntry = userGlobalPrivTable.getEntries().get(0);
                         if (privEntry.getPrivSet().isEmpty()) {
                             continue;
                         }
@@ -1895,8 +1851,8 @@ public class Auth implements Writable {
         List<PrivEntry> catalogPrivTableEntries = catalogPrivTable.getEntries();
         for (PrivEntry privEntry : catalogPrivTableEntries) {
             CatalogPrivEntry catalogPrivEntry = (CatalogPrivEntry) privEntry;
-            TablePattern tablePattern = new TablePattern(ClusterNamespace.getNameFromFullName(catalogPrivEntry.origCtl),
-                    "*", "*");
+            TablePattern tablePattern = new TablePattern(
+                    ClusterNamespace.getNameFromFullName(catalogPrivEntry.getOrigCtl()), "*", "*");
             tablePattern.analyze();
             Role newRole = new Role(roleManager.getUserDefaultRoleName(catalogPrivEntry.userIdentity),
                     tablePattern, catalogPrivEntry.privSet);
@@ -1906,8 +1862,8 @@ public class Auth implements Writable {
         List<PrivEntry> dbPrivTableEntries = dbPrivTable.getEntries();
         for (PrivEntry privEntry : dbPrivTableEntries) {
             DbPrivEntry dbPrivEntry = (DbPrivEntry) privEntry;
-            TablePattern tablePattern = new TablePattern(ClusterNamespace.getNameFromFullName(dbPrivEntry.origCtl),
-                    ClusterNamespace.getNameFromFullName(dbPrivEntry.origDb), "*");
+            TablePattern tablePattern = new TablePattern(ClusterNamespace.getNameFromFullName(dbPrivEntry.getOrigCtl()),
+                    ClusterNamespace.getNameFromFullName(dbPrivEntry.getOrigDb()), "*");
             tablePattern.analyze();
             Role newRole = new Role(roleManager.getUserDefaultRoleName(dbPrivEntry.userIdentity),
                     tablePattern, dbPrivEntry.privSet);
@@ -1917,8 +1873,9 @@ public class Auth implements Writable {
         List<PrivEntry> tblPrivTableEntries = tablePrivTable.getEntries();
         for (PrivEntry privEntry : tblPrivTableEntries) {
             TablePrivEntry tblPrivEntry = (TablePrivEntry) privEntry;
-            TablePattern tablePattern = new TablePattern(ClusterNamespace.getNameFromFullName(tblPrivEntry.origCtl),
-                    ClusterNamespace.getNameFromFullName(tblPrivEntry.origDb),
+            TablePattern tablePattern = new TablePattern(
+                    ClusterNamespace.getNameFromFullName(tblPrivEntry.getOrigTbl()),
+                    ClusterNamespace.getNameFromFullName(tblPrivEntry.getOrigDb()),
                     ClusterNamespace.getNameFromFullName(tblPrivEntry.getOrigTbl()));
             tablePattern.analyze();
             Role newRole = new Role(roleManager.getUserDefaultRoleName(tblPrivEntry.userIdentity),
@@ -1930,7 +1887,7 @@ public class Auth implements Writable {
         for (PrivEntry privEntry : resourcePrivTableEntries) {
             ResourcePrivEntry resourcePrivEntry = (ResourcePrivEntry) privEntry;
             ResourcePattern resourcePattern = new ResourcePattern(
-                    ClusterNamespace.getNameFromFullName(resourcePrivEntry.origResource));
+                    ClusterNamespace.getNameFromFullName(resourcePrivEntry.getOrigResource()));
             resourcePattern.analyze();
             Role newRole = new Role(roleManager.getUserDefaultRoleName(resourcePrivEntry.userIdentity),
                     resourcePattern, resourcePrivEntry.privSet);
@@ -1968,8 +1925,8 @@ public class Auth implements Writable {
                         }
 
                         PrivTable privTable = getUserGlobalPrivTable(userIdent);
-                        if (!privTable.entries.isEmpty()) {
-                            PrivEntry privEntry = privTable.entries.get(0);
+                        if (!privTable.isEmpty()) {
+                            PrivEntry privEntry = privTable.getEntries().get(0);
                             if (!privEntry.getPrivSet().isEmpty()) {
                                 boolean isAdmin = false;
                                 for (Privilege globalPriv : privEntry.getPrivSet().toPrivilegeList()) {

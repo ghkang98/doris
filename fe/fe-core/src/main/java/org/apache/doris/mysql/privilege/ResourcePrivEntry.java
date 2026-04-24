@@ -28,7 +28,6 @@ import java.io.IOException;
 
 public class ResourcePrivEntry extends PrivEntry {
     protected PatternMatcher resourcePattern;
-    protected String origResource;
 
     protected ResourcePrivEntry() {
     }
@@ -37,7 +36,7 @@ public class ResourcePrivEntry extends PrivEntry {
             String origResource, PrivBitSet privSet) {
         super(privSet);
         this.resourcePattern = resourcePattern;
-        this.origResource = origResource;
+        this.key = new PrivKey.ResourcePrivKey(origResource);
     }
 
     public static ResourcePrivEntry create(String resourceName, PrivBitSet privs)
@@ -57,18 +56,7 @@ public class ResourcePrivEntry extends PrivEntry {
     }
 
     public String getOrigResource() {
-        return origResource;
-    }
-
-    @Override
-    public int compareTo(PrivEntry other) {
-        if (!(other instanceof ResourcePrivEntry)) {
-            throw new ClassCastException("cannot cast " + other.getClass().toString() + " to " + this.getClass());
-        }
-
-        ResourcePrivEntry otherEntry = (ResourcePrivEntry) other;
-
-        return origResource.compareTo(otherEntry.origResource);
+        return ((PrivKey.ResourcePrivKey) key).getOrigResource();
     }
 
     @Override
@@ -76,30 +64,19 @@ public class ResourcePrivEntry extends PrivEntry {
         return ResourcePrivEntry.create(this.getOrigResource(), this.getPrivSet().copy());
     }
 
-    @Override
-    public boolean keyMatch(PrivEntry other) {
-        if (!(other instanceof ResourcePrivEntry)) {
-            return false;
-        }
-
-        ResourcePrivEntry otherEntry = (ResourcePrivEntry) other;
-        if (origResource.equals(otherEntry.origResource)) {
-            return true;
-        }
-        return false;
-    }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("origResource:").append(origResource).append("priv:").append(privSet);
+        sb.append("origResource:").append(getOrigResource()).append("priv:").append(privSet);
         return sb.toString();
     }
 
     @Deprecated
     public void readFields(DataInput in) throws IOException {
         super.readFields(in);
-        origResource = Text.readString(in);
+        String origResource = Text.readString(in);
+        key = new PrivKey.ResourcePrivKey(origResource);
         try {
             resourcePattern = PatternMatcher.createMysqlPattern(origResource,
                     CaseSensibility.RESOURCE.getCaseSensibility());
