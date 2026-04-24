@@ -22,7 +22,7 @@ public class WorkloadGroupPrivTable extends PrivTable {
     public void getPrivs(String workloadGroupName, PrivBitSet savedPrivs) {
         // need check all entries, because may have 2 entries match workloadGroupName,
         // For example, if the workloadGroupName is g1, there are two entry `%` and `g1` compound requirements
-        for (PrivEntry entry : entries) {
+        for (PrivEntry entry : getEntries()) {
             WorkloadGroupPrivEntry workloadGroupPrivEntry = (WorkloadGroupPrivEntry) entry;
             if (workloadGroupPrivEntry.getWorkloadGroupPattern().match(workloadGroupName)) {
                 savedPrivs.or(workloadGroupPrivEntry.getPrivSet());

@@ -552,12 +552,12 @@ public class FrontendServiceImpl implements FrontendService.Iface {
                     if (LOG.isDebugEnabled()) {
                         LOG.debug("get table: {}, wait to check", tableName);
                     }
-                    if (!Env.getCurrentEnv().getAccessManager()
-                            .checkTblPriv(currentUser, catalogName, dbName, tableName,
-                                    PrivPredicate.SHOW)) {
+                    if (matcher != null && !matcher.match(tableName)) {
                         continue;
                     }
-                    if (matcher != null && !matcher.match(tableName)) {
+                    if (!Env.getCurrentEnv().getAccessManager()
+                            .checkTblPriv(currentUser, catalogName, dbName, tableName,
+                            PrivPredicate.SHOW)) {
                         continue;
                     }
                     tablesResult.add(tableName);
@@ -622,15 +622,16 @@ public class FrontendServiceImpl implements FrontendService.Iface {
                         }
                     }
                     for (TableIf table : tables) {
-                        if (!Env.getCurrentEnv().getAccessManager()
-                                .checkTblPriv(currentUser, catalogName, dbName,
-                                        table.getName(), PrivPredicate.SHOW)) {
+                        //check the priv at last to avoid too many privs
+                        if (specifiedTable != null && !specifiedTable.equals(table.getName())) {
                             continue;
                         }
                         if (matcher != null && !matcher.match(table.getName())) {
                             continue;
                         }
-                        if (specifiedTable != null && !specifiedTable.equals(table.getName())) {
+                        if (!Env.getCurrentEnv().getAccessManager()
+                                .checkTblPriv(currentUser, catalogName, dbName,
+                                table.getName(), PrivPredicate.SHOW)) {
                             continue;
                         }
                         table.readLock();
@@ -709,15 +710,15 @@ public class FrontendServiceImpl implements FrontendService.Iface {
                 if (db != null) {
                     List<TableIf> tables = db.getTables();
                     for (TableIf table : tables) {
+                        if (finalMatcher != null && !finalMatcher.match(table.getName())) {
+                            continue;
+                        }
                         if (!Env.getCurrentEnv().getAccessManager().checkTblPriv(currentUser, catalogName, dbName,
                                 table.getName(), PrivPredicate.SHOW)) {
                             continue;
                         }
                         table.readLock();
                         try {
-                            if (finalMatcher != null && !finalMatcher.match(table.getName())) {
-                                continue;
-                            }
                             TTableMetadataNameIds status = new TTableMetadataNameIds();
                             status.setName(table.getName());
                             status.setId(table.getId());

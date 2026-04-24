@@ -30,7 +30,7 @@ public class TablePrivTable extends PrivTable {
      */
     public void getPrivs(String ctl, String db, String tbl, PrivBitSet savedPrivs) {
         TablePrivEntry matchedEntry = null;
-        for (PrivEntry entry : entries) {
+        for (PrivEntry entry : getEntries()) {
             TablePrivEntry tblPrivEntry = (TablePrivEntry) entry;
             // check catalog
             if (!tblPrivEntry.isAnyCtl() && !tblPrivEntry.getCtlPattern().match(ctl)) {
@@ -59,7 +59,7 @@ public class TablePrivTable extends PrivTable {
     }
 
     public boolean hasPrivsOfCatalog(String ctl) {
-        for (PrivEntry entry : entries) {
+        for (PrivEntry entry : getEntries()) {
             TablePrivEntry tblPrivEntry = (TablePrivEntry) entry;
             // check catalog
             Preconditions.checkState(!tblPrivEntry.isAnyCtl());
@@ -71,7 +71,7 @@ public class TablePrivTable extends PrivTable {
     }
 
     public boolean hasPrivsOfDb(String ctl, String db) {
-        for (PrivEntry entry : entries) {
+        for (PrivEntry entry : getEntries()) {
             TablePrivEntry
                     tblPrivEntry = (TablePrivEntry) entry;
 
@@ -93,7 +93,7 @@ public class TablePrivTable extends PrivTable {
     }
 
     public boolean hasClusterPriv(String clusterName) {
-        for (PrivEntry entry : entries) {
+        for (PrivEntry entry : getEntries()) {
             TablePrivEntry tblPrivEntry = (TablePrivEntry) entry;
             if (tblPrivEntry.getOrigDb().startsWith(clusterName)) {
                 return true;

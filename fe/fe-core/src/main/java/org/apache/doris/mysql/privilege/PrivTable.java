@@ -32,23 +32,29 @@ import java.io.DataInput;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 public abstract class PrivTable {
     private static final Logger LOG = LogManager.getLogger(PrivTable.class);
 
-    protected List<PrivEntry> entries = Lists.newArrayList();
+    protected Map<PrivKey, PrivEntry> entries;
 
     // see PrivEntry for more detail
     protected boolean isClassNameWrote = false;
+
+    PrivTable() {
+        this.entries = new ConcurrentSkipListMap<>();
+    }
 
     /*
      * Check if user@host has specified privilege
      */
     public boolean hasPriv(PrivPredicate wanted) {
-        for (PrivEntry entry : entries) {
+        for (PrivEntry entry : entries.values()) {
             // check priv
             if (entry.privSet.satisfy(wanted)) {
                 return true;
@@ -84,9 +90,8 @@ public abstract class PrivTable {
             if (errOnNonExist) {
                 throw new DdlException("entry does not exist");
             }
-            entries.add(newEntry);
-            Collections.sort(entries);
-            LOG.info("add priv entry: {}", newEntry);
+            entries.put(newEntry.getPrivKey(), newEntry);
+            LOG.info("add priv entry: {} | {}", newEntry.getPrivKey(), newEntry);
             return newEntry;
         } else {
             if (errOnExist) {
@@ -101,21 +106,16 @@ public abstract class PrivTable {
         return existingEntry;
     }
 
-
     public List<PrivEntry> getEntries() {
-        return entries;
+        if (Objects.isNull(entries) || entries.isEmpty()) {
+            return Lists.newArrayList();
+        }
+        return new ArrayList<>(entries.values());
     }
 
     public void dropEntry(PrivEntry entry) {
-        Iterator<PrivEntry> iter = entries.iterator();
-        while (iter.hasNext()) {
-            PrivEntry privEntry = iter.next();
-            if (privEntry.keyMatch(entry)) {
-                iter.remove();
-                LOG.info("drop priv entry: {}", privEntry);
-                break;
-            }
-        }
+        PrivEntry removedEle = entries.remove(entry.getPrivKey());
+        LOG.info("drop priv entry: {}", removedEle);
     }
 
     public void revoke(PrivEntry entry, boolean errOnNonExist,
@@ -157,16 +157,11 @@ public abstract class PrivTable {
         }
     }
 
-
     // Get existing entry which is the keys match the given entry
     protected PrivEntry getExistingEntry(PrivEntry entry) {
-        for (PrivEntry existingEntry : entries) {
-            if (existingEntry.keyMatch(entry)) {
-                return existingEntry;
-            }
-        }
-        return null;
+        return  entries.get(entry.getPrivKey());
     }
+
 
     private void mergePriv(
             PrivEntry first, PrivEntry second) {
@@ -185,7 +180,7 @@ public abstract class PrivTable {
     @Deprecated
     public static PrivTable read(DataInput in) throws IOException {
         String className = Text.readString(in);
-        PrivTable privTable = null;
+        PrivTable privTable;
         try {
             Class<? extends PrivTable> derivedClass = (Class<? extends PrivTable>) Class.forName(className);
             privTable = derivedClass.newInstance();
@@ -204,8 +199,10 @@ public abstract class PrivTable {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("\n");
-        for (PrivEntry privEntry : entries) {
-            sb.append(privEntry).append("\n");
+        for (Map.Entry<PrivKey, PrivEntry> entry : entries.entrySet()) {
+            PrivKey privKey = entry.getKey();
+            PrivEntry privEntry = entry.getValue();
+            sb.append(privKey).append(" | ").append(privEntry).append("\n");
         }
         return sb.toString();
     }
@@ -215,13 +212,12 @@ public abstract class PrivTable {
         int size = in.readInt();
         for (int i = 0; i < size; i++) {
             PrivEntry entry = PrivEntry.read(in);
-            entries.add(entry);
+            entries.put(entry.getPrivKey(), entry);
         }
-        Collections.sort(entries);
     }
 
     public void merge(PrivTable privTable) {
-        for (PrivEntry entry : privTable.entries) {
+        for (PrivEntry entry : privTable.getEntries()) {
             try {
                 addEntry(entry, false, false, true);
             } catch (DdlException e) {

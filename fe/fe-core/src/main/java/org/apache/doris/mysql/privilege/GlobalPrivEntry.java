@@ -35,11 +35,9 @@ public class GlobalPrivEntry extends PrivEntry {
     @Deprecated
     protected UserIdentity domainUserIdent;
 
-    protected GlobalPrivEntry() {
-    }
-
     protected GlobalPrivEntry(PrivBitSet privSet) {
         super(privSet);
+        this.key = new PrivKey.GlobalPrivKey();
     }
 
     public static GlobalPrivEntry create(PrivBitSet privs) {
@@ -55,13 +53,6 @@ public class GlobalPrivEntry extends PrivEntry {
         return 0;
     }
 
-    @Override
-    public boolean keyMatch(PrivEntry other) {
-        if (!(other instanceof GlobalPrivEntry)) {
-            return false;
-        }
-        return true;
-    }
 
     @Override
     public String toString() {

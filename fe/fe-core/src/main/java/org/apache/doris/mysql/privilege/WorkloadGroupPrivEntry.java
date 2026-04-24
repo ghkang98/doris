@@ -29,13 +29,12 @@ import java.io.IOException;
 public class WorkloadGroupPrivEntry extends PrivEntry {
 
     protected PatternMatcher workloadGroupPattern;
-    protected String origWorkloadGroupName;
 
     protected WorkloadGroupPrivEntry(PatternMatcher workloadGroupPattern,
             String origWorkloadGroupName, PrivBitSet privSet) {
         super(privSet);
         this.workloadGroupPattern = workloadGroupPattern;
-        this.origWorkloadGroupName = origWorkloadGroupName;
+        this.key = new PrivKey.WorkloadGroupPrivKey(origWorkloadGroupName);
     }
 
     public static WorkloadGroupPrivEntry create(String workloadGroupName, PrivBitSet privs)
@@ -55,18 +54,7 @@ public class WorkloadGroupPrivEntry extends PrivEntry {
     }
 
     public String getOrigWorkloadGroupName() {
-        return origWorkloadGroupName;
-    }
-
-    @Override
-    public int compareTo(PrivEntry other) {
-        if (!(other instanceof WorkloadGroupPrivEntry)) {
-            throw new ClassCastException("cannot cast " + other.getClass().toString() + " to " + this.getClass());
-        }
-
-        WorkloadGroupPrivEntry otherEntry = (WorkloadGroupPrivEntry) other;
-
-        return origWorkloadGroupName.compareTo(otherEntry.origWorkloadGroupName);
+        return ((PrivKey.WorkloadGroupPrivKey) key).getOrigWorkloadGroupName();
     }
 
     @Override
@@ -75,24 +63,15 @@ public class WorkloadGroupPrivEntry extends PrivEntry {
     }
 
     @Override
-    public boolean keyMatch(PrivEntry other) {
-        if (!(other instanceof WorkloadGroupPrivEntry)) {
-            return false;
-        }
-
-        WorkloadGroupPrivEntry otherEntry = (WorkloadGroupPrivEntry) other;
-        return origWorkloadGroupName.equals(otherEntry.origWorkloadGroupName);
-    }
-
-    @Override
     public String toString() {
-        return "origWorkloadGroup:" + origWorkloadGroupName + ", priv:" + privSet;
+        return "origWorkloadGroup:" + getOrigWorkloadGroupName() + ", priv:" + privSet;
     }
 
     @Deprecated
     public void readFields(DataInput in) throws IOException {
         super.readFields(in);
-        origWorkloadGroupName = Text.readString(in);
+        String origWorkloadGroupName = Text.readString(in);
+        key =  new PrivKey.WorkloadGroupPrivKey(origWorkloadGroupName);
         try {
             workloadGroupPattern = PatternMatcher.createMysqlPattern(origWorkloadGroupName,
                     CaseSensibility.WORKLOAD_GROUP.getCaseSensibility());

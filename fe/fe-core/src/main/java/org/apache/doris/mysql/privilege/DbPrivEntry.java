@@ -32,7 +32,6 @@ public class DbPrivEntry extends CatalogPrivEntry {
     protected static final String ANY_DB = "*";
 
     protected PatternMatcher dbPattern;
-    protected String origDb;
     protected boolean isAnyDb;
 
     protected DbPrivEntry() {
@@ -44,7 +43,7 @@ public class DbPrivEntry extends CatalogPrivEntry {
             PrivBitSet privSet) {
         super(ctlPattern, origCtl, privSet);
         this.dbPattern = dbPattern;
-        this.origDb = origDb;
+        this.key = new PrivKey.DBPrivKey(origCtl, origDb);
         if (origDb.equals(ANY_DB)) {
             isAnyDb = true;
         }
@@ -79,7 +78,7 @@ public class DbPrivEntry extends CatalogPrivEntry {
     }
 
     public String getOrigDb() {
-        return origDb;
+        return ((PrivKey.DBPrivKey) key).getDb();
     }
 
     public boolean isAnyDb() {
@@ -87,38 +86,18 @@ public class DbPrivEntry extends CatalogPrivEntry {
     }
 
     @Override
-    public int compareTo(PrivEntry other) {
-        if (!(other instanceof DbPrivEntry)) {
-            throw new ClassCastException("cannot cast " + other.getClass().toString() + " to " + this.getClass());
-        }
-
-        DbPrivEntry otherEntry = (DbPrivEntry) other;
-        return compareAssist(
-                origCtl, otherEntry.origCtl,
-                origDb, otherEntry.origDb);
-    }
-
-    @Override
-    public boolean keyMatch(PrivEntry other) {
-        if (!(other instanceof DbPrivEntry)) {
-            return false;
-        }
-
-        DbPrivEntry otherEntry = (DbPrivEntry) other;
-        return origCtl.equals(otherEntry.origCtl) && origDb.equals(otherEntry.origDb);
-    }
-
-    @Override
     public String toString() {
         return String.format("database privilege.ctl: %s, db: %s, priv: %s",
-                origCtl, origDb, privSet.toString());
+              getOrigCtl(), getOrigDb(), privSet.toString());
     }
 
     @Deprecated
     public void readFields(DataInput in) throws IOException {
         super.readFields(in);
 
-        origDb = Text.readString(in);
+        String origCtl = getOrigCtl();
+        String origDb = Text.readString(in);
+        key = new PrivKey.DBPrivKey(origCtl, origDb);
         try {
             dbPattern = createDbPatternMatcher(origDb);
         } catch (AnalysisException e) {

@@ -34,7 +34,6 @@ public class CatalogPrivEntry extends PrivEntry {
     protected static final String ANY_CTL = "*";
 
     protected PatternMatcher ctlPattern;
-    protected String origCtl;
     protected boolean isAnyCtl;
 
     protected CatalogPrivEntry() {
@@ -45,7 +44,7 @@ public class CatalogPrivEntry extends PrivEntry {
             PrivBitSet privSet) {
         super(privSet);
         this.ctlPattern = ctlPattern;
-        this.origCtl = origCtl;
+        this.key = new PrivKey.CatalogPrivKey(origCtl);
         if (origCtl.equals(ANY_CTL)) {
             isAnyCtl = true;
         }
@@ -58,7 +57,7 @@ public class CatalogPrivEntry extends PrivEntry {
             boolean isDomain, PrivBitSet privSet) {
         super(hostPattern, origHost, userPattern, user, isDomain, privSet);
         this.ctlPattern = ctlPattern;
-        this.origCtl = origCtl;
+        this.key = new PrivKey.CatalogPrivKey(origCtl);
         if (origCtl.equals(ANY_CTL)) {
             isAnyCtl = true;
         }
@@ -102,21 +101,11 @@ public class CatalogPrivEntry extends PrivEntry {
     }
 
     public String getOrigCtl() {
-        return origCtl;
+        return ((PrivKey.CatalogPrivKey) key).getCtl();
     }
 
     public boolean isAnyCtl() {
         return isAnyCtl;
-    }
-
-    @Override
-    public int compareTo(PrivEntry other) {
-        if (!(other instanceof CatalogPrivEntry)) {
-            throw new ClassCastException("cannot cast " + other.getClass().toString() + " to " + this.getClass());
-        }
-
-        CatalogPrivEntry otherEntry = (CatalogPrivEntry) other;
-        return compareAssist(origCtl, otherEntry.origCtl);
     }
 
     @Override
@@ -125,29 +114,22 @@ public class CatalogPrivEntry extends PrivEntry {
     }
 
     @Override
-    public boolean keyMatch(PrivEntry other) {
-        if (!(other instanceof CatalogPrivEntry)) {
-            return false;
-        }
-        CatalogPrivEntry otherEntry = (CatalogPrivEntry) other;
-        return origCtl.equals(otherEntry.origCtl);
-    }
-
-    @Override
     public String toString() {
         return String.format("catalog privilege. ctl: %s, priv: %s",
-                origCtl, privSet.toString());
+                getOrigCtl(), privSet.toString());
     }
 
     @Deprecated
     public void readFields(DataInput in) throws IOException {
         super.readFields(in);
 
+        String origCtl;
         if (Env.getCurrentEnvJournalVersion() >= FeMetaVersion.VERSION_111) {
             origCtl = Text.readString(in);
         } else {
             origCtl = InternalCatalog.INTERNAL_CATALOG_NAME;
         }
+        key = new PrivKey.CatalogPrivKey(origCtl);
         try {
             ctlPattern = createCtlPatternMatcher(origCtl);
         } catch (AnalysisException e) {

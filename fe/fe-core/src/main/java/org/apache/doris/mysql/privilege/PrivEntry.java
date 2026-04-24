@@ -24,9 +24,6 @@ import org.apache.doris.common.PatternMatcher;
 import org.apache.doris.common.PatternMatcherException;
 import org.apache.doris.common.io.Text;
 
-import com.google.common.base.Preconditions;
-import org.apache.commons.lang3.NotImplementedException;
-
 import java.io.DataInput;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -38,6 +35,7 @@ public abstract class PrivEntry implements Comparable<PrivEntry> {
     @Deprecated
     protected static final String ANY_USER = "%";
 
+    protected PrivKey key;
     protected PrivBitSet privSet;
 
     // host is not case sensitive
@@ -89,7 +87,9 @@ public abstract class PrivEntry implements Comparable<PrivEntry> {
         this.isSetByDomainResolver = isSetByDomainResolver;
     }
 
-    public abstract boolean keyMatch(PrivEntry other);
+    public PrivKey getPrivKey() {
+        return key;
+    }
 
     @Deprecated
     protected PrivEntry(PatternMatcher hostPattern, String origHost, PatternMatcher userPattern, String origUser,
@@ -170,24 +170,10 @@ public abstract class PrivEntry implements Comparable<PrivEntry> {
     }
 
     @Override
-    public int compareTo(PrivEntry o) {
-        throw new NotImplementedException("should be implemented by derived class");
+    public int compareTo(PrivEntry other) {
+        return key.compareTo(other.getPrivKey());
     }
 
-    /**
-     * Help derived classes compare in the order of 'user', 'host', 'catalog', 'db', 'ctl'.
-     * Compare strings[i] with strings[i+1] successively, return if the comparison value is not 0 in current loop.
-     */
-    protected static int compareAssist(String... strings) {
-        Preconditions.checkState(strings.length % 2 == 0);
-        for (int i = 0; i < strings.length; i += 2) {
-            int res = strings[i].compareTo(strings[i + 1]);
-            if (res != 0) {
-                return res;
-            }
-        }
-        return 0;
-    }
 
     protected abstract PrivEntry copy() throws AnalysisException, PatternMatcherException;
 }

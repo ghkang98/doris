@@ -32,7 +32,7 @@ public class CatalogPrivTable extends PrivTable {
      */
     public void getPrivs(String ctl, PrivBitSet savedPrivs) {
         CatalogPrivEntry matchedEntry = null;
-        for (PrivEntry entry : entries) {
+        for (PrivEntry entry : getEntries()) {
             CatalogPrivEntry ctlPrivEntry = (CatalogPrivEntry) entry;
 
             // check catalog

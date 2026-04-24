@@ -31,9 +31,10 @@ public class DbPrivTable extends PrivTable {
      * Return first priv which match the user@host on ctl.db.* The returned priv will be
      * saved in 'savedPrivs'.
      */
+
     public void getPrivs(String ctl, String db, PrivBitSet savedPrivs) {
         DbPrivEntry matchedEntry = null;
-        for (PrivEntry entry : entries) {
+        for (PrivEntry entry : getEntries()) {
             DbPrivEntry dbPrivEntry = (DbPrivEntry) entry;
 
             // check catalog
@@ -43,8 +44,7 @@ public class DbPrivTable extends PrivTable {
 
             // check db
             // dbPrivEntry.getDbPattern() is always constructed by string as of form: 'xxx_db'
-            if (!dbPrivEntry.isAnyDb() && !dbPrivEntry.getDbPattern().match(db) && !dbPrivEntry.getDbPattern()
-                    .match(db)) {
+            if (!dbPrivEntry.isAnyDb() && !dbPrivEntry.getDbPattern().match(db)) {
                 continue;
             }
 
@@ -59,7 +59,7 @@ public class DbPrivTable extends PrivTable {
     }
 
     public boolean hasPrivsOfCatalog(String ctl) {
-        for (PrivEntry entry : entries) {
+        for (PrivEntry entry : getEntries()) {
             DbPrivEntry dbPrivEntry = (DbPrivEntry) entry;
 
             // check catalog
@@ -72,7 +72,7 @@ public class DbPrivTable extends PrivTable {
     }
 
     public boolean hasClusterPriv(String clusterName) {
-        for (PrivEntry entry : entries) {
+        for (PrivEntry entry : getEntries()) {
             DbPrivEntry dbPrivEntry = (DbPrivEntry) entry;
             if (dbPrivEntry.getOrigDb().startsWith(clusterName)) {
                 return true;
